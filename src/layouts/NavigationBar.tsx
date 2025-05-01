@@ -6,7 +6,6 @@ import MapIcon from '@/assets/icons/mapIcon.svg?react';
 import ProfileIcon from '@/assets/icons/profileIcon.svg?react';
 
 export default function NavigationBar() {
-
   const { pathname } = useLocation();
 
   const iconStyle = 'size-10';
@@ -51,16 +50,17 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="fixed bottom-0 w-full max-w-[375px] mx-auto h-[58px] bg-white rounded-t-2xl shadow-[0px_-1px_20px_0px_rgba(28,30,32,0.08)] flex justify-center items-center gap-8">
-        {menuList.map(menu => (
-            <Link
-              to={menu.to}
-              title={menu.title}
-              className="flex size-10 items-center justify-center"
-            >
-              {menu.icon}
-            </Link>
-        ))}
+    <div className="padding-b-[10px] fixed bottom-0 mx-auto flex h-full max-h-[70px] w-full max-w-[375px] items-center justify-center gap-8 rounded-t-sm bg-[#F6F6F6]">
+      {menuList.map(menu => (
+        <Link
+          key={menu.to}
+          to={menu.to}
+          title={menu.title}
+          className="flex size-10 items-center justify-center"
+        >
+          {menu.icon}
+        </Link>
+      ))}
     </div>
   );
 }

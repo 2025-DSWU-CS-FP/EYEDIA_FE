@@ -16,6 +16,7 @@
   "plugins": ["react", "@typescript-eslint", "prettier"],
   "rules": {
     "react/react-in-jsx-scope": "off",
+    "react/require-default-props": "off",
     "@typescript-eslint/comma-dangle": ["error", "only-multiline"],
     "import/extensions": [
       "error",
@@ -24,14 +25,12 @@
         "js": "never",
         "jsx": "never",
         "ts": "never",
-        "tsx": "never"
+        "tsx": "never",
+        "svg": "always"
       }
     ],
     "react/jsx-wrap-multilines": "off",
-    "react/jsx-curly-newline": "off",
-    "prettier/prettier": [{
-      "endOfLine": "auto"
-    }]
+    "react/jsx-curly-newline": "off"
   },
   "ignorePatterns": [
     "dist",
