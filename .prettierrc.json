@@ -4,11 +4,10 @@
   "tabWidth": 2,
   "trailingComma": "all",
   "printWidth": 80,
-  "endOfLine": "lf",
+  "endOfLine": "auto",
   "arrowParens": "avoid",
   "plugins": [
-    "@trivago/prettier-plugin-sort-imports",
-    "prettier-plugin-tailwindcss"
+    "@trivago/prettier-plugin-sort-imports"
   ],
   "importOrder": [
     "^react(/.*)?$",

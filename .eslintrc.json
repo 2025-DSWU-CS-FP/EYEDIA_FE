@@ -26,7 +26,14 @@
         "jsx": "never",
         "ts": "never",
         "tsx": "never",
-        "svg": "always"
+        "svg": "always",
+        "png": "always"
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
       }
     ],
     "react/jsx-wrap-multilines": "off",
