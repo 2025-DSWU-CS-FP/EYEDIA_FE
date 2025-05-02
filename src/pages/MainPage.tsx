@@ -1,5 +1,11 @@
+import { useNavigate } from 'react-router-dom';
+
 import artwork from '@/assets/images/sample/artwork.png';
 import bannerImg from '@/assets/images/sample/banner.png';
+import rec1 from '@/assets/images/sample/rec1.png';
+import rec2 from '@/assets/images/sample/rec2.png';
+import rec3 from '@/assets/images/sample/rec3.png';
+import rec4 from '@/assets/images/sample/rec4.png';
 import recent1 from '@/assets/images/sample/recent1.png';
 import recent2 from '@/assets/images/sample/recent2.png';
 import recent3 from '@/assets/images/sample/recent3.png';
@@ -12,6 +18,7 @@ import RecommendGrid from '@/components/main/RecommendGrid';
 import SectionTitle from '@/components/main/SectionTitle';
 
 export default function MainPage() {
+  const navigate = useNavigate();
   return (
     <div className="pb-28">
       <div className="relative">
@@ -22,7 +29,14 @@ export default function MainPage() {
               imageUrl: bannerImg,
               title: '서울 리빙 디자인 페어',
               subtitle: '5월의 전시 추천',
-              date: '2025.02.26~03.02',
+              date: '2025.02.26 ~ 03.02',
+            },
+            {
+              id: 'banner2',
+              imageUrl: recent3,
+              title: '제 13회 서울 미디어시티비엔날레',
+              subtitle: '5월의 전시 추천',
+              date: '2025.02.27 ~ 03.05',
             },
           ]}
         />
@@ -57,7 +71,7 @@ export default function MainPage() {
           artist="문묘익"
           title="In Bed"
           year="2005"
-          onReplay={() => alert('대화 다시보기')}
+          onReplay={() => navigate('/chat/1')} // TODO: 추후 실제 경로로 수정
         />
       </div>
 
@@ -65,10 +79,10 @@ export default function MainPage() {
       <div className="px-2">
         <RecommendGrid
           items={[
-            { id: 'reco1', imageUrl: recent1, altText: '추천작1' },
-            { id: 'reco2', imageUrl: recent2, altText: '추천작2' },
-            { id: 'reco3', imageUrl: recent3, altText: '추천작3' },
-            { id: 'reco4', imageUrl: recent1, altText: '추천작4' },
+            { id: 'reco1', imageUrl: rec1, altText: '추천작1' },
+            { id: 'reco2', imageUrl: rec2, altText: '추천작2' },
+            { id: 'reco3', imageUrl: rec3, altText: '추천작3' },
+            { id: 'reco4', imageUrl: rec4, altText: '추천작4' },
           ]}
         />
       </div>

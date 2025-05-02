@@ -14,7 +14,7 @@ export default function ExhibitionCard({
       <img
         src={imageUrl}
         alt={title}
-        className="h-40 w-full rounded-md object-cover"
+        className="h-40 w-full rounded-sm object-cover"
       />
       <h3 className="w-32 justify-start text-black text-base font-medium leading-tight pt-2 pb-1">
         {title}

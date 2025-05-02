@@ -16,7 +16,7 @@ export default function RecommendGrid({ items }: RecommendGridProps) {
           key={item.id}
           src={item.imageUrl}
           alt={item.altText}
-          className="h-40 w-full rounded object-cover"
+          className="h-40 w-full rounded-sm object-cover"
         />
       ))}
     </div>
