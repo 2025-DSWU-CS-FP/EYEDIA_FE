@@ -16,10 +16,10 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
       {banners.map(banner => (
         <div
           key={banner.id}
-          className="relative h-60 w-full bg-cover bg-center"
+          className="relative h-[487px] w-full bg-cover bg-center"
           style={{ backgroundImage: `url(${banner.imageUrl})` }}
         >
-          <div className="absolute inset-0 flex flex-col justify-center bg-black bg-opacity-50 px-4 text-white">
+          <div className="absolute inset-0 flex flex-col justify-end pb-7 bg-black bg-opacity-50 px-4 text-white">
             <span className="text-sm">{banner.subtitle}</span>
             <h2 className="text-xl font-semibold">{banner.title}</h2>
             <p className="text-sm">{banner.date}</p>

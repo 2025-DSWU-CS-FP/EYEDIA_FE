@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         bg: '#f5f5f7',
-        black: '#4c4c4c',
+        black: '#222222',
 
         // 회색조
         normalGray: '#d9d9d9',

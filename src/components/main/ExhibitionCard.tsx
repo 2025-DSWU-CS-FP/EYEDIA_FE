@@ -16,8 +16,12 @@ export default function ExhibitionCard({
         alt={title}
         className="h-40 w-full rounded-md object-cover"
       />
-      <h3 className="mt-1 text-sm font-medium">{title}</h3>
-      <p className="text-xs text-gray-500">{location}</p>
+      <h3 className="w-32 justify-start text-black text-base font-medium leading-tight pt-2 pb-1">
+        {title}
+      </h3>
+      <p className="w-32 justify-start text-neutral-400 text-xs font-medium">
+        {location}
+      </p>
     </div>
   );
 }
