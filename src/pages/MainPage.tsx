@@ -20,7 +20,11 @@ export default function MainPage() {
       <div className="relative">
         <BannerCarousel banners={bannerData} />
         <div className="absolute top-4 w-full px-4">
-          <SearchBar />
+          <SearchBar
+            onSearch={query =>
+              navigate(`/search-result?query=${encodeURIComponent(query)}`)
+            }
+          />
         </div>
       </div>
 
