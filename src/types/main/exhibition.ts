@@ -1,4 +1,5 @@
 export interface ExhibitionCardProps {
+  id?: string;
   imageUrl: string;
   title: string;
   location: string;
