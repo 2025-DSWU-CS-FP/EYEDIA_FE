@@ -1,3 +1,8 @@
+export interface Exhibition {
+  id: string;
+  title: string;
+  location: string;
+}
 export interface ExhibitionCardProps {
   id?: string;
   imageUrl: string;
