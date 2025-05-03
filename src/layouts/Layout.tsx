@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 
 import { Outlet } from 'react-router-dom';
 
+import FloatingButton from '@/layouts/FloatingButton';
 // import HamburgerMenu from '@/layouts/MenuBar'; TODO: 추후 반응형 적용
 import NavigationBar from '@/layouts/NavigationBar';
 
@@ -16,6 +17,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* TODO: pb-28 md:pb-5로 수정하기 */}
       <div className="flex-1">{children || <Outlet />}</div>
       <NavigationBar />
+      <FloatingButton />
       {/* <HamburgerMenu /> */}
     </div>
   );
