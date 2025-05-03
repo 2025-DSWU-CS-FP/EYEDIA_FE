@@ -9,7 +9,6 @@ import rec4 from '@/assets/images/sample/rec4.png';
 import recent1 from '@/assets/images/sample/recent1.png';
 import recent2 from '@/assets/images/sample/recent2.png';
 import recent3 from '@/assets/images/sample/recent3.png';
-
 import SearchBar from '@/components/common/SearchBar';
 import BannerCarousel from '@/components/main/BannerCarousel';
 import ExhibitionCard from '@/components/main/ExhibitionCard';
@@ -20,7 +19,7 @@ import SectionTitle from '@/components/main/SectionTitle';
 export default function MainPage() {
   const navigate = useNavigate();
   return (
-    <div className="pb-28">
+    <div>
       <div className="relative">
         <BannerCarousel
           banners={[
