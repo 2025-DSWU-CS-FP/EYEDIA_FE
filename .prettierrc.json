@@ -6,9 +6,6 @@
   "printWidth": 80,
   "endOfLine": "auto",
   "arrowParens": "avoid",
-  "plugins": [
-    "@trivago/prettier-plugin-sort-imports"
-  ],
   "importOrder": [
     "^react(/.*)?$",
     "^react-router-dom(/.*)?$",

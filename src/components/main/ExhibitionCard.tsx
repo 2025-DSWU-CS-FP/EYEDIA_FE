@@ -1,8 +1,4 @@
-interface ExhibitionCardProps {
-  imageUrl: string;
-  title: string;
-  location: string;
-}
+import { ExhibitionCardProps } from '@/types';
 
 export default function ExhibitionCard({
   imageUrl,

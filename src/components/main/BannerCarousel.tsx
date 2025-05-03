@@ -1,20 +1,9 @@
 import { useState } from 'react';
 
+import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { ArrowRight } from 'lucide-react';
-
-interface BannerItem {
-  id: string;
-  imageUrl: string;
-  title: string;
-  subtitle: string;
-  date: string;
-}
-
-interface BannerCarouselProps {
-  banners: BannerItem[];
-}
+import { BannerCarouselProps } from '@/types';
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
   const navigate = useNavigate();

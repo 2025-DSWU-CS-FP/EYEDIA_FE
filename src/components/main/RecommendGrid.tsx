@@ -1,12 +1,4 @@
-interface RecommendItem {
-  id: string;
-  imageUrl: string;
-  altText: string;
-}
-
-interface RecommendGridProps {
-  items: RecommendItem[];
-}
+import { RecommendGridProps } from '@/types';
 
 export default function RecommendGrid({ items }: RecommendGridProps) {
   const half = Math.ceil(items.length / 2);

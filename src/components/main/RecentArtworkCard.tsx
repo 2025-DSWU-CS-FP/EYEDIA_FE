@@ -1,10 +1,4 @@
-interface RecentArtworkCardProps {
-  imageUrl: string;
-  artist: string;
-  title: string;
-  year: string;
-  onReplay?: () => void;
-}
+import { RecentArtworkCardProps } from '@/types';
 
 export default function RecentArtworkCard({
   imageUrl,

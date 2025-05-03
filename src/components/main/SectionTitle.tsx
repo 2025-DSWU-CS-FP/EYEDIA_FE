@@ -1,10 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 
-interface SectionTitleProps {
-  title: string;
-  actionText?: string;
-  onActionClick?: () => void;
-}
+import { SectionTitleProps } from '@/types';
 
 export default function SectionTitle({
   title,
