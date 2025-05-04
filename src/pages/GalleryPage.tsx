@@ -2,45 +2,8 @@ import filterIcon from '@/assets/icons/filter.svg';
 import sortIcon from '@/assets/icons/sort.svg';
 import ExhibitionCard from '@/components/gallery/ExhibitionCard';
 import HeaderWithScrollEffect from '@/components/gallery/HeaderWithScrollEffect';
-
-const dummyData = [
-  {
-    id: 1,
-    title: '제 13회 서울 미디어시티비엔날레',
-    count: 6,
-    img: '/img1.jpg',
-  },
-  {
-    id: 2,
-    title: '이불 작가의 대규모 서베이 전시',
-    count: 16,
-    img: '/img2.jpg',
-  },
-  {
-    id: 3,
-    title: '제 13회 서울 미디어시티비엔날레',
-    count: 2,
-    img: '/img3.jpg',
-  },
-  {
-    id: 4,
-    title: '제 13회 서울 미디어시티비엔날레',
-    count: 8,
-    img: '/img4.jpg',
-  },
-  {
-    id: 5,
-    title: '제 13회 서울 미디어시티비엔날레',
-    count: 6,
-    img: '/img5.jpg',
-  },
-  {
-    id: 6,
-    title: '제 13회 서울 미디어시티비엔날레',
-    count: 9,
-    img: '/img6.jpg',
-  },
-];
+import exhibitionData from '@/mock/galleryData';
+import type { ExhibitionItem } from '@/types';
 
 export default function GalleryPage() {
   return (
@@ -66,8 +29,8 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 px-4 pb-32">
-        {dummyData.map(item => (
+      <div className="grid grid-cols-2 gap-2 px-4">
+        {exhibitionData.map((item: ExhibitionItem) => (
           <ExhibitionCard
             key={item.id}
             title={item.title}

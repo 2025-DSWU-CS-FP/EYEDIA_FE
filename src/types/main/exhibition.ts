@@ -9,6 +9,12 @@ export interface ExhibitionCardProps {
   title: string;
   location: string;
 }
+export interface ExhibitionItem {
+  id: number;
+  title: string;
+  count: number;
+  img: string;
+}
 
 export interface BannerItem {
   id: string;
