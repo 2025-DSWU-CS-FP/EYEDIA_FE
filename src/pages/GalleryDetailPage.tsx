@@ -41,8 +41,6 @@ export default function GalleryDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/60 to-white" />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-neutral-200/0 via-neutral-200/70 to-neutral-200 pointer-events-none" />
-
       <GalleryInfoHeader
         title={'이불 작가의\n대규모 서베이 전시'}
         location="리움미술관 아동교육문화센터"

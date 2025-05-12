@@ -9,7 +9,7 @@ interface ArtworkImageGridProps {
 
 export default function ArtworkImageGrid({ images }: ArtworkImageGridProps) {
   return (
-    <div className="columns-2 gap-2 px-4 pt-2">
+    <div className="columns-2 gap-2 px-4 pb-10">
       {images.map(img => (
         <img
           key={img.id}
