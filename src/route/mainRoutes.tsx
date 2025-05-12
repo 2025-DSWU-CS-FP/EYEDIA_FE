@@ -7,6 +7,7 @@ const MyPage = lazy(() => import('@/pages/MyPage'));
 const Chat = lazy(() => import('@/pages/ChatPage'));
 const Search = lazy(() => import('@/pages/SearchPage'));
 const Gallery = lazy(() => import('@/pages/GalleryPage'));
+const GalleryDetail = lazy(() => import('@/pages/GalleryDetailPage'));
 const Layout = lazy(() => import('@/layouts/Layout'));
 const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
 
@@ -31,6 +32,10 @@ const mainRoutes: RouteObject[] = [
       {
         path: 'gallery',
         element: <Gallery />,
+      },
+      {
+        path: 'gallery/:id',
+        element: <GalleryDetail />,
       },
       {
         path: 'search-result',
