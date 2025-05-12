@@ -1,15 +1,18 @@
+import { IoChevronBack } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
+
 import sortIcon from '@/assets/icons/sort.svg';
 import art1 from '@/assets/images/sample/detail-art-1.png';
-import art2 from '@/assets/images/sample/detail-art-2.png';
-import art3 from '@/assets/images/sample/detail-art-3.png';
+import art3 from '@/assets/images/sample/detail-art-2.png';
+import art2 from '@/assets/images/sample/detail-art-3.png';
 import art4 from '@/assets/images/sample/detail-art-4.png';
 import art5 from '@/assets/images/sample/detail-art-5.png';
 import coverImg from '@/assets/images/sample/gallery-cover.png';
-import HeaderWithBack from '@/components/common/HeaderWithBack';
 import ArtworkImageGrid from '@/components/gallery-detail/ArtworkImageGrid';
 import GalleryInfoHeader from '@/components/gallery-detail/GalleryInfoHeader';
 
 export default function GalleryDetailPage() {
+  const navigate = useNavigate();
   const artworkImages = [
     { id: 'art-1', src: art1 },
     { id: 'art-2', src: art2 },
@@ -20,17 +23,26 @@ export default function GalleryDetailPage() {
   return (
     <div className="relative bg-white min-h-screen">
       <div className="relative w-full h-[485px]">
+        <button
+          type="button"
+          aria-label="뒤로가기"
+          onClick={() => navigate(-1)}
+          className="absolute top-12 left-4 z-20 text-2xl text-black"
+        >
+          <IoChevronBack />
+        </button>
+
         <img
           src={coverImg}
           alt="전시 커버"
           className="w-full h-full object-cover"
         />
+
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/60 to-white" />
       </div>
 
       <div className="absolute inset-0 bg-gradient-to-b from-neutral-200/0 via-neutral-200/70 to-neutral-200 pointer-events-none" />
 
-      <HeaderWithBack />
       <GalleryInfoHeader
         title={'이불 작가의\n대규모 서베이 전시'}
         location="리움미술관 아동교육문화센터"
