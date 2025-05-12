@@ -27,7 +27,7 @@ export default function GalleryDetailPage() {
   const selectedData = artworkImages.find(art => art.id === selectedArt);
   return (
     <div className="relative bg-white min-h-screen">
-      <div className="relative w-full h-[485px]">
+      <div className="relative w-full h-[355px]">
         <button
           type="button"
           aria-label="뒤로가기"
