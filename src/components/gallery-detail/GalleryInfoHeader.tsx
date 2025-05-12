@@ -1,3 +1,5 @@
+import insertLineBreak from '@/utils/insertLineBreak';
+
 interface GalleryInfoHeaderProps {
   title: string;
   location: string;
@@ -10,13 +12,18 @@ export default function GalleryInfoHeader({
   date,
 }: GalleryInfoHeaderProps) {
   return (
-    <div className="absolute left-[22px] top-[166px] flex flex-col gap-3">
-      <div className="text-2xl font-semibold leading-loose text-black whitespace-pre-line">
-        {title}
+    <div className="absolute left-[22px] top-[166px] inline-flex flex-col justify-start items-start gap-3">
+      <div className="text-black text-2xl font-semibold leading-tight whitespace-pre-line">
+        {insertLineBreak(title)}
       </div>
-      <div className="flex flex-col gap-px text-stone-500">
-        <div className="text-sm font-medium">{location}</div>
-        <div className="text-xs font-medium">{date}</div>
+
+      <div className="w-70 flex flex-col justify-start items-start gap-1">
+        <div className="justify-start text-stone-500 text-sm font-medium">
+          {location}
+        </div>
+        <div className="self-stretch justify-start text-stone-500 text-xs font-medium">
+          {date}
+        </div>
       </div>
     </div>
   );

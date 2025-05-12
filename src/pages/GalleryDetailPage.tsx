@@ -47,7 +47,7 @@ export default function GalleryDetailPage() {
       </div>
 
       <GalleryInfoHeader
-        title={'이불 작가의\n대규모 서베이 전시'}
+        title="이불 작가의 대규모 서베이 전시"
         location="리움미술관 아동교육문화센터"
         date="2025.09.04. – 2026.01.04."
       />
