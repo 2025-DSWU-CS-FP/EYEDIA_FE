@@ -33,6 +33,7 @@ export default function GalleryPage() {
         {exhibitionData.map((item: ExhibitionItem) => (
           <ExhibitionCard
             key={item.id}
+            id={item.id}
             title={item.title}
             count={item.count}
             img={item.img}

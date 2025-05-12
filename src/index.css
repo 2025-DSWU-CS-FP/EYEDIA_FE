@@ -27,11 +27,6 @@ body {
   }
 }
 
-::selection {
-  background-color: #d1fae5;
-  color: #0f172a;
-}
-
 * {
   -ms-overflow-style: none;
   scrollbar-width: none;
