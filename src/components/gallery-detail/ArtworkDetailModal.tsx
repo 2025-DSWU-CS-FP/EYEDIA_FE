@@ -20,12 +20,12 @@ export default function ArtworkDetailModal({
   onContinueChat,
 }: ArtworkDetailModalProps) {
   return (
-    <div className="fixed inset-0 z-30 left-1/2 w-[375px] -translate-x-1/2 flex items-center justify-center bg-black/60 px-10 py-22">
+    <div className="fixed inset-0 z-10 left-1/2 w-[400px] -translate-x-1/2 flex items-center justify-center bg-black/60 px-10 py-22">
       <button
         type="button"
         aria-label="close"
         onClick={onClose}
-        className="fixed top-3 right-3 z-50 text-white text-2xl p-1"
+        className="fixed top-5 right-5 z-10 text-white text-2xl p-1"
       >
         <IoClose />
       </button>

@@ -50,7 +50,7 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="padding-b-[10px] fixed bottom-0 mx-auto flex h-full max-h-[70px] w-full max-w-[375px] items-center justify-center gap-8 rounded-t-sm bg-[#F6F6F6]">
+    <div className="padding-b-[10px] fixed bottom-0 mx-auto flex h-full max-h-[70px] w-full max-w-[400px] items-center justify-center gap-8 rounded-t-sm bg-[#F6F6F6]">
       {' '}
       {/* TODO: md:hidden 추가하기 */}
       {menuList.map(menu => (
