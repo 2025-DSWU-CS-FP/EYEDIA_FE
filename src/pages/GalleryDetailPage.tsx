@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { IoChevronBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,11 +10,13 @@ import art2 from '@/assets/images/sample/detail-art-3.png';
 import art4 from '@/assets/images/sample/detail-art-4.png';
 import art5 from '@/assets/images/sample/detail-art-5.png';
 import coverImg from '@/assets/images/sample/gallery-cover.png';
+import ArtworkDetailModal from '@/components/gallery-detail/ArtworkDetailModal';
 import ArtworkImageGrid from '@/components/gallery-detail/ArtworkImageGrid';
 import GalleryInfoHeader from '@/components/gallery-detail/GalleryInfoHeader';
 
 export default function GalleryDetailPage() {
   const navigate = useNavigate();
+  const [selectedArt, setSelectedArt] = useState<string | null>(null);
   const artworkImages = [
     { id: 'art-1', src: art1 },
     { id: 'art-2', src: art2 },
@@ -20,6 +24,7 @@ export default function GalleryDetailPage() {
     { id: 'art-4', src: art4 },
     { id: 'art-5', src: art5 },
   ];
+  const selectedData = artworkImages.find(art => art.id === selectedArt);
   return (
     <div className="relative bg-white min-h-screen">
       <div className="relative w-full h-[485px]">
@@ -58,7 +63,21 @@ export default function GalleryDetailPage() {
         </span>
       </div>
 
-      <ArtworkImageGrid images={artworkImages} />
+      <ArtworkImageGrid
+        images={artworkImages}
+        onClickImage={id => setSelectedArt(id)}
+      />
+
+      {selectedArt && selectedData && (
+        <ArtworkDetailModal
+          src={selectedData.src}
+          title="작품 제목(2025)"
+          artist="아티스트 이름"
+          lastChatDate="2025. 05. 07"
+          onClose={() => setSelectedArt(null)}
+          onContinueChat={() => alert('대화 이어지기')}
+        />
+      )}
     </div>
   );
 }
