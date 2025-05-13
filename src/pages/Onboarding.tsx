@@ -9,6 +9,7 @@ import ringImage from '@/assets/images/chat/eyewear-ring.svg';
 import BottomLink from '@/components/chat/BottomLink';
 import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
+import BackButton from '@/components/common/BackButton';
 
 import '@/styles/eyewear-transition.css';
 
@@ -28,8 +29,9 @@ function OnboardingPage() {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
-      <div className="w-full px-4">
+    <div className="flex relative flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
+      <BackButton className="absolute top-12 left-4 z-20 text-white" />
+      <div className=" w-full px-4">
         <OnboardingText
           text={
             isConnected
