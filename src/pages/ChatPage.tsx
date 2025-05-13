@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import connectedIcon from '@/assets/images/chat/connected-eyewear.png';
 import disconnectedIcon from '@/assets/images/chat/disconnected-eyewear.png';
+import ringImage from '@/assets/images/chat/eyewear-ring.svg';
 import BottomLink from '@/components/chat/BottomLink';
 import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
@@ -22,10 +23,17 @@ function OnboardingPage() {
               : '전용 아이웨어를 착용하고 연결해주세요.'
           }
         />
-        <EyewearImage
-          src={isConnected ? connectedIcon : disconnectedIcon}
-          alt={isConnected ? '연결된 아이웨어' : '아이웨어 연결 전'}
-        />
+        <div className="relative flex justify-center items-center h-44">
+          <img
+            src={ringImage}
+            alt="background ring"
+            className="absolute w-[300px] h-auto bottom-[-10px] opacity-70"
+          />
+          <EyewearImage
+            src={isConnected ? connectedIcon : disconnectedIcon}
+            alt={isConnected ? '연결된 아이웨어' : '아이웨어 연결 전'}
+          />
+        </div>
         <button
           type="button"
           onClick={() => setIsConnected(prev => !prev)}
