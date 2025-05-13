@@ -34,6 +34,9 @@ export default {
       'slide-fade-in-dropdown': 'slide-fade-in-dropdown-animation 0.4s ease',
       'slide-fade-out-dropdown': 'slide-fade-out-dropdown-animation 0.4s ease',
       spin: 'spin 1.3s linear infinite',
+      'bounce-delay-1': 'bounce-custom 1s infinite ease-in-out',
+      'bounce-delay-2': 'bounce-custom 1s infinite ease-in-out 0.2s',
+      'bounce-delay-3': 'bounce-custom 1s infinite ease-in-out 0.4s',
     },
     keyframes: {
       'slide-fade-in-dropdown-animation': {
@@ -55,6 +58,10 @@ export default {
       spin: {
         '0%': { transform: 'rotate(0deg)' },
         '100%': { transform: 'rotate(360deg)' },
+      },
+      'bounce-custom': {
+        '0%, 100%': { transform: 'translateY(0)' },
+        '50%': { transform: 'translateY(-6px)' },
       },
     },
   },
