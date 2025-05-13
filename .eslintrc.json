@@ -27,6 +27,7 @@
         "ts": "never",
         "tsx": "never",
         "svg": "always",
+        "css": "always",
         "png": "always"
       }
     ],
