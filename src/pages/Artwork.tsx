@@ -1,5 +1,7 @@
 import { FiHeart, FiShare } from 'react-icons/fi';
 
+import '@/styles/glow-pulse.css';
+
 import keyboardIcon from '@/assets/icons/keyboard.svg';
 import Sample from '@/assets/images/sample/chat-gaze.png';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
@@ -33,26 +35,17 @@ export default function ArtworkPage() {
             제 13회 서울미디어시티비엔날레
           </p>
         </div>
-
         <div className="my-4 border-t-2 border-stone-900" />
-
         <div className="bg-stone-50/10 rounded px-4 py-3 text-sm leading-tight">
           기본 설명 대화 텍스트(질문하지 않아도 기본으로 작성되는 설명글)
         </div>
-
         <div className="mt-auto flex flex-col items-center">
           <p className="text-sm text-stone-300 mt-6">
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
-
           <div className="relative w-20 h-20 mt-4">
-            <div className="absolute inset-0 rounded-full border-2 border-purple-400 blur-sm" />
-            <div className="absolute inset-0 rounded-full border-8 border-purple-400 blur-md" />
-            <div className="absolute inset-0 rounded-full border-8 border-purple-400 blur-md" />
-            <div className="absolute inset-0 rounded-full outline outline-[3px] outline-offset-[-1.5px] outline-white blur-sm" />
-            <div className="absolute inset-0 bg-zinc-300/5 rounded-full outline outline-1 outline-offset-[-0.5px] outline-white blur-[0.25px]" />
+            <div className="glow-pulse" />
           </div>
-
           <div className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center">
             <img src={keyboardIcon} alt="키보드" />
           </div>

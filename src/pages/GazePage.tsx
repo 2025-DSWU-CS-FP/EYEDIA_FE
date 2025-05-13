@@ -78,7 +78,7 @@ function GazePage() {
         <button
           type="button"
           onClick={handleStartConversation}
-          className="mt-10 w-full bg-white text-black py-3 rounded-md text-base font-semibold"
+          className="mt-10 w-full bg-white hover:bg-white/80 active:bg-white/70 text-black py-3 rounded-md text-base font-semibold"
         >
           대화 시작하기
         </button>
