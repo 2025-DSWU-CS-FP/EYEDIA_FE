@@ -10,7 +10,7 @@ function OnboardingPage() {
   const [isConnected] = useState(false);
 
   return (
-    <div className="flex flex-col justify-between items-center h-screen bg-black text-white pt-16 pb-6">
+    <div className="flex flex-col justify-around items-center max-h-screen h-screen bg-black text-white -mb-6">
       <div className="w-full px-4">
         <OnboardingText
           text={
