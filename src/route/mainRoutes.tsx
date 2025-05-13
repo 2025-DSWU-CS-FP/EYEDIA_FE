@@ -9,6 +9,7 @@ const Search = lazy(() => import('@/pages/SearchPage'));
 const Gallery = lazy(() => import('@/pages/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/GalleryDetailPage'));
 const Layout = lazy(() => import('@/layouts/Layout'));
+const HelpPage = lazy(() => import('@/pages/HelpPage'));
 const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
 
 const mainRoutes: RouteObject[] = [
@@ -28,6 +29,10 @@ const mainRoutes: RouteObject[] = [
       {
         path: 'chat',
         element: <Chat />,
+      },
+      {
+        path: 'help',
+        element: <HelpPage />,
       },
       {
         path: 'gallery',

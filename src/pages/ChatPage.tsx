@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import connectedIcon from '@/assets/images/chat/connected-eyewear.png';
 import disconnectedIcon from '@/assets/images/chat/disconnected-eyewear.png';
 import BottomLink from '@/components/chat/BottomLink';
@@ -8,6 +10,7 @@ import OnboardingText from '@/components/chat/OnboardingText';
 
 function OnboardingPage() {
   const [isConnected, setIsConnected] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col justify-around items-center max-h-[90vh] h-[90vh] bg-black text-white -mb-6">
@@ -34,7 +37,7 @@ function OnboardingPage() {
       {!isConnected && (
         <BottomLink
           text="연결에 문제가 있나요?"
-          onClick={() => alert('도움말 페이지로 이동')}
+          onClick={() => navigate('/help')}
         />
       )}
     </div>
