@@ -20,7 +20,7 @@ function OnboardingPage() {
     if (isConnected) {
       const timer = setTimeout(() => {
         navigate('/chat-gaze');
-      }, 1000);
+      }, 3000);
       return () => clearTimeout(timer);
     }
 
