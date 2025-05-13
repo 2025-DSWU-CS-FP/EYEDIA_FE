@@ -7,7 +7,7 @@ function BottomLink({ text, onClick }: BottomLinkProps) {
   return (
     <button
       type="button"
-      className="text-sm text-gray-400 text-center mt-10 underline cursor-pointer bg-transparent border-none"
+      className="text-sm absolute bottom-[15vh] text-gray-400 text-center underline cursor-pointer bg-transparent border-none"
       onClick={onClick}
     >
       {text}

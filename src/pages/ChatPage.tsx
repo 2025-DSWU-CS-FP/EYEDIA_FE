@@ -7,10 +7,10 @@ import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
 
 function OnboardingPage() {
-  const [isConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
 
   return (
-    <div className="flex flex-col justify-around items-center max-h-screen h-screen bg-black text-white -mb-6">
+    <div className="flex flex-col justify-around items-center max-h-[90vh] h-[90vh] bg-black text-white -mb-6">
       <div className="w-full px-4">
         <OnboardingText
           text={
@@ -23,6 +23,13 @@ function OnboardingPage() {
           src={isConnected ? connectedIcon : disconnectedIcon}
           alt={isConnected ? '연결된 아이웨어' : '아이웨어 연결 전'}
         />
+        <button
+          type="button"
+          onClick={() => setIsConnected(prev => !prev)}
+          className="bg-white/30 bottom-[20vh] text-black fixed px-4 py-2 rounded-md text-sm"
+        >
+          {isConnected ? '연결 해제' : '연결됨으로 설정'}
+        </button>
       </div>
       {!isConnected && (
         <BottomLink
