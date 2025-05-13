@@ -28,7 +28,7 @@ function OnboardingPage() {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex flex-col justify-around items-center max-h-[90vh] h-[90vh] bg-black text-white -mb-6">
+    <div className="flex flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
       <div className="w-full px-4">
         <OnboardingText
           text={

@@ -15,11 +15,11 @@ function GazePage() {
   }, []);
 
   const handleStartConversation = () => {
-    navigate('/artwork');
+    navigate('/chat-artwork');
   };
 
   return (
-    <div className="w-full max-h-[93vh] h-[93vh] -mb-6 bg-neutral-900 text-white px-6 py-4 relative flex flex-col items-center">
+    <div className="w-full max-h-[100vh] h-[100vh] overflow-hidden bg-neutral-900 text-white px-6 py-10 relative flex flex-col items-center">
       <div className="flex w-full justify-start">
         <BackButton className="text-white" />
       </div>

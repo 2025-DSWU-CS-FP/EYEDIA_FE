@@ -16,11 +16,17 @@ export default function Layout({ children }: LayoutProps) {
   const isChatRoute = location.pathname.startsWith('/chat');
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[400px] pb-24 flex-col bg-white">
+    <div
+      className={`mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-white ${
+        !isChatRoute ? 'pb-24' : ''
+      }`}
+    >
       <div className="flex-1">{children || <Outlet />}</div>
-      <NavigationBar />
       {!isChatRoute && (
-        <FloatingButton onClick={() => navigate('/chat-onboarding')} />
+        <>
+          <NavigationBar />
+          <FloatingButton onClick={() => navigate('/chat-onboarding')} />
+        </>
       )}
       {/* <HamburgerMenu /> */}
     </div>
