@@ -4,7 +4,7 @@ import { RouteObject } from 'react-router-dom';
 
 const Main = lazy(() => import('@/pages/MainPage'));
 const MyPage = lazy(() => import('@/pages/MyPage'));
-const Chat = lazy(() => import('@/pages/ChatPage'));
+const Onboarding = lazy(() => import('@/pages/Onboarding'));
 const Search = lazy(() => import('@/pages/SearchPage'));
 const Gallery = lazy(() => import('@/pages/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/GalleryDetailPage'));
@@ -27,8 +27,8 @@ const mainRoutes: RouteObject[] = [
         element: <MyPage />,
       },
       {
-        path: 'chat',
-        element: <Chat />,
+        path: 'chat-onboarding',
+        element: <Onboarding />,
       },
       {
         path: 'help',
