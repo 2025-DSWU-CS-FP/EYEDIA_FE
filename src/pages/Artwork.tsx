@@ -64,9 +64,10 @@ export default function ArtworkPage() {
               />
             )}
           </div>
-
-          <div className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center">
-            <img src={keyboardIcon} alt="키보드" />
+          <div className="w-full flex justify-end">
+            <div className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center">
+              <img src={keyboardIcon} alt="키보드" />
+            </div>
           </div>
         </div>
       </div>
