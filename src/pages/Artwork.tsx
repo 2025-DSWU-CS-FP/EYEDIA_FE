@@ -56,7 +56,12 @@ export default function ArtworkPage() {
                 <div className="glow-core wave-border" />
               </>
             ) : (
-              <div className="glow-pulse" />
+              <button
+                aria-label="음성 인식 시작"
+                type="button"
+                className="glow-pulse"
+                onClick={() => setIsRecognized(true)}
+              />
             )}
           </div>
 
@@ -65,13 +70,6 @@ export default function ArtworkPage() {
           </div>
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => setIsRecognized(true)}
-        className="fixed bottom-6 right-6 z-50 text-xs bg-white/20 text-white px-3 py-1 rounded hover:bg-white/30 transition"
-      >
-        음성 인식 시작
-      </button>
     </div>
   );
 }
