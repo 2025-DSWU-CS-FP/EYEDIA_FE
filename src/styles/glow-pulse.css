@@ -26,7 +26,7 @@
   left: 50%;
   width: 90px;
   height: 90px;
-  margin: -40px 0 0 -40px;
+  margin: -45px 0 0 -45px;
   background: radial-gradient(
     circle at center,
     rgba(255, 255, 255, 0.6) 5%,
@@ -36,10 +36,10 @@
     rgba(0, 0, 0, 0.9) 100%
   );
   box-shadow:
-    0 0 30px rgba(120, 64, 255, 0.5),
-    0 0 50px rgba(233, 40, 40, 0.4),
-    inset 0 0 20px rgba(255, 255, 255, 0.15);
-  animation: wavy-border 2s ease-in-out infinite;
+    0 0 40px rgba(120, 64, 255, 0.5),
+    0 0 60px rgba(233, 40, 40, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.2);
+  animation: wavy-border-core 2.2s ease-in-out infinite;
   z-index: 3;
 }
 
@@ -80,5 +80,26 @@
   100% {
     transform: scale(8);
     opacity: 0;
+  }
+}
+
+@keyframes wavy-border-core {
+  0% {
+    transform: scale(1.1) rotate(0deg);
+    border-radius: 58% 42% 56% 44% / 44% 56% 42% 58%;
+  }
+  25% {
+    border-radius: 62% 38% 60% 40% / 40% 60% 38% 62%;
+  }
+  50% {
+    transform: scale(1.2) rotate(5deg);
+    border-radius: 65% 35% 60% 40% / 45% 55% 35% 65%;
+  }
+  75% {
+    border-radius: 59% 41% 58% 42% / 42% 58% 41% 59%;
+  }
+  100% {
+    transform: scale(1.1) rotate(0deg);
+    border-radius: 58% 42% 56% 44% / 44% 56% 42% 58%;
   }
 }
