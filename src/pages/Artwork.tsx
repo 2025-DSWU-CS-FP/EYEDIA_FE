@@ -72,11 +72,7 @@ export default function ArtworkPage() {
           </div>
           {/* TODO: PC에선 안 보이고 모바일에서만 보이게 하는 조건부 렌더링 추가하기 */}
           <div className="w-full flex justify-end">
-            <input
-              ref={inputRef}
-              type="text"
-              className="absolute left-[-9999px] w-[1px] h-[1px] opacity-0"
-            />
+            <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
               onClick={handleFocusInput}
