@@ -9,13 +9,15 @@ export default function BackButton({ className = '' }: BackButtonProps) {
   const navigate = useNavigate();
 
   return (
-    <button
-      type="button"
-      aria-label="뒤로가기"
-      onClick={() => navigate(-1)}
-      className={`text-2xl ${className}`}
-    >
-      <IoChevronBack />
-    </button>
+    <div className="absolute top-8 z-50 left-1/2 w-[400px] max-w-full -translate-x-1/2">
+      <button
+        type="button"
+        aria-label="뒤로가기"
+        onClick={() => navigate(-1)}
+        className={`text-2xl ml-4 ${className}`}
+      >
+        <IoChevronBack />
+      </button>
+    </div>
   );
 }

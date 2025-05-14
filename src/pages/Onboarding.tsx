@@ -30,7 +30,7 @@ function OnboardingPage() {
 
   return (
     <div className="flex relative flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
-      <BackButton className="absolute top-12 left-4 z-20 text-white" />
+      <BackButton className="text-white" />
       <div className=" w-full px-4">
         <OnboardingText
           text={

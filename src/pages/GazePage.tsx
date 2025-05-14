@@ -25,9 +25,7 @@ function GazePage() {
 
   return (
     <div className="w-full max-h-[100vh] h-[100vh] overflow-auto bg-neutral-900 text-white px-6 py-10 relative flex flex-col items-center">
-      <div className="flex w-full justify-start">
-        <BackButton className="text-white" />
-      </div>
+      <BackButton className="text-white" />
       <div className="w-full max-w-xs flex flex-col">
         {trackingComplete ? (
           <div className="mt-6 text-xs font-medium text-[#E15D6A]">
