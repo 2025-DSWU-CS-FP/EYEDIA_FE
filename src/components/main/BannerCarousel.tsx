@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -8,21 +8,87 @@ import { BannerCarouselProps } from '@/types';
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const slideRef = useRef<HTMLDivElement>(null);
 
-  const currentBanner = banners[currentIndex];
+  const handleNext = useCallback(() => {
+    setCurrentIndex(prevIndex => (prevIndex + 1) % banners.length);
+  }, [banners.length]);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex(prevIndex =>
+      prevIndex === 0 ? banners.length - 1 : prevIndex - 1,
+    );
+  }, [banners.length]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleNext();
+    }, 4000);
+
+    return () => clearInterval(interval);
+  });
+
+  // 터치 이벤트
+  useEffect(() => {
+    const slide = slideRef.current;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      touchEndX.current = e.changedTouches[0].clientX;
+
+      if (
+        touchStartX.current !== null &&
+        touchEndX.current !== null &&
+        Math.abs(touchStartX.current - touchEndX.current) > 50
+      ) {
+        if (touchStartX.current > touchEndX.current) {
+          handleNext();
+        } else {
+          handlePrev();
+        }
+      }
+
+      touchStartX.current = null;
+      touchEndX.current = null;
+    };
+
+    if (slide) {
+      slide.addEventListener('touchstart', handleTouchStart);
+      slide.addEventListener('touchend', handleTouchEnd);
+    }
+
+    return () => {
+      if (slide) {
+        slide.removeEventListener('touchstart', handleTouchStart);
+        slide.removeEventListener('touchend', handleTouchEnd);
+      }
+    };
+  }, [handleNext, handlePrev]);
 
   return (
-    <div className="w-full overflow-hidden relative">
+    <div className="w-full overflow-hidden relative" ref={slideRef}>
       <div
-        key={currentBanner.id}
-        className="relative w-full h-[487px] bg-cover bg-center transition-all duration-500"
-        style={{ backgroundImage: `url(${currentBanner.imageUrl})` }}
+        className="flex transition-all duration-500"
+        style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
-        <div className="absolute inset-0 flex flex-col justify-end px-4 pb-7 text-white bg-black bg-opacity-50">
-          <span className="text-sm">{currentBanner.subtitle}</span>
-          <h2 className="text-xl font-semibold">{currentBanner.title}</h2>
-          <p className="text-sm">{currentBanner.date}</p>
-        </div>
+        {banners.map(banner => (
+          <div
+            key={banner.id}
+            className="w-full flex-shrink-0 h-[487px] bg-cover bg-center relative"
+            style={{ backgroundImage: `url(${banner.imageUrl})` }}
+          >
+            <div className="absolute inset-0 flex flex-col justify-end px-4 pb-7 text-white bg-black bg-opacity-50">
+              <span className="text-sm">{banner.subtitle}</span>
+              <h2 className="text-xl font-semibold">{banner.title}</h2>
+              <p className="text-sm">{banner.date}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2 z-10">
