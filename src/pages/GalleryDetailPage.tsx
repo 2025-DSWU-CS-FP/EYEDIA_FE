@@ -1,6 +1,5 @@
 import { useState } from 'react';
 
-import { IoChevronBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 
 import sortIcon from '@/assets/icons/sort.svg';
@@ -10,6 +9,7 @@ import art2 from '@/assets/images/sample/detail-art-3.png';
 import art4 from '@/assets/images/sample/detail-art-4.png';
 import art5 from '@/assets/images/sample/detail-art-5.png';
 import coverImg from '@/assets/images/sample/gallery-cover.png';
+import BackButton from '@/components/common/BackButton';
 import ArtworkDetailModal from '@/components/gallery-detail/ArtworkDetailModal';
 import ArtworkImageGrid from '@/components/gallery-detail/ArtworkImageGrid';
 import GalleryInfoHeader from '@/components/gallery-detail/GalleryInfoHeader';
@@ -28,15 +28,7 @@ export default function GalleryDetailPage() {
   return (
     <div className="relative bg-white min-h-screen">
       <div className="relative w-full h-[355px]">
-        <button
-          type="button"
-          aria-label="뒤로가기"
-          onClick={() => navigate(-1)}
-          className="absolute top-12 left-4 z-20 text-2xl text-black"
-        >
-          <IoChevronBack />
-        </button>
-
+        <BackButton className="absolute top-12 left-4 z-10 text-black" />
         <img
           src={coverImg}
           alt="전시 커버"
@@ -75,7 +67,7 @@ export default function GalleryDetailPage() {
           artist="아티스트 이름"
           lastChatDate="2025. 05. 07"
           onClose={() => setSelectedArt(null)}
-          onContinueChat={() => alert('대화 이어지기')}
+          onContinueChat={() => navigate('/chat-artwork')}
         />
       )}
     </div>
