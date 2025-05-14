@@ -1,6 +1,9 @@
+import { useState } from 'react';
+
 import { FiHeart, FiShare } from 'react-icons/fi';
 
 import '@/styles/glow-pulse.css';
+import '@/styles/glow-pulse-before.css';
 
 import keyboardIcon from '@/assets/icons/keyboard.svg';
 import Sample from '@/assets/images/sample/chat-gaze.png';
@@ -8,6 +11,7 @@ import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import BackButton from '@/components/common/BackButton';
 
 export default function ArtworkPage() {
+  const [isRecognized, setIsRecognized] = useState(false);
   return (
     <div className="relative w-full max-w-md h-screen bg-neutral-900 text-white overflow-hidden">
       <div className="relative w-full h-[230px]">
@@ -44,13 +48,30 @@ export default function ArtworkPage() {
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
           <div className="relative w-20 h-20 mt-4">
-            <div className="glow-pulse" />
+            {isRecognized ? (
+              <>
+                <span className="wave" />
+                <span className="wave delay-1" />
+                <span className="wave delay-2" />
+                <div className="glow-core wave-border" />
+              </>
+            ) : (
+              <div className="glow-pulse" />
+            )}
           </div>
+
           <div className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center">
             <img src={keyboardIcon} alt="키보드" />
           </div>
         </div>
       </div>
+      <button
+        type="button"
+        onClick={() => setIsRecognized(true)}
+        className="fixed bottom-6 right-6 z-50 text-xs bg-white/20 text-white px-3 py-1 rounded hover:bg-white/30 transition"
+      >
+        음성 인식 시작
+      </button>
     </div>
   );
 }

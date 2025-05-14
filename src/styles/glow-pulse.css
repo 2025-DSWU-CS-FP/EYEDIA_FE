@@ -1,29 +1,84 @@
-.glow-pulse {
+@keyframes wavy-border {
+  0% {
+    transform: scale(1.05) rotate(0deg);
+    border-radius: 60% 40% 58% 42% / 42% 58% 40% 60%;
+  }
+  25% {
+    border-radius: 65% 35% 55% 45% / 45% 55% 35% 65%;
+  }
+  50% {
+    transform: scale(1.15) rotate(2deg);
+    border-radius: 58% 42% 62% 38% / 38% 62% 42% 58%;
+  }
+  75% {
+    border-radius: 63% 37% 47% 53% / 53% 47% 37% 63%;
+  }
+  100% {
+    transform: scale(1.05) rotate(0deg);
+    border-radius: 60% 40% 58% 42% / 42% 58% 40% 60%;
+  }
+}
+
+/* 중심 Glow */
+.glow-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 80px;
   height: 80px;
-  border-radius: 50%;
+  margin: -40px 0 0 -40px;
   background: radial-gradient(
     circle at center,
-    rgba(255, 255, 255, 0.5) 5%,
-    rgba(120, 64, 255, 0.5) 30%,
+    rgba(255, 255, 255, 0.6) 10%,
+    rgba(120, 64, 255, 0.5) 35%,
     rgba(80, 40, 200, 0.4) 55%,
-    rgba(233, 40, 40, 0.3) 80%,
+    rgba(233, 40, 40, 0.3) 75%,
     rgba(0, 0, 0, 0.9) 100%
   );
   box-shadow:
-    0 0 40px rgba(120, 64, 255, 0.4),
-    0 0 80px rgba(233, 40, 40, 0.2),
-    inset 0 0 20px rgba(255, 255, 255, 0.1);
-  animation: glow-pulse 3s ease-in-out infinite;
+    0 0 30px rgba(120, 64, 255, 0.5),
+    0 0 50px rgba(233, 40, 40, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.15);
+  animation: wavy-border 2s ease-in-out infinite;
+  z-index: 3;
 }
 
-@keyframes glow-pulse {
-  0%, 100% {
+/* 퍼지는 파동 */
+.wave {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80px;
+  height: 80px;
+  margin: -40px 0 0 -40px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.4),
+    rgba(120, 64, 255, 0.2),
+    rgba(233, 40, 40, 0.15),
+    rgba(0, 0, 0, 0)
+  );
+  animation: wave-pulse 2.5s ease-out infinite, wavy-border 2s ease-in-out infinite;
+  opacity: 0.6;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 50%;
+}
+
+.wave.delay-1 {
+  animation-delay: 0.8s, 0.8s;
+}
+.wave.delay-2 {
+  animation-delay: 1.6s, 1.6s;
+}
+
+@keyframes wave-pulse {
+  0% {
     transform: scale(1);
-    opacity: 0.8;
+    opacity: 0.6;
   }
-  50% {
-    transform: scale(1.1);
-    opacity: 1;
+  100% {
+    transform: scale(3);
+    opacity: 0;
   }
 }
