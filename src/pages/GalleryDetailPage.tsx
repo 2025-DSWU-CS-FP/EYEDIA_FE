@@ -3,34 +3,23 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import sortIcon from '@/assets/icons/sort.svg';
-import art1 from '@/assets/images/sample/detail-art-1.png';
-import art3 from '@/assets/images/sample/detail-art-2.png';
-import art2 from '@/assets/images/sample/detail-art-3.png';
-import art4 from '@/assets/images/sample/detail-art-4.png';
-import art5 from '@/assets/images/sample/detail-art-5.png';
-import coverImg from '@/assets/images/sample/gallery-cover.png';
 import BackButton from '@/components/common/BackButton';
 import ArtworkDetailModal from '@/components/gallery-detail/ArtworkDetailModal';
 import ArtworkImageGrid from '@/components/gallery-detail/ArtworkImageGrid';
 import GalleryInfoHeader from '@/components/gallery-detail/GalleryInfoHeader';
+import { artworkImages, galleryInfo } from '@/mock/galleryDetailData';
 
 export default function GalleryDetailPage() {
   const navigate = useNavigate();
   const [selectedArt, setSelectedArt] = useState<string | null>(null);
-  const artworkImages = [
-    { id: 'art-1', src: art1 },
-    { id: 'art-2', src: art2 },
-    { id: 'art-3', src: art3 },
-    { id: 'art-4', src: art4 },
-    { id: 'art-5', src: art5 },
-  ];
+
   const selectedData = artworkImages.find(art => art.id === selectedArt);
   return (
     <div className="relative bg-white min-h-screen">
       <div className="relative w-full h-[355px]">
         <BackButton className="absolute top-12 left-4 z-10 text-black" />
         <img
-          src={coverImg}
+          src={galleryInfo.coverImage}
           alt="전시 커버"
           className="w-full h-full object-cover"
         />
@@ -39,9 +28,9 @@ export default function GalleryDetailPage() {
       </div>
 
       <GalleryInfoHeader
-        title="이불 작가의 대규모 서베이 전시"
-        location="리움미술관 아동교육문화센터"
-        date="2025.09.04. – 2026.01.04."
+        title={galleryInfo.title}
+        location={galleryInfo.location}
+        date={galleryInfo.date}
       />
 
       <div className="absolute left-[18px] top-[315px] w-[90%] flex justify-between items-end">
@@ -59,13 +48,12 @@ export default function GalleryDetailPage() {
         images={artworkImages}
         onClickImage={id => setSelectedArt(id)}
       />
-
       {selectedArt && selectedData && (
         <ArtworkDetailModal
           src={selectedData.src}
-          title="작품 제목(2025)"
-          artist="아티스트 이름"
-          lastChatDate="2025. 05. 07"
+          title={selectedData.title}
+          artist={selectedData.artist}
+          lastChatDate={selectedData.lastChatDate}
           onClose={() => setSelectedArt(null)}
           onContinueChat={() => navigate('/chat-artwork')}
         />

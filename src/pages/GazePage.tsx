@@ -5,6 +5,11 @@ import { useNavigate } from 'react-router-dom';
 import Sample from '@/assets/images/sample/chat-gaze.png';
 import BackButton from '@/components/common/BackButton';
 
+const artworkInfo = {
+  title: 'In Bed (2005)',
+  artist: '론 뮤익 (Ron Mueck)',
+};
+
 function GazePage() {
   const navigate = useNavigate();
   const [trackingComplete, setTrackingComplete] = useState(false);
@@ -44,7 +49,7 @@ function GazePage() {
             <div className="relative w-full h-full">
               <img
                 src={Sample}
-                alt="In Bed"
+                alt={artworkInfo.title}
                 className="rounded-2xl object-cover w-full h-full"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/40 to-black/80 opacity-60 rounded-2xl" />
@@ -68,8 +73,8 @@ function GazePage() {
 
         {trackingComplete && (
           <div className="mt-4">
-            <div className="text-xl">In Bed(2005)</div>
-            <div className="text-xs text-white/80">론 뮤익(Ron Mueck)</div>
+            <div className="text-xl">{artworkInfo.title}</div>
+            <div className="text-xs text-white/80">{artworkInfo.artist}</div>
           </div>
         )}
       </div>
