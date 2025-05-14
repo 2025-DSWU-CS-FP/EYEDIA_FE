@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { FiHeart, FiShare } from 'react-icons/fi';
 
@@ -12,6 +12,12 @@ import BackButton from '@/components/common/BackButton';
 
 export default function ArtworkPage() {
   const [isRecognized, setIsRecognized] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFocusInput = () => {
+    inputRef.current?.focus();
+  };
+
   return (
     <div className="relative w-full max-w-md h-screen bg-neutral-900 text-white overflow-hidden">
       <div className="relative w-full h-[230px]">
@@ -65,9 +71,18 @@ export default function ArtworkPage() {
             )}
           </div>
           <div className="w-full flex justify-end">
-            <div className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center">
+            <input
+              ref={inputRef}
+              type="text"
+              className="absolute left-[-9999px] w-[1px] h-[1px] opacity-0"
+            />
+            <button
+              type="button"
+              onClick={handleFocusInput}
+              className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center"
+            >
               <img src={keyboardIcon} alt="키보드" />
-            </div>
+            </button>
           </div>
         </div>
       </div>
