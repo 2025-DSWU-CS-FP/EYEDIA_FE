@@ -10,9 +10,11 @@ const Artwork = lazy(() => import('@/pages/Artwork'));
 const Search = lazy(() => import('@/pages/SearchPage'));
 const Gallery = lazy(() => import('@/pages/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/GalleryDetailPage'));
+const MapPage = lazy(() => import('@/pages/MapPage'));
 const Layout = lazy(() => import('@/layouts/Layout'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
+const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
 
 const mainRoutes: RouteObject[] = [
   {
@@ -51,6 +53,14 @@ const mainRoutes: RouteObject[] = [
       {
         path: 'gallery/:id',
         element: <GalleryDetail />,
+      },
+      {
+        path: 'map',
+        element: <MapPage />,
+      },
+      {
+        path: 'exhibition/:id',
+        element: <ExhibitionDetailPage />,
       },
       {
         path: 'search-result',

@@ -109,7 +109,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
         type="button"
         aria-label="자세히 보기"
         className="absolute bottom-5 right-4 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-white/40 hover:bg-white/60 transition-all duration-300 group"
-        onClick={() => navigate('/exhibition/1')}
+        onClick={() => navigate(`/exhibition/${banners[currentIndex].id}`)}
       >
         <ArrowRight
           className="text-white group-hover:translate-x-1 transition-transform duration-300"
