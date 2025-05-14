@@ -1,3 +1,5 @@
 export default function MyPage() {
-  return <p>map페이지</p>;
+  return (
+    <p className="text-black text-xl flex py-10 justify-center">map 페이지</p>
+  );
 }

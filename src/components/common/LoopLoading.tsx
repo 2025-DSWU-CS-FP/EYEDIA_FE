@@ -1,40 +1,52 @@
+import { useMemo } from 'react';
+
 interface LoopLoadingProps {
   size?: number;
 }
 
-export default function LoopLoading({ size = 200 }: LoopLoadingProps) {
+export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
+  const bars = useMemo(
+    () => Array.from({ length: 12 }, () => crypto.randomUUID()),
+    [],
+  );
+
   return (
     <div
       className="relative flex items-center justify-center"
       style={{ height: `${size}px`, width: `${size}px` }}
     >
-      <svg
-        width="200"
-        height="200"
-        viewBox="0 0 100 100"
-        xmlns="http://www.w3.org/2000/svg"
+      <div
+        className="absolute animate-spin"
+        style={{ height: size, width: size }}
       >
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
-          strokeWidth="11"
-          fill="none"
-          className="stroke-lightGrey"
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
-          fill="none"
-          strokeWidth={10}
-          strokeLinecap="round"
-          strokeDasharray="45 240"
-          strokeDashoffset="100"
-          className="origin-center animate-spin border stroke-normalGray"
-        />
-      </svg>
-      {/*<img src={Logo} className="absolute w-[40%]" alt="로고" />*/}
+        {bars.map((id, i) => (
+          <div
+            key={id}
+            className="absolute left-1/2 top-1/2 origin-center"
+            style={{
+              transform: `rotate(${i * 30}deg) translate(0, -${size / 2.5}px)`,
+            }}
+          >
+            <div
+              className="w-1 h-3 rounded-sm bg-neutral-400 opacity-30"
+              style={{
+                animation: `fade 1.2s linear infinite`,
+                animationDelay: `${(i * 0.1).toFixed(1)}s`,
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Custom keyframe (fade) needed */}
+      <style>
+        {`
+        @keyframes fade {
+          0% { opacity: 1; }
+          100% { opacity: 0.2; }
+        }
+      `}
+      </style>
     </div>
   );
 }

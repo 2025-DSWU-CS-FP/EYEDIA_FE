@@ -15,6 +15,7 @@ const Layout = lazy(() => import('@/layouts/Layout'));
 const HelpPage = lazy(() => import('@/pages/HelpPage'));
 const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const mainRoutes: RouteObject[] = [
   {
@@ -66,12 +67,10 @@ const mainRoutes: RouteObject[] = [
         path: 'search-result',
         element: <Search />,
       },
-      /* 
       {
         path: '*',
         element: <NotFound />,
       },
-      */
     ],
   },
 ];
