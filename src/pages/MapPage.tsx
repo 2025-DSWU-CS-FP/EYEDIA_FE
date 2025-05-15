@@ -126,7 +126,7 @@ export default function MapPage() {
         </div>
       </div>
 
-      <DraggableBottomSheet height={80} minHeight={10}>
+      <DraggableBottomSheet height={80} minHeight={82}>
         <div className="px-4 py-2 mb-6">
           <h2 className="text-xl text-black font-bold mb-4">
             주변 전시 리스트
