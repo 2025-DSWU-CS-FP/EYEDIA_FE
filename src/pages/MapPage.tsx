@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 
 import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps';
 
+import SearchBar from '@/components/map/SearchBar';
+import EXHIBITION_FILTER_TAGS from '@/constants/filters';
+
 export default function MapPage() {
+  const [search, setSearch] = useState('');
   const [myLocation, setMyLocation] = useState<{
     lat: number;
     lng: number;
@@ -33,39 +37,61 @@ export default function MapPage() {
   ];
 
   return (
-    <MapDiv style={{ width: '100%', height: '100vh' }}>
-      {myLocation && (
-        <NaverMap defaultCenter={myLocation} defaultZoom={16}>
-          {/* 현재 위치 마커 */}
-          <Marker
-            position={myLocation}
-            icon={{
-              content:
-                '<div style="width:16px;height:16px;background:#000;border-radius:50%;"></div>',
-            }}
-          />
-
-          {/* 전시장 마커들 */}
-          {markers.map(marker => (
+    <div className="relative w-full h-[100dvh]">
+      <MapDiv className="w-full h-full">
+        {myLocation && (
+          <NaverMap defaultCenter={myLocation} defaultZoom={16}>
             <Marker
-              key={marker.id}
-              position={{ lat: marker.lat, lng: marker.lng }}
+              position={myLocation}
               icon={{
-                content: `
-                  <div style="
-                    width: 24px;
-                    height: 24px;
-                    background: black;
-                    border-radius: 50%;
-                    border: 4px solid white;
-                    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-                  "></div>
-                `,
+                content:
+                  '<div style="width:16px;height:16px;background:#000;border-radius:50%;"></div>',
               }}
             />
+            {markers.map(marker => (
+              <Marker
+                key={marker.id}
+                position={{ lat: marker.lat, lng: marker.lng }}
+                icon={{
+                  content: `
+                    <div style="
+                      width: 24px;
+                      height: 24px;
+                      background: black;
+                      border-radius: 50%;
+                      border: 4px solid white;
+                      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+                    "></div>
+                  `,
+                }}
+              />
+            ))}
+          </NaverMap>
+        )}
+      </MapDiv>
+
+      <div className="absolute w-full max-w-[93%] space-y-2 mx-auto top-10 left-1/2 -translate-x-1/2 flex flex-col">
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          onSubmit={() => console.log('검색 실행:', search)}
+          placeholder="원하시는 전시를 검색해보세요!"
+          className="w-full z-10"
+        />
+        <div className="flex max-w-[100%] mx-auto gap-2 overflow-x-auto">
+          {EXHIBITION_FILTER_TAGS.map(tag => (
+            <div
+              key={tag}
+              className="shrink-0 w-26 h-8 cursor-pointer bg-white hover:bg-lightGray-hover active:bg-lightGray-active rounded-lg px-3 py-1 flex items-center gap-2 shadow-md mb-2 mx-1"
+            >
+              <div className="w-4 h-4 bg-zinc-300 rounded-sm" />
+              <span className="text-sm text-neutral-600 font-medium">
+                {tag}
+              </span>
+            </div>
           ))}
-        </NaverMap>
-      )}
-    </MapDiv>
+        </div>
+      </div>
+    </div>
   );
 }
