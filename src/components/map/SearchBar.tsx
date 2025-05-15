@@ -28,7 +28,7 @@ export default function SearchBar({
 
   return (
     <div
-      className={`bg-white rounded-lg px-4 py-3 shadow-md flex items-center gap-2 ${className}`}
+      className={`bg-white rounded-lg px-4 py-3 shadow-md flex select-none items-center gap-2 ${className}`}
     >
       <input
         type="text"

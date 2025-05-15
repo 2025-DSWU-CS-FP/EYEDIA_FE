@@ -8,6 +8,7 @@ import map2 from '@/assets/images/sample/map2.png';
 import map3 from '@/assets/images/sample/map3.png';
 import DraggableBottomSheet from '@/components/bottomsheet/DraggableBottomSheet';
 import SearchBar from '@/components/map/SearchBar';
+import FILTER_COLORS from '@/constants/filterColors';
 import EXHIBITION_FILTER_TAGS from '@/constants/filters';
 
 export const EXHIBITIONS = [
@@ -39,6 +40,8 @@ export const EXHIBITIONS = [
 
 export default function MapPage() {
   const [search, setSearch] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [address, setAddress] = useState('');
   const [myLocation, setMyLocation] = useState<{
     lat: number;
     lng: number;
@@ -63,38 +66,186 @@ export default function MapPage() {
   }, []);
 
   const markers = [
-    { id: 1, lat: 37.5864, lng: 127.0301 },
-    { id: 2, lat: 37.5878, lng: 127.0322 },
-    { id: 3, lat: 37.585, lng: 127.029 },
+    {
+      id: 1,
+      name: '응접소파전시장',
+      lat: 35.18654444,
+      lng: 129.1224847,
+    },
+    {
+      id: 2,
+      name: '민들레소극장',
+      lat: 35.14968814,
+      lng: 126.9190813,
+    },
+    {
+      id: 3,
+      name: '이펙스전시장',
+      lat: 35.23411313,
+      lng: 128.8795125,
+    },
+    {
+      id: 4,
+      name: '미용기구전시장',
+      lat: 35.5559254,
+      lng: 129.3240879,
+    },
+    {
+      id: 5,
+      name: '미다갤러리',
+      lat: 35.14895193,
+      lng: 126.9185625,
+    },
+    {
+      id: 6,
+      name: '굴레소극장',
+      lat: 37.88317524,
+      lng: 127.7276523,
+    },
+    {
+      id: 7,
+      name: '동서아트갤러리',
+      lat: 35.62238903,
+      lng: 129.3556368,
+    },
+    {
+      id: 8,
+      name: '갤러리원',
+      lat: 37.47442819,
+      lng: 127.0408609,
+    },
+    {
+      id: 9,
+      name: '국립현대미술관',
+      lat: 37.5787817,
+      lng: 126.9800492,
+    },
+    {
+      id: 10,
+      name: '국립중앙박물관',
+      lat: 37.5240867,
+      lng: 126.980388,
+    },
+    {
+      id: 11,
+      name: '서울시립미술관',
+      lat: 37.5641111,
+      lng: 126.97368,
+    },
+    {
+      id: 12,
+      name: '리움미술관',
+      lat: 37.5384613,
+      lng: 126.9992941,
+    },
+    {
+      id: 13,
+      name: 'K현대미술관',
+      lat: 37.5242986,
+      lng: 127.0390958,
+    },
   ];
+
+  const handleMapClick = (e: naver.maps.PointerEvent) => {
+    const lat = e.coord.y;
+    const lng = e.coord.x;
+
+    fetch(
+      `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng},${lat}&orders=roadaddr,addr&output=json`,
+      {
+        method: 'GET',
+        headers: {
+          'X-NCP-APIGW-API-KEY-ID': `${import.meta.env.VITE_NAVER_MAPS_KEY}`,
+          'X-NCP-APIGW-API-KEY': `${import.meta.env.VITE_NAVER_MAPS_API_KEY}`,
+        },
+      },
+    )
+      .then(response => response.json())
+      .then(data => {
+        const result = data?.results?.[0];
+        if (
+          result?.region?.area1?.name &&
+          result.region.area2?.name &&
+          result.region.area3?.name
+        ) {
+          const fetchedAddress = `${result.region.area1.name} ${result.region.area2.name} ${result.region.area3.name}`;
+          setAddress(fetchedAddress);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching address:', error);
+      });
+  };
 
   return (
     <div className="relative w-full h-[100vh]">
-      <MapDiv className="w-full h-full">
+      <MapDiv className="w-full h-full select-none">
         {myLocation && (
-          <NaverMap defaultCenter={myLocation} defaultZoom={16}>
+          <NaverMap
+            onClick={handleMapClick}
+            defaultCenter={myLocation}
+            defaultZoom={16}
+          >
             <Marker
               position={myLocation}
               icon={{
-                content:
-                  '<div style="width:16px;height:16px;background:#000;border-radius:50%;"></div>',
+                content: `
+                  <div style="
+                    position: relative;
+                    width: 40px;
+                    height: 40px;
+                    background: #A7A7A730;
+                    border-radius: 50%;
+                  ">
+                    <div style="
+                      position: absolute;
+                      top: -1px;
+                      left: 50%;
+                      transform: translateX(-50%);
+                      width: 0;
+                      height: 0;
+                      border-radius: 1px;
+                      border-left: 6px solid transparent;
+                      border-right: 6px solid transparent;
+                      border-bottom: 10px solid #222;
+                    "></div>
+                    <div style="
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      width: 17px;
+                      height: 17px;
+                      background: #000;
+                      border: 3px solid white;
+                      border-radius: 50%;
+                      box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+                    "></div>
+                  </div>
+                `,
               }}
             />
+
             {markers.map(marker => (
               <Marker
                 key={marker.id}
                 position={{ lat: marker.lat, lng: marker.lng }}
+                title={marker.name}
                 icon={{
                   content: `
-                    <div style="
-                      width: 24px;
-                      height: 24px;
-                      background: black;
-                      border-radius: 50%;
-                      border: 4px solid white;
-                      box-shadow: 0 0 5px rgba(0,0,0,0.3);
-                    "></div>
+                    <img 
+                      src="${mapIcon}" 
+                      style="
+                        width: 24px; 
+                        height: 24px; 
+                        border-radius: 50%; 
+                        transform: translateY(-10px);
+                      " 
+                    />
                   `,
+                }}
+                onClick={() => {
+                  console.log(`클릭한 장소: ${marker.name}`);
                 }}
               />
             ))}
@@ -110,13 +261,16 @@ export default function MapPage() {
             placeholder="원하시는 전시를 검색해보세요!"
             className="w-full"
           />
-          <div className="flex gap-2 overflow-x-auto">
+          <div className="flex select-none gap-2 overflow-x-auto">
             {EXHIBITION_FILTER_TAGS.map(tag => (
               <div
                 key={tag}
                 className="shrink-0 w-26 h-8 cursor-pointer bg-white mb-2 hover:bg-lightGray-hover active:bg-lightGray-active rounded-lg px-3 py-1 flex items-center gap-2 shadow-md"
               >
-                <div className="w-4 h-4 bg-zinc-300 rounded-sm" />
+                <div
+                  className={`w-4 h-4 rounded-sm
+                  ${FILTER_COLORS[tag] || 'bg-zinc-300'}`}
+                />
                 <span className="text-sm text-neutral-600 font-medium">
                   {tag}
                 </span>
@@ -127,7 +281,7 @@ export default function MapPage() {
       </div>
 
       <DraggableBottomSheet height={80} minHeight={82}>
-        <div className="px-4 py-2 mb-6">
+        <div className="px-4 py-2 mb-6 select-none">
           <h2 className="text-xl text-black font-bold mb-4">
             주변 전시 리스트
           </h2>
@@ -150,7 +304,9 @@ export default function MapPage() {
                 <p>{exhibition.date}</p>
                 <div className="flex items-center gap-1 text-neutral-600">
                   <img src={mapIcon} alt="지도" />
-                  <span>{exhibition.place}</span>
+                  <span className="cursor-pointer hover:underline">
+                    {exhibition.place}
+                  </span>
                 </div>
               </div>
             </div>

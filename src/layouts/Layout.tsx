@@ -14,6 +14,7 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isChatRoute = location.pathname.startsWith('/chat');
+  const isMapRoute = location.pathname.startsWith('/map');
 
   return (
     <div
@@ -25,7 +26,9 @@ export default function Layout({ children }: LayoutProps) {
       {!isChatRoute && (
         <>
           <NavigationBar />
-          <FloatingButton onClick={() => navigate('/chat-onboarding')} />
+          {!isMapRoute && (
+            <FloatingButton onClick={() => navigate('/chat-onboarding')} />
+          )}
         </>
       )}
       {/* <HamburgerMenu /> */}
