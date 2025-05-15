@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps';
 
+import DraggableBottomSheet from '@/components/bottomsheet/DraggableBottomSheet';
 import SearchBar from '@/components/map/SearchBar';
 import EXHIBITION_FILTER_TAGS from '@/constants/filters';
 
@@ -92,6 +93,12 @@ export default function MapPage() {
           ))}
         </div>
       </div>
+      <DraggableBottomSheet height={480} minHeight={80}>
+        <h2 className="text-lg font-semibold">전시 상세 필터</h2>
+        <p className="text-sm text-gray-600 mt-2">
+          다양한 전시 테마를 선택하고 필터링할 수 있어요.
+        </p>
+      </DraggableBottomSheet>
     </div>
   );
 }
