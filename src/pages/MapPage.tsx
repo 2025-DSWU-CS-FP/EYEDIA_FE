@@ -38,7 +38,7 @@ export default function MapPage() {
   ];
 
   return (
-    <div className="relative w-full h-[100dvh]">
+    <div className="relative w-full h-[100vh]">
       <MapDiv className="w-full h-full">
         {myLocation && (
           <NaverMap defaultCenter={myLocation} defaultZoom={16}>
@@ -70,29 +70,31 @@ export default function MapPage() {
           </NaverMap>
         )}
       </MapDiv>
-
-      <div className="absolute w-full max-w-[93%] space-y-2 mx-auto top-10 left-1/2 -translate-x-1/2 flex flex-col">
-        <SearchBar
-          value={search}
-          onChange={setSearch}
-          onSubmit={() => console.log('검색 실행:', search)}
-          placeholder="원하시는 전시를 검색해보세요!"
-          className="w-full z-10"
-        />
-        <div className="flex max-w-[100%] mx-auto gap-2 overflow-x-auto">
-          {EXHIBITION_FILTER_TAGS.map(tag => (
-            <div
-              key={tag}
-              className="shrink-0 w-26 h-8 cursor-pointer bg-white hover:bg-lightGray-hover active:bg-lightGray-active rounded-lg px-3 py-1 flex items-center gap-2 shadow-md mb-2 mx-1"
-            >
-              <div className="w-4 h-4 bg-zinc-300 rounded-sm" />
-              <span className="text-sm text-neutral-600 font-medium">
-                {tag}
-              </span>
-            </div>
-          ))}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 z-20">
+        <div className="space-y-2 mt-4">
+          <SearchBar
+            value={search}
+            onChange={setSearch}
+            onSubmit={() => console.log('검색 실행:', search)}
+            placeholder="원하시는 전시를 검색해보세요!"
+            className="w-full"
+          />
+          <div className="flex gap-2 overflow-x-auto">
+            {EXHIBITION_FILTER_TAGS.map(tag => (
+              <div
+                key={tag}
+                className="shrink-0 w-26 h-8 cursor-pointer bg-white mb-2 hover:bg-lightGray-hover active:bg-lightGray-active rounded-lg px-3 py-1 flex items-center gap-2 shadow-md"
+              >
+                <div className="w-4 h-4 bg-zinc-300 rounded-sm" />
+                <span className="text-sm text-neutral-600 font-medium">
+                  {tag}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+
       <DraggableBottomSheet height={480} minHeight={80}>
         <h2 className="text-lg font-semibold">전시 상세 필터</h2>
         <p className="text-sm text-gray-600 mt-2">
