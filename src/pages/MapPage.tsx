@@ -40,7 +40,6 @@ export const EXHIBITIONS = [
 
 export default function MapPage() {
   const [search, setSearch] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [address, setAddress] = useState('');
   const [myLocation, setMyLocation] = useState<{
     lat: number;
@@ -313,6 +312,9 @@ export default function MapPage() {
           ))}
         </div>
       </DraggableBottomSheet>
+      <div className="fixed select-none -z-10 bottom-2 left-2 bg-white/100 px-3 py-1 rounded shadow">
+        <span className="text-sm text-black/100">선택된 주소: {address}</span>
+      </div>
     </div>
   );
 }
