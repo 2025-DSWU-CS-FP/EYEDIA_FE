@@ -2,9 +2,40 @@ import { useEffect, useState } from 'react';
 
 import { Container as MapDiv, NaverMap, Marker } from 'react-naver-maps';
 
+import mapIcon from '@/assets/icons/sheet-map.svg';
+import map1 from '@/assets/images/sample/map1.png';
+import map2 from '@/assets/images/sample/map2.png';
+import map3 from '@/assets/images/sample/map3.png';
 import DraggableBottomSheet from '@/components/bottomsheet/DraggableBottomSheet';
 import SearchBar from '@/components/map/SearchBar';
 import EXHIBITION_FILTER_TAGS from '@/constants/filters';
+
+export const EXHIBITIONS = [
+  {
+    id: 1,
+    title: '전시의 전시',
+    date: '2025.09.04. – 2026.01.04.',
+    place: '국립현대미술관',
+    distance: '1.9km',
+    image: map1,
+  },
+  {
+    id: 2,
+    title: '모두에게 멋진 날들',
+    date: '2025.09.04. – 2026.01.04.',
+    place: '국립현대미술관',
+    distance: '2.5km',
+    image: map2,
+  },
+  {
+    id: 3,
+    title: '전시 3',
+    date: '2025.09.04. – 2026.01.04.',
+    place: '국립현대미술관',
+    distance: '3.1km',
+    image: map3,
+  },
+];
 
 export default function MapPage() {
   const [search, setSearch] = useState('');
@@ -95,11 +126,36 @@ export default function MapPage() {
         </div>
       </div>
 
-      <DraggableBottomSheet height={480} minHeight={80}>
-        <h2 className="text-lg font-semibold">전시 상세 필터</h2>
-        <p className="text-sm text-gray-600 mt-2">
-          다양한 전시 테마를 선택하고 필터링할 수 있어요.
-        </p>
+      <DraggableBottomSheet height={80} minHeight={80}>
+        <div className="px-4 py-2 mb-6">
+          <h2 className="text-xl text-black font-bold mb-4">
+            주변 전시 리스트
+          </h2>
+          {EXHIBITIONS.map(exhibition => (
+            <div key={exhibition.id} className="mb-6">
+              <img
+                src={exhibition.image}
+                alt={exhibition.title}
+                className="w-full h-40 object-cover rounded-md"
+              />
+              <div className="flex justify-between items-center mt-2">
+                <h3 className="text-lg font-semibold text-black">
+                  {exhibition.title}
+                </h3>
+                <span className="text-red-500 text-sm font-semibold">
+                  {exhibition.distance}
+                </span>
+              </div>
+              <div className="flex justify-between items-center text-sm text-neutral-500 mt-1">
+                <p>{exhibition.date}</p>
+                <div className="flex items-center gap-1 text-neutral-600">
+                  <img src={mapIcon} alt="지도" />
+                  <span>{exhibition.place}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </DraggableBottomSheet>
     </div>
   );
