@@ -1,0 +1,71 @@
+.highlight {
+  position: relative;
+  display: inline;
+  background-color: rgba(242, 135, 139, 0.2);
+}
+
+.marker {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  background-color: #f2878b;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.marker::after {
+  content: '';
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 15px;
+  background-color: #f2878b;
+  border-radius: 1px;
+}
+
+.start-marker,
+.end-marker {
+  content: '';
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  background-color: #f2878b;
+  border-radius: 50%;
+}
+
+.start-marker::after,
+.end-marker::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 15px;
+  background-color: #f2878b;
+  border-radius: 2px;
+}
+
+.start-marker {
+  top: -26px;
+  left: 0;
+}
+
+.end-marker {
+  top: -26px;
+  right: 0;
+}
+
+.bg-rose-200\/20 {
+  background-color: rgba(254, 202, 202, 0.2);
+}
+
+.relative {
+  position: relative;
+}
+.absolute {
+  position: absolute;
+}
