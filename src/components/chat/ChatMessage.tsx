@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+
+import SelectionActionMenu from '@/components/chat/SelectionActionMenu';
 import '@/styles/chat-selection.css';
 
 interface ChatMessageProps {
@@ -20,9 +22,14 @@ export default function ChatMessage({
   isFromUser = false,
 }: ChatMessageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const [highlightRange, setHighlightRange] = useState<{
     start: number;
     end: number;
+  } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
   } | null>(null);
 
   useEffect(() => {
@@ -39,6 +46,10 @@ export default function ChatMessage({
       )
         return;
 
+      const rects = range.getClientRects();
+      const lastRect = rects[rects.length - 1];
+      const containerRect = containerRef.current!.getBoundingClientRect();
+
       const startOffset = text.indexOf(selectedText);
       if (startOffset === -1) return;
 
@@ -46,10 +57,23 @@ export default function ChatMessage({
         start: startOffset,
         end: startOffset + selectedText.length,
       });
+
+      setMenuPosition({
+        top: lastRect.bottom - containerRect.top + 4,
+        left: lastRect.left - containerRect.left,
+      });
     };
 
-    const handleClickOutside = () => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        containerRef.current?.contains(e.target as Node) ||
+        menuRef.current?.contains(e.target as Node)
+      ) {
+        return;
+      }
+
       setHighlightRange(null);
+      setMenuPosition(null);
     };
 
     const handleCopy = (e: ClipboardEvent) => {
@@ -62,10 +86,13 @@ export default function ChatMessage({
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('copy', handleCopy);
+    document.addEventListener('mousedown', handleClickOutside);
+
     return () => {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('copy', handleCopy);
+      document.addEventListener('mousedown', handleClickOutside);
     };
   }, [text, highlightRange]);
 
@@ -94,12 +121,19 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
+      className={`relative text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
         isFromUser
           ? 'self-end bg-white text-black'
           : 'bg-stone-50/10 text-white'
       }`}
     >
+      {menuPosition && (
+        <SelectionActionMenu
+          top={menuPosition.top}
+          left={menuPosition.left}
+          menuRef={menuRef}
+        />
+      )}
       {renderText()}
     </div>
   );
