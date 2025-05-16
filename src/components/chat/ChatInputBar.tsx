@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import micIcon from '@/assets/icons/graphic_eq.svg';
-import sendIcon from '@/assets/icons/sendIcon.svg';
+import SendIcon from '@/components/common/SendIcon';
 
 interface ChatInputBarProps {
   onSend?: (message: string) => void;
@@ -38,9 +38,10 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
           type="button"
           aria-label="보내기"
           onClick={handleSend}
-          className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center"
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
+            ${inputValue.trim() ? 'bg-cherry hover:bg-cherry-hover active:bg-cherry-active' : 'bg-neutral-700'}`}
         >
-          <img src={sendIcon} alt="전송" />
+          <SendIcon fill={inputValue.trim() ? '#ffffff' : '#696969'} />
         </button>
       </div>
     </div>
