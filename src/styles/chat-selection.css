@@ -1,0 +1,27 @@
+.highlight-word {
+  position: relative;
+  display: inline;
+  background-color: rgba(242, 135, 139, 0.2);
+  border-radius: 4px;
+}
+
+.highlight-word::before,
+.highlight-word::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  width: 12px;
+  height: 12px;
+  background-color: #f2878b;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+
+.highlight-word::before {
+  left: 0;
+  transform: translateX(-50%);
+}
+.highlight-word::after {
+  right: 0;
+  transform: translateX(50%);
+}
