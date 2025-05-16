@@ -8,15 +8,9 @@ interface ChatMessageProps {
 
 function Marker() {
   return (
-    <div className="absolute top-[-3px] left-[-4px] w-2.5 h-7">
-      <div
-        style={{ width: '2px', height: '24px', backgroundColor: '#F68C8C' }}
-        className="absolute left-[4.5px] top-0"
-      />
-      <div
-        style={{ backgroundColor: '#F68C8C' }}
-        className="w-2.5 h-2.5 absolute left-0 top-0 rounded-full"
-      />
+    <div className="absolute -top-[3px] -left-[4px] w-2.5 h-7 pointer-events-none">
+      <div className="w-[2px] h-6 absolute left-[4.5px] top-0 bg-[#F68C8C]" />
+      <div className="w-2.5 h-2.5 absolute left-0 top-0 bg-[#F68C8C] rounded-full" />
     </div>
   );
 }
@@ -45,8 +39,7 @@ export default function ChatMessage({
       )
         return;
 
-      const fullText = text;
-      const startOffset = fullText.indexOf(selectedText);
+      const startOffset = text.indexOf(selectedText);
       if (startOffset === -1) return;
 
       setHighlightRange({
@@ -59,13 +52,22 @@ export default function ChatMessage({
       setHighlightRange(null);
     };
 
+    const handleCopy = (e: ClipboardEvent) => {
+      if (!highlightRange) return;
+      e.preventDefault();
+      const copiedText = text.slice(highlightRange.start, highlightRange.end);
+      e.clipboardData?.setData('text/plain', copiedText);
+    };
+
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('copy', handleCopy);
     return () => {
       document.removeEventListener('mouseup', handleMouseUp);
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('copy', handleCopy);
     };
-  }, [text]);
+  }, [text, highlightRange]);
 
   const renderText = () => {
     if (!highlightRange) return text;
@@ -92,7 +94,7 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] ${
+      className={`text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
         isFromUser
           ? 'self-end bg-white text-black'
           : 'bg-stone-50/10 text-white'
