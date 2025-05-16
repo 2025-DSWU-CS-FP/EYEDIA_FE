@@ -11,14 +11,28 @@ import ChatInputBar from '@/components/chat/ChatInputBar';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import BackButton from '@/components/common/BackButton';
 
+interface Message {
+  id: string;
+  text: string;
+}
+
 export default function ArtworkPage() {
   const [isRecognized, setIsRecognized] = useState(false);
   const [showChatInput, setShowChatInput] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFocusInput = () => {
     setShowChatInput(true);
     setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
+  const handleSendMessage = (message: string) => {
+    const newMessage = {
+      id: String(Date.now()),
+      text: message,
+    };
+    setMessages(prev => [...prev, newMessage]);
   };
 
   return (
@@ -38,7 +52,7 @@ export default function ArtworkPage() {
         </div>
       </div>
 
-      <div className="flex flex-col px-6 pt-6 pb-4 rounded-t-3xl bg-neutral-900 h-[calc(100%-230px)]">
+      <div className="flex flex-col px-6 pt-6 pb-4 rounded-t-3xl bg-neutral-900 h-[calc(100%-230px)] overflow-y-auto">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-[3px]">
             <h1 className="text-3xl font-normal">In Bed(2005)</h1>
@@ -52,6 +66,18 @@ export default function ArtworkPage() {
         <div className="bg-stone-50/10 rounded px-4 py-3 text-sm leading-tight">
           기본 설명 대화 텍스트(질문하지 않아도 기본으로 작성되는 설명글)
         </div>
+
+        <div className="mt-4 flex flex-col gap-2">
+          {messages.map(msg => (
+            <div
+              key={msg.id}
+              className="self-end bg-white text-black px-4 py-2 rounded text-sm max-w-[75%]"
+            >
+              {msg.text}
+            </div>
+          ))}
+        </div>
+
         {!showChatInput && (
           <div className="mt-auto flex flex-col items-center">
             <p className="text-sm text-stone-300 mt-6">
@@ -87,9 +113,10 @@ export default function ArtworkPage() {
           </div>
         )}
       </div>
+
       {showChatInput && (
         <div className="absolute bottom-0 left-0 w-full z-30">
-          <ChatInputBar />
+          <ChatInputBar onSend={handleSendMessage} />
         </div>
       )}
     </div>

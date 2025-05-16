@@ -30,7 +30,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
         <button
           type="button"
           aria-label="음성 인식"
-          className="w-10 h-10 rounded-full bg-neutral-700 flex items-center justify-center"
+          className="w-10 h-10 rounded-full bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-800 flex items-center justify-center"
         >
           <img src={micIcon} alt="마이크" />
         </button>
