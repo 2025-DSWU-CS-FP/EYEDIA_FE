@@ -6,6 +6,21 @@ interface ChatMessageProps {
   isFromUser?: boolean;
 }
 
+function Marker() {
+  return (
+    <div className="absolute top-[-3px] left-[-4px] w-2.5 h-7">
+      <div
+        style={{ width: '2px', height: '24px', backgroundColor: '#F68C8C' }}
+        className="absolute left-[4.5px] top-0"
+      />
+      <div
+        style={{ backgroundColor: '#F68C8C' }}
+        className="w-2.5 h-2.5 absolute left-0 top-0 rounded-full"
+      />
+    </div>
+  );
+}
+
 export default function ChatMessage({
   text,
   isFromUser = false,
@@ -16,7 +31,6 @@ export default function ChatMessage({
     end: number;
   } | null>(null);
 
-  // ✅ 드래그해서 하이라이트 생성
   useEffect(() => {
     const handleMouseUp = () => {
       const selection = window.getSelection();
@@ -39,34 +53,36 @@ export default function ChatMessage({
         start: startOffset,
         end: startOffset + selectedText.length,
       });
-
-      // 👉 선택 영역 유지할 필요 없음 → 초기화 안 함
     };
 
-    document.addEventListener('mouseup', handleMouseUp);
-    return () => document.removeEventListener('mouseup', handleMouseUp);
-  }, [text]);
-
-  useEffect(() => {
-    const handleMouseDown = () => {
+    const handleClickOutside = () => {
       setHighlightRange(null);
     };
 
-    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [text]);
 
   const renderText = () => {
     if (!highlightRange) return text;
 
     const { start, end } = highlightRange;
+
     return (
       <>
         {text.slice(0, start)}
-        <span className="highlight-word relative">
+        <span className="relative bg-rose-200/20 rounded px-0.5">
+          <span className="absolute left-0">
+            <Marker />
+          </span>
           {text.slice(start, end)}
+          <span className="absolute right-0">
+            <Marker />
+          </span>
         </span>
         {text.slice(end)}
       </>
