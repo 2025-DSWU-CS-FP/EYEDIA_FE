@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 import micIcon from '@/assets/icons/graphic_eq.svg';
 import SendIcon from '@/components/common/SendIcon';
@@ -9,6 +9,7 @@ interface ChatInputBarProps {
 
 export default function ChatInputBar({ onSend }: ChatInputBarProps) {
   const [inputValue, setInputValue] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -16,15 +17,23 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
     setInputValue('');
   };
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 164)}px`;
+    }
+  }, [inputValue]);
+
   return (
-    <div className="w-full px-4 py-3 space-y-2 flex-col items-center bg-neutral-800 rounded-t-2xl gap-2">
-      <input
-        type="text"
+    <div className="w-full px-4 py-3 bg-neutral-800 rounded-t-2xl flex flex-col gap-2">
+      <textarea
+        ref={textareaRef}
         value={inputValue}
         onChange={e => setInputValue(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && handleSend()}
+        onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
         placeholder="작품에 대해 질문해보세요"
-        className="flex-1 bg-transparent text-white caret-cherry placeholder:text-neutral-500 text-sm font-normal outline-none"
+        rows={1}
+        className="resize-none max-h-[222px] overflow-y-auto bg-transparent text-white caret-cherry placeholder:text-neutral-500 text-sm font-normal outline-none w-full"
       />
       <div className="flex w-full justify-end gap-2">
         <button
