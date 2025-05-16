@@ -7,15 +7,18 @@ import '@/styles/glow-pulse-before.css';
 
 import keyboardIcon from '@/assets/icons/keyboard.svg';
 import Sample from '@/assets/images/sample/chat-gaze.png';
+import ChatInputBar from '@/components/chat/ChatInputBar';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import BackButton from '@/components/common/BackButton';
 
 export default function ArtworkPage() {
   const [isRecognized, setIsRecognized] = useState(false);
+  const [showChatInput, setShowChatInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFocusInput = () => {
-    inputRef.current?.focus();
+    setShowChatInput(true);
+    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   return (
@@ -49,40 +52,46 @@ export default function ArtworkPage() {
         <div className="bg-stone-50/10 rounded px-4 py-3 text-sm leading-tight">
           기본 설명 대화 텍스트(질문하지 않아도 기본으로 작성되는 설명글)
         </div>
-        <div className="mt-auto flex flex-col items-center">
-          <p className="text-sm text-stone-300 mt-6">
-            버튼을 누르고 작품에 대해 물어보세요.
-          </p>
-          <div className="relative w-20 h-20 mt-4">
-            {isRecognized ? (
-              <>
-                <span className="wave" />
-                <span className="wave delay-1" />
-                <span className="wave delay-2" />
-                <div className="glow-core wave-border" />
-              </>
-            ) : (
+        {!showChatInput && (
+          <div className="mt-auto flex flex-col items-center">
+            <p className="text-sm text-stone-300 mt-6">
+              버튼을 누르고 작품에 대해 물어보세요.
+            </p>
+            <div className="relative w-20 h-20 mt-4">
+              {isRecognized ? (
+                <>
+                  <span className="wave" />
+                  <span className="wave delay-1" />
+                  <span className="wave delay-2" />
+                  <div className="glow-core wave-border" />
+                </>
+              ) : (
+                <button
+                  aria-label="음성 인식 시작"
+                  type="button"
+                  className="glow-pulse"
+                  onClick={() => setIsRecognized(true)}
+                />
+              )}
+            </div>
+            <div className="w-full flex justify-end">
+              <input ref={inputRef} type="text" className="sr-only" />
               <button
-                aria-label="음성 인식 시작"
                 type="button"
-                className="glow-pulse"
-                onClick={() => setIsRecognized(true)}
-              />
-            )}
+                onClick={handleFocusInput}
+                className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center"
+              >
+                <img src={keyboardIcon} alt="키보드" />
+              </button>
+            </div>
           </div>
-          {/* TODO: PC에선 안 보이고 모바일에서만 보이게 하는 조건부 렌더링 추가하기 */}
-          <div className="w-full flex justify-end">
-            <input ref={inputRef} type="text" className="sr-only" />
-            <button
-              type="button"
-              onClick={handleFocusInput}
-              className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center"
-            >
-              <img src={keyboardIcon} alt="키보드" />
-            </button>
-          </div>
-        </div>
+        )}
       </div>
+      {showChatInput && (
+        <div className="absolute bottom-0 left-0 w-full z-30">
+          <ChatInputBar />
+        </div>
+      )}
     </div>
   );
 }
