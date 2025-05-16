@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 
-import { FiHeart, FiShare } from 'react-icons/fi';
+import { FiHeart, FiShare, FiMenu } from 'react-icons/fi';
+import { IoChevronBack } from 'react-icons/io5';
 
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
@@ -11,8 +12,6 @@ import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
-import BackButton from '@/components/common/BackButton';
-import MenuButton from '@/components/common/MenuButton';
 
 interface Message {
   id: string;
@@ -41,6 +40,7 @@ export default function ArtworkPage() {
 
   return (
     <div className="relative w-full max-w-md h-screen overflow-hidden bg-neutral-900 text-white">
+      {/* 상단 이미지 배경 */}
       <div className="pointer-events-none absolute top-0 left-0 w-full h-[35vh]">
         <img
           src={Sample}
@@ -48,46 +48,55 @@ export default function ArtworkPage() {
           className="w-full h-full object-cover select-none pointer-events-none touch-none"
           draggable={false}
         />
-        <div className="absolute top-4">
-          <BackButton className={isExpanded ? 'text-white' : 'text-black'} />
-        </div>
-        {isExpanded && (
-          <div className="absolute top-4 right-4">
-            <MenuButton className="text-white" />
-          </div>
-        )}
       </div>
 
-      <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <div className="relative">
-          <div
-            className={`flex gap-2 ${isExpanded ? 'absolute right-4' : 'absolute right-4 top-[-16px]'} transition-all duration-300`}
-          >
-            <RoundedIconButton icon={<FiHeart />} />
-            <RoundedIconButton icon={<FiShare />} />
+      {/* 상단 고정 헤더 */}
+      {isExpanded && (
+        <div className="fixed bg-neutral-900 border-b-2 border-stone-900 top-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 py-4 z-30">
+          <div className="flex justify-between mx-5 text-2xl">
+            <button type="button" className="hover:text-white/90">
+              <IoChevronBack />
+            </button>
+            <button type="button" className="hover:text-white/90">
+              <FiMenu />
+            </button>
           </div>
-
-          <div
-            className={`mt-${isExpanded ? '20' : '4'} mb-${isExpanded ? '6' : '4'} flex flex-col gap-2 transition-all duration-300 select-none`}
-          >
+          <div className="mt-4 flex justify-between max-w-[100%] items-end mx-7">
             <div className="flex flex-col gap-[3px]">
-              <h1
-                className={`font-normal ${isExpanded ? 'text-lg' : 'text-3xl'} transition-all duration-300`}
-              >
-                In Bed(2005)
-              </h1>
-              <p className="font-light text-xs transition-all duration-300">
+              <h1 className="text-lg font-normal">In Bed(2005)</h1>
+              <p className="text-xs font-light text-[#8E8E8E]">
                 론 뮤익(Ron Mueck)
               </p>
             </div>
-            {!isExpanded && (
-              <p className="text-neutral-400 text-xs ransition-all duration-300">
-                제 13회 서울미디어시티비엔날레
-              </p>
-            )}
+            <div className="flex gap-2">
+              <RoundedIconButton icon={<FiHeart />} />
+              <RoundedIconButton icon={<FiShare />} />
+            </div>
           </div>
+        </div>
+      )}
 
-          <div className="my-4 border-t-2 border-stone-900" />
+      <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
+        <div className={`relative px-4 ${isExpanded ? 'pt-[112px]' : ''}`}>
+          {!isExpanded && (
+            <>
+              <div className="fixed flex justify-end gap-2 right-7 -top-4 z-20">
+                <RoundedIconButton icon={<FiHeart />} />
+                <RoundedIconButton icon={<FiShare />} />
+              </div>
+              <div className="flex flex-col gap-2 mb-4 select-none">
+                <div className="flex flex-col gap-[3px]">
+                  <h1 className="text-2xl font-normal">In Bed(2005)</h1>
+                  <p className="text-xs font-light">론 뮤익(Ron Mueck)</p>
+                </div>
+                <p className="text-xs text-neutral-400 pb-3 border-b-2 border-stone-900">
+                  제 13회 서울미디어시티비엔날레
+                </p>
+              </div>
+            </>
+          )}
+
+          <div className="my-4" />
           <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
 
           <div className="mt-4 flex flex-col gap-2">
