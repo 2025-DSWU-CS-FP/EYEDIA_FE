@@ -24,7 +24,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
         onChange={e => setInputValue(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && handleSend()}
         placeholder="작품에 대해 질문해보세요"
-        className="flex-1 bg-transparent text-white caret-[#E83043] placeholder:text-neutral-500 text-sm font-normal outline-none"
+        className="flex-1 bg-transparent text-white caret-cherry placeholder:text-neutral-500 text-sm font-normal outline-none"
       />
       <div className="flex w-full justify-end gap-2">
         <button

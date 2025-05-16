@@ -28,7 +28,7 @@ function GazePage() {
       <BackButton className="text-white" />
       <div className="w-full max-w-xs flex flex-col">
         {trackingComplete ? (
-          <div className="mt-6 text-xs font-medium text-[#E15D6A]">
+          <div className="mt-6 text-xs font-medium text-cherry-hover">
             시선추적 성공!
           </div>
         ) : (

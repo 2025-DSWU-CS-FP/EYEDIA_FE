@@ -17,6 +17,11 @@ export default {
         darkGray: '#a3a3a3',
         'darkGray-hover': '#828282',
         'darkGray-active': '#626262',
+
+        // 포인트 색상
+        cherry: '#E83043',
+        'cherry-hover': '#E15D6A', //d1283c
+        'cherry-active': '#b42035',
       },
       boxShadow: {
         card: '2px 4px 12px 0px rgba(0, 0, 0, 0.08)',
