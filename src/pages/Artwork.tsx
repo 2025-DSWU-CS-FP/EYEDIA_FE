@@ -9,6 +9,7 @@ import keyboardIcon from '@/assets/icons/keyboard.svg';
 import Sample from '@/assets/images/sample/chat-gaze.png';
 import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
+import ChatMessage from '@/components/chat/ChatMessage';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import BackButton from '@/components/common/BackButton';
 import MenuButton from '@/components/common/MenuButton';
@@ -87,19 +88,11 @@ export default function ArtworkPage() {
           </div>
 
           <div className="my-4 border-t-2 border-stone-900" />
-          <div className="bg-stone-50/10 rounded px-4 py-3 text-sm leading-tight">
-            무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에
-            대해서 설명해 줍니다).
-          </div>
+          <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
 
           <div className="mt-4 flex flex-col gap-2">
             {messages.map(msg => (
-              <div
-                key={msg.id}
-                className="self-end bg-white text-black px-4 py-2 rounded text-sm max-w-[75%]"
-              >
-                {msg.text}
-              </div>
+              <ChatMessage key={msg.id} text={msg.text} isFromUser />
             ))}
           </div>
         </div>

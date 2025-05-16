@@ -18,7 +18,7 @@ const sizeMap = {
 
 export default function RoundedIconButton({
   icon,
-  bgColor = 'bg-stone-500/70 hover:bg-stone-500/90 active:bg-stone-600/90',
+  bgColor = 'bg-[#3F3F3F70] hover:bg-[#3F3F3F65] active:bg-[#3F3F3F60]',
   iconColor = 'text-white',
   size = 'md',
   className = '',
