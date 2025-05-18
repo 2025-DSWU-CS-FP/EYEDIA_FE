@@ -69,3 +69,14 @@
 .absolute {
   position: absolute;
 }
+
+@media (max-width: 768px) {
+  .disable-native-selection::selection {
+    background: transparent;
+  }
+
+  .disable-native-selection {
+    user-select: text;
+    -webkit-touch-callout: none;
+  }
+}

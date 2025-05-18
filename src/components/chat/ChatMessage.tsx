@@ -82,7 +82,6 @@ export default function ChatMessage({
       const copiedText = text.slice(highlightRange.start, highlightRange.end);
       e.clipboardData?.setData('text/plain', copiedText);
     };
-
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleClickOutside);
     document.addEventListener('copy', handleCopy);
@@ -95,6 +94,44 @@ export default function ChatMessage({
       document.addEventListener('mousedown', handleClickOutside);
     };
   }, [text, highlightRange]);
+
+  useEffect(() => {
+    const handleTouchEnd = () => {
+      const selection = window.getSelection();
+      if (!selection || selection.isCollapsed) return;
+
+      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString();
+
+      if (
+        !selectedText.trim() ||
+        !containerRef.current?.contains(range.startContainer)
+      )
+        return;
+
+      const rects = range.getClientRects();
+      const lastRect = rects[rects.length - 1];
+      const containerRect = containerRef.current!.getBoundingClientRect();
+
+      const startOffset = text.indexOf(selectedText);
+      if (startOffset === -1) return;
+
+      setHighlightRange({
+        start: startOffset,
+        end: startOffset + selectedText.length,
+      });
+
+      setMenuPosition({
+        top: lastRect.bottom - containerRect.top + 4,
+        left: lastRect.left - containerRect.left,
+      });
+    };
+
+    document.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [text]);
 
   const renderText = () => {
     if (!highlightRange) return text;
@@ -121,7 +158,7 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`relative text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
+      className={`disable-native-selection relative text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
         isFromUser
           ? 'self-end bg-white text-black'
           : 'bg-stone-50/10 text-white'
