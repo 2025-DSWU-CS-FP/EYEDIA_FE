@@ -25,7 +25,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
   }, [inputValue]);
 
   return (
-    <div className="w-full px-4 py-3 bg-neutral-800 rounded-t-2xl flex flex-col gap-2">
+    <div className="max-w-[425px] w-screen px-4 py-3 bg-neutral-800 rounded-t-2xl flex flex-col gap-2">
       <textarea
         ref={textareaRef}
         value={inputValue}

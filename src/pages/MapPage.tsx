@@ -258,7 +258,7 @@ export default function MapPage() {
           </NaverMap>
         )}
       </MapDiv>
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] px-4 z-20">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[425px] px-4 z-20">
         <div className="space-y-2 mt-4">
           <SearchBar
             value={search}
