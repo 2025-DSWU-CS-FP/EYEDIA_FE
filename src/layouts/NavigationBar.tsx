@@ -1,9 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 
 import GalleryIcon from '@/assets/icons/galleryIcon.svg?react';
+import GalleryStrokeIcon from '@/assets/icons/gallerystrokeIcon.svg?react';
+import HomeemptyIcon from '@/assets/icons/homeemptyIcon.svg?react';
 import HomeIcon from '@/assets/icons/homeIcon.svg?react';
-import MapIcon from '@/assets/icons/mapIcon.svg?react';
+import ProfileFillIcon from '@/assets/icons/profilefillicon.svg?react';
 import ProfileIcon from '@/assets/icons/profileIcon.svg?react';
+import MapIcon from '@/components/Icons/MapIcon';
 
 export default function NavigationBar() {
   const { pathname } = useLocation();
@@ -14,38 +17,33 @@ export default function NavigationBar() {
     {
       title: '홈 이동',
       to: '/',
-      icon: (
-        <HomeIcon
-          className={`${iconStyle} ${pathname === '/' ? 'fill-mainGreen' : 'fill-mainGray'}`}
-        />
-      ),
+      icon:
+        pathname === '/' ? (
+          <HomeIcon className="size-9 fill-mainGreen" />
+        ) : (
+          <HomeemptyIcon className="size-9 stroke-mainGray" />
+        ),
     },
     {
       title: '갤러리 이동',
       to: '/gallery',
-      icon: (
-        <GalleryIcon
-          className={`${iconStyle} ${pathname === '/gallery' ? 'stroke-mainGreen [&>path:first-child]:fill-mainGreen' : 'stroke-mainGray [&>path:first-child]:fill-mainGray'}`}
-        />
-      ),
+      icon: pathname === '/gallery' ? <GalleryStrokeIcon /> : <GalleryIcon />,
     },
     {
       title: '지도 이동',
       to: '/map',
       icon: (
         <MapIcon
-          className={`${iconStyle} ${pathname === '/map' ? 'fill-mainGreen' : 'fill-mainGray'}`}
+          className={iconStyle}
+          stroke="#1C1B1F"
+          strokeWidth={pathname === '/map' ? 0.8 : 0}
         />
       ),
     },
     {
       title: '마이페이지 이동',
       to: '/mypage',
-      icon: (
-        <ProfileIcon
-          className={`${iconStyle} size-9 ${pathname === '/mypage' ? 'stroke-mainGreen [&>path:first-child]:fill-mainGreen' : 'stroke-mainGray [&>path:first-child]:fill-mainGray'}`}
-        />
-      ),
+      icon: pathname === '/mypage' ? <ProfileFillIcon /> : <ProfileIcon />,
     },
   ];
 

@@ -319,8 +319,8 @@ export default function MapPage() {
           ))}
         </div>
       </DraggableBottomSheet>
-      <div className="fixed select-none -z-10 bottom-2 left-2 bg-white/100 px-3 py-1 rounded shadow">
-        <span className="text-sm text-black/100">선택된 주소: {address}</span>
+      <div className="fixed select-none -z-10 bg-transport">
+        <span className="text-sm text-transport">선택된 주소: {address}</span>
       </div>
     </div>
   );

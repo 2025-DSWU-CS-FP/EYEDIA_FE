@@ -84,7 +84,7 @@ export default function ArtworkBottomSheet({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed flex justify-center items-end transition-all duration-500 ease-in-out">
+    <div className="fixed flex justify-center max-w-[425px] w-full items-end transition-all duration-500 ease-in-out">
       <div
         ref={sheetRef}
         onPointerDown={handlePointerDown}
