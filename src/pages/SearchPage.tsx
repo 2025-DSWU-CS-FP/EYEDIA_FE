@@ -24,7 +24,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[375px] min-h-screen px-4 py-6 bg-white">
+    <div className="mx-auto w-[430px] max-w-full min-h-screen px-4 py-6 bg-white">
       <div className="mb-6">
         <SearchBar onSearch={handleSearch} color="black" />
       </div>

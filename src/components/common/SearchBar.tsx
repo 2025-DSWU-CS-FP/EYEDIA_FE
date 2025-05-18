@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
 interface SearchBarProps {
@@ -34,27 +35,32 @@ export default function SearchBar({
   const textColor = isBlack
     ? 'text-black/70 placeholder-black/70'
     : 'text-white/80 placeholder-white/80';
-  const circleBorder = isBlack ? 'border-black' : 'border-white';
+  const iconColor = isBlack ? 'text-black/70' : 'text-white/80';
 
   return (
-    <form onSubmit={handleSubmit} className="relative w-80 h-10">
+    <form
+      onSubmit={handleSubmit}
+      className="relative w-full max-w-[90%] h-10 mx-auto"
+    >
       <div
-        className={`absolute left-0 top-0 w-80 h-10 rounded-sm ${bgColor} border ${borderColor}`}
-      />
-      <div
-        className={`absolute left-[298px] top-[13px] w-3 h-3 rounded-full border ${circleBorder}`}
-      />
-      <div
-        className={`absolute left-[308px] top-[24.34px] w-0.5 h-2 rotate-[-41.96deg] origin-top-left border ${circleBorder}`}
+        className={`absolute inset-0 rounded-sm ${bgColor} border ${borderColor}`}
       />
 
       <input
         type="text"
-        className={`absolute left-[12px] top-[12px] w-[250px] bg-transparent text-sm font-medium outline-none ${textColor}`}
+        className={`absolute left-3 top-1/2 -translate-y-1/2 pr-10 w-[85%] bg-transparent text-sm font-medium outline-none ${textColor}`}
         placeholder={placeholder}
         value={input}
         onChange={e => setInput(e.target.value)}
       />
+
+      {/* 🔍 서치 아이콘 */}
+      <button
+        type="submit"
+        className={`absolute right-3 top-1/2 -translate-y-1/2 ${iconColor}`}
+      >
+        <FiSearch size={18} />
+      </button>
     </form>
   );
 }

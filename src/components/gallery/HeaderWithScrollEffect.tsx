@@ -13,7 +13,7 @@ export default function HeaderWithScrollEffect() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-20 mx-auto max-w-[375px] transition backdrop-blur-sm ${
+      className={`fixed top-0 left-0 right-0 z-20 mx-auto w-full max-w-[420px] transition backdrop-blur-sm ${
         isScrolled ? 'bg-[#C9C9C9]/[0.64]' : 'bg-white'
       }`}
     >

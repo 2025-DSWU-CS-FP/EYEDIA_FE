@@ -4,7 +4,7 @@ interface FloatingButtonProps {
 
 function FloatingButton({ onClick }: FloatingButtonProps) {
   return (
-    <div className="fixed bottom-[80px] left-1/2 w-[400px] max-w-full -translate-x-1/2">
+    <div className="fixed left-1/2 -translate-x-1/2 z-10 w-full max-w-md items-center bottom-[80px]">
       <div className="flex justify-end px-4">
         <button
           type="button"

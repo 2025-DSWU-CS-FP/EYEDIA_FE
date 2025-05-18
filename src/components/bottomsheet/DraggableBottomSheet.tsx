@@ -79,7 +79,7 @@ export default function DraggableBottomSheet({
       onPointerDown={handlePointerDown}
       className="
         fixed bottom-4 left-1/2
-        w-full sm:w-[90%] md:max-w-[400px]
+        w-full sm:w-[90%] md:max-w-[420px]
         bg-white rounded-t-2xl shadow-lg z-10
         transition-transform duration-300 touch-none
       "

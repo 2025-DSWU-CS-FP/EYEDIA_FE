@@ -52,7 +52,7 @@ export default function ArtworkPage() {
 
       {/* 상단 고정 헤더 */}
       {isExpanded && (
-        <div className="fixed bg-neutral-900 border-b-2 border-stone-900 top-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 py-4 z-30">
+        <div className="fixed bg-neutral-900 border-b-2 border-stone-900 top-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] px-4 py-4 z-30">
           <div className="flex justify-between mx-5 text-2xl">
             <button type="button" className="hover:text-white/90">
               <IoChevronBack />
@@ -141,7 +141,7 @@ export default function ArtworkPage() {
         </div>
       )}
       {showChatInput && (
-        <div className="fixed left-1/2 -translate-x-1/2 max-w-[400px] bottom-0 w-full z-20">
+        <div className="fixed left-1/2 -translate-x-1/2 max-w-[420px] bottom-0 w-full z-20">
           <ChatInputBar onSend={handleSendMessage} />
         </div>
       )}

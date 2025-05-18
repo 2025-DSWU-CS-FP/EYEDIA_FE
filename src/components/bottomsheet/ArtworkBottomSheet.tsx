@@ -89,7 +89,7 @@ export default function ArtworkBottomSheet({
         ref={sheetRef}
         onPointerDown={handlePointerDown}
         className={`
-          w-full max-w-[400px] bg-neutral-900 transition-transform duration-300 touch-none
+          w-full max-w-[425px] bg-neutral-900 transition-transform duration-300 touch-none
           ${isFullyExpanded ? '' : 'rounded-t-2xl'}
         `}
         style={{

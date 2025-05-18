@@ -17,7 +17,7 @@ export default function GalleryDetailPage() {
   return (
     <div className="relative bg-white min-h-screen">
       <div className="relative w-full h-[355px]">
-        <BackButton className="absolute top-12 left-4 z-10 text-black" />
+        <BackButton className="absolute top-12 -left-1 z-10 text-black" />
         <img
           src={galleryInfo.coverImage}
           alt="전시 커버"

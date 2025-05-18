@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div
-      className={`mx-auto flex min-h-screen w-full max-w-[400px] flex-col bg-white ${
+      className={`mx-auto flex min-h-screen w-full flex-col bg-white ${
         !isChatRoute ? 'pb-24' : ''
       }`}
     >

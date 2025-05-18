@@ -2,7 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  @apply flex justify-center w-full min-h-screen bg-white;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0 auto;
+    font-family: 'Pretendard';
+}
+
+#root {
+  position: relative;
+  min-width: 375px;
+  max-width: 425px;
+  width: 100%;
+  margin: 0 auto;
   --background: #ffffff;
   --foreground: #171717;
 }

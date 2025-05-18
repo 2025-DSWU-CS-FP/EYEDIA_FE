@@ -7,6 +7,7 @@ import map1 from '@/assets/images/sample/map1.png';
 import map2 from '@/assets/images/sample/map2.png';
 import map3 from '@/assets/images/sample/map3.png';
 import DraggableBottomSheet from '@/components/bottomsheet/DraggableBottomSheet';
+import LoopLoading from '@/components/common/LoopLoading';
 import SearchBar from '@/components/map/SearchBar';
 import FILTER_COLORS from '@/constants/filterColors';
 import EXHIBITION_FILTER_TAGS from '@/constants/filters';
@@ -41,6 +42,7 @@ export const EXHIBITIONS = [
 export default function MapPage() {
   const [search, setSearch] = useState('');
   const [address, setAddress] = useState('');
+  const [setIsMapReady] = useState(false);
   const [myLocation, setMyLocation] = useState<{
     lat: number;
     lng: number;
@@ -176,6 +178,10 @@ export default function MapPage() {
       });
   };
 
+  if (!myLocation) {
+    return <LoopLoading />;
+  }
+
   return (
     <div className="relative w-full h-[100vh]">
       <MapDiv className="w-full h-full select-none">
@@ -184,6 +190,7 @@ export default function MapPage() {
             onClick={handleMapClick}
             defaultCenter={myLocation}
             defaultZoom={16}
+            onLoad={() => setIsMapReady(true)}
           >
             <Marker
               position={myLocation}
@@ -251,7 +258,7 @@ export default function MapPage() {
           </NaverMap>
         )}
       </MapDiv>
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[400px] px-4 z-20">
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] px-4 z-20">
         <div className="space-y-2 mt-4">
           <SearchBar
             value={search}

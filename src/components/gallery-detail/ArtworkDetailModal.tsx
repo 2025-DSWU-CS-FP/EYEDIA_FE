@@ -20,7 +20,7 @@ export default function ArtworkDetailModal({
   onContinueChat,
 }: ArtworkDetailModalProps) {
   return (
-    <div className="fixed inset-0 z-10 left-1/2 w-[400px] -translate-x-1/2 flex items-center justify-center bg-black/60 px-10 py-22">
+    <div className="fixed inset-0 z-10 left-1/2 max-w-[420px] w-full -translate-x-1/2 flex items-center justify-center bg-black/60 px-10 py-22">
       <button
         type="button"
         aria-label="close"
