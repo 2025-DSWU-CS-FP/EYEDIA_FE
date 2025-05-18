@@ -42,7 +42,7 @@ export const EXHIBITIONS = [
 export default function MapPage() {
   const [search, setSearch] = useState('');
   const [address, setAddress] = useState('');
-  const [setIsMapReady] = useState(false);
+  const [, setIsMapReady] = useState(false);
   const [myLocation, setMyLocation] = useState<{
     lat: number;
     lng: number;
