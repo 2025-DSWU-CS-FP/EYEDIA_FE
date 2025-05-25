@@ -3,6 +3,8 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
 const Main = lazy(() => import('@/pages/MainPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const SignupPage = lazy(() => import('@/pages/SignupPage'));
 const MyPage = lazy(() => import('@/pages/MyPage'));
 const Onboarding = lazy(() => import('@/pages/Onboarding'));
 const GazePage = lazy(() => import('@/pages/GazePage'));
@@ -32,6 +34,14 @@ const mainRoutes: RouteObject[] = [
         element: <MyPage />,
       },
       {
+        path: 'login',
+        element: <LoginPage />,
+      },
+      {
+        path: 'signup',
+        element: <SignupPage />,
+      },
+      {
         path: 'chat-onboarding',
         element: <Onboarding />,
       },
@@ -58,6 +68,10 @@ const mainRoutes: RouteObject[] = [
       {
         path: 'map',
         element: <MapPage />,
+      },
+      {
+        path: 'signup',
+        element: <SignupPage />,
       },
       {
         path: 'exhibition/:id',
