@@ -1,11 +1,17 @@
+import React from 'react';
+
 export default function SelectionActionMenu({
   top,
   left,
   menuRef,
+  onExtract,
+  onCancel,
 }: {
   top: number;
   left: number;
   menuRef: React.RefObject<HTMLDivElement>;
+  onExtract: () => void;
+  onCancel: () => void;
 }) {
   return (
     <div ref={menuRef} className="absolute z-50" style={{ top, left }}>
@@ -19,14 +25,16 @@ export default function SelectionActionMenu({
             type="button"
             aria-label="취소"
             className="text-white text-sm leading-tight"
+            onClick={onCancel}
           >
             취소
           </button>
           <div className="w-px h-4 bg-white opacity-30" />
           <button
             type="button"
-            aria-label="취소"
+            aria-label="발췌"
             className="text-white text-sm leading-tight"
+            onClick={onExtract}
           >
             발췌
           </button>

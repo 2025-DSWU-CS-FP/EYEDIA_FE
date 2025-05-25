@@ -6,6 +6,7 @@ import '@/styles/chat-selection.css';
 interface ChatMessageProps {
   text: string;
   isFromUser?: boolean;
+  onExtract?: (quote: string) => void;
 }
 
 function Marker() {
@@ -20,6 +21,7 @@ function Marker() {
 export default function ChatMessage({
   text,
   isFromUser = false,
+  onExtract,
 }: ChatMessageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -164,11 +166,22 @@ export default function ChatMessage({
           : 'bg-stone-50/10 text-white'
       }`}
     >
-      {menuPosition && (
+      {menuPosition && highlightRange && (
         <SelectionActionMenu
           top={menuPosition.top}
           left={menuPosition.left}
           menuRef={menuRef}
+          onExtract={() => {
+            const quote = text.slice(highlightRange.start, highlightRange.end);
+            console.log('[ChatMessage] 발췌 텍스트:', quote);
+            onExtract?.(quote);
+            setHighlightRange(null);
+            setMenuPosition(null);
+          }}
+          onCancel={() => {
+            setHighlightRange(null);
+            setMenuPosition(null);
+          }}
         />
       )}
       {renderText()}

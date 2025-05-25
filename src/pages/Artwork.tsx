@@ -11,6 +11,7 @@ import Sample from '@/assets/images/sample/chat-gaze.png';
 import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
+import ExtractCard from '@/components/chat/ExtractCard';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 
 interface Message {
@@ -22,6 +23,8 @@ export default function ArtworkPage() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRecognized, setIsRecognized] = useState(false);
   const [showChatInput, setShowChatInput] = useState(false);
+  const [selectionText, setSelectionText] = useState('');
+  const [showExtractCard, setShowExtractCard] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -101,7 +104,16 @@ export default function ArtworkPage() {
 
           <div className="mt-4 flex flex-col gap-2">
             {messages.map(msg => (
-              <ChatMessage key={msg.id} text={msg.text} isFromUser />
+              <ChatMessage
+                key={msg.id}
+                text={msg.text}
+                isFromUser
+                onExtract={quote => {
+                  console.log('[ArtworkPage] 받은 발췌 텍스트:', quote);
+                  setSelectionText(quote);
+                  setShowExtractCard(true);
+                }}
+              />
             ))}
           </div>
         </div>
@@ -143,6 +155,18 @@ export default function ArtworkPage() {
       {showChatInput && (
         <div className="fixed left-1/2 -translate-x-1/2 max-w-[425px] bottom-0 w-full z-20">
           <ChatInputBar onSend={handleSendMessage} />
+        </div>
+      )}
+      {showExtractCard && (
+        <div className="fixed top-0 left-0 z-50 w-full h-full flex justify-center items-center bg-black/80">
+          <ExtractCard
+            imageUrl="/sample.png"
+            quote={selectionText}
+            title="In Bed(2005)"
+            artist="론 뮤익"
+            onSave={() => alert('이미지 저장')}
+            onShare={() => alert('공유')}
+          />
         </div>
       )}
     </div>
