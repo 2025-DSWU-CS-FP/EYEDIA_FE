@@ -31,6 +31,13 @@
         "png": "always"
       }
     ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": true,
+        "ignorePropertyModificationsFor": ["config"]
+      }
+    ],
     "import/order": [
         "error",
         {

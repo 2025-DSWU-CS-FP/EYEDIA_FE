@@ -7,6 +7,10 @@ const useLogin = () => {
   return useMutation({
     mutationFn: async (data: LoginRequest): Promise<LoginResponse> => {
       const res = await axiosInstance.post('/api/v1/auth/login', data);
+
+      const { token } = res.data;
+      localStorage.setItem('accessToken', token);
+
       return res.data;
     },
   });

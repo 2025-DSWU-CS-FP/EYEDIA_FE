@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 
+import { nanoid } from 'nanoid';
 import { FiHeart, FiShare, FiMenu } from 'react-icons/fi';
 import { IoChevronBack } from 'react-icons/io5';
-
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
 
@@ -13,11 +13,7 @@ import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
 import ExtractCard from '@/components/chat/ExtractCard';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
-
-interface Message {
-  id: string;
-  text: string;
-}
+import useChatMessages from '@/services/queries/useChatMessages';
 
 export default function ArtworkPage() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -25,7 +21,7 @@ export default function ArtworkPage() {
   const [showChatInput, setShowChatInput] = useState(false);
   const [selectionText, setSelectionText] = useState('');
   const [showExtractCard, setShowExtractCard] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { data: chatMessages } = useChatMessages(4);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFocusInput = () => {
@@ -33,17 +29,8 @@ export default function ArtworkPage() {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  const handleSendMessage = (message: string) => {
-    const newMessage = {
-      id: String(Date.now()),
-      text: message,
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
-
   return (
     <div className="relative w-full max-w-md h-screen overflow-hidden bg-neutral-900 text-white">
-      {/* 상단 이미지 배경 */}
       <div className="pointer-events-none absolute top-0 left-0 w-full h-[35vh]">
         <img
           src={Sample}
@@ -53,7 +40,6 @@ export default function ArtworkPage() {
         />
       </div>
 
-      {/* 상단 고정 헤더 */}
       {isExpanded && (
         <div className="fixed bg-neutral-900 border-b-2 border-stone-900 top-0 left-1/2 -translate-x-1/2 w-full max-w-[425px] px-4 py-4 z-30">
           <div className="flex justify-between mx-5 text-2xl">
@@ -98,18 +84,19 @@ export default function ArtworkPage() {
               </div>
             </>
           )}
-
-          <div className="my-4" />
-          <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
-
+          {(!chatMessages || chatMessages.length === 0) && (
+            <>
+              <div className="my-4" />
+              <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
+            </>
+          )}
           <div className="mt-4 flex flex-col gap-2">
-            {messages.map(msg => (
+            {chatMessages?.map(msg => (
               <ChatMessage
-                key={msg.id}
-                text={msg.text}
-                isFromUser
+                key={nanoid()}
+                text={msg.content}
+                isFromUser={msg.sender === 'USER'}
                 onExtract={quote => {
-                  console.log('[ArtworkPage] 받은 발췌 텍스트:', quote);
                   setSelectionText(quote);
                   setShowExtractCard(true);
                 }}
@@ -154,13 +141,14 @@ export default function ArtworkPage() {
       )}
       {showChatInput && (
         <div className="fixed left-1/2 -translate-x-1/2 max-w-[425px] bottom-0 w-full z-20">
-          <ChatInputBar onSend={handleSendMessage} />
+          {/* TODO: onSend={handleSendMessage} 추가하기 */}
+          <ChatInputBar />
         </div>
       )}
       {showExtractCard && (
         <div className="fixed top-0 left-0 z-50 w-full h-full flex justify-center items-center bg-black/80">
           <ExtractCard
-            imageUrl="/sample.png"
+            imageUrl={Sample}
             quote={selectionText}
             title="In Bed(2005)"
             artist="론 뮤익"
