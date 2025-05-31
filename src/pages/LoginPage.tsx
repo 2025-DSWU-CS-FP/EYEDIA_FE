@@ -1,11 +1,14 @@
 import { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import useLogin from '@/services/mutations/useLogin';
 
 export default function LoginPage() {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const loginMutation = useLogin();
+  const navigate = useNavigate();
 
   const handleLogin = () => {
     if (!id || !pw) {
@@ -19,6 +22,7 @@ export default function LoginPage() {
         onSuccess: data => {
           alert('Login success!');
           localStorage.setItem('accessToken', data.accessToken);
+          navigate('/');
         },
         onError: () => alert('Login failed'),
       },
@@ -47,7 +51,7 @@ export default function LoginPage() {
           type="button"
           aria-label="로그인"
           onClick={handleLogin}
-          className="w-full bg-white text-black py-3 rounded font-semibold hover:bg-gray-300 bg-gray-200 transition"
+          className="w-full text-black py-3 rounded font-semibold hover:bg-gray-300 bg-gray-200 transition"
         >
           로그인
         </button>
