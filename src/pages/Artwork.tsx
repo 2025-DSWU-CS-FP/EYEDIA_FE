@@ -160,7 +160,7 @@ export default function ArtworkPage() {
       {showExtractCard && (
         <div className="fixed top-0 left-0 z-50 w-full h-full flex justify-center items-center bg-black/80">
           <ExtractCard
-            imageUrl="/sample.png"
+            imageUrl={Sample}
             quote={selectionText}
             title="In Bed(2005)"
             artist="론 뮤익"

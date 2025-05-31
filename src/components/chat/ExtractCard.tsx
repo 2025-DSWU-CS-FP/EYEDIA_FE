@@ -1,10 +1,9 @@
 import addIcon from '@/assets/icons/add-image.svg';
 import shareIcon from '@/assets/icons/share-image.svg';
-import Sample from '@/assets/images/sample/chat-gaze.png';
 import BackButton from '@/components/common/BackButton';
 
 interface ExtractCardProps {
-  // imageUrl
+  imageUrl: string;
   quote: string;
   title: string;
   artist: string;
@@ -13,7 +12,7 @@ interface ExtractCardProps {
 }
 
 export default function ExtractCard({
-  // imageUrl,
+  imageUrl,
   quote,
   title,
   artist,
@@ -35,7 +34,7 @@ export default function ExtractCard({
         {/* 반투명 카드 이미지 */}
         <div className="absolute top-[133px] left-1/2 -translate-x-1/2 w-80 h-[519px] rounded-2xl bg-black/50 overflow-hidden">
           <img
-            src={Sample}
+            src={imageUrl}
             alt="artwork"
             className="w-full h-full object-cover opacity-30 rounded-2xl"
           />
