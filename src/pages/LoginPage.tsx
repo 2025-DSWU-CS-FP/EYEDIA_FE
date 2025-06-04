@@ -30,7 +30,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black flex items-center justify-center">
+    <div className="min-h-screen bg-white text-gray-100 flex items-center justify-center">
       <div className="p-8 w-full">
         <h2 className="text-xl font-bold mb-6">로그인</h2>
         <input
@@ -38,20 +38,20 @@ export default function LoginPage() {
           placeholder="아이디"
           value={id}
           onChange={e => setId(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-4 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <input
           type="password"
           placeholder="비밀번호"
           value={pw}
           onChange={e => setPw(e.target.value)}
-          className="w-full p-3 mb-6 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-6 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <button
           type="button"
           aria-label="로그인"
           onClick={handleLogin}
-          className="w-full text-black py-3 rounded font-semibold hover:bg-gray-300 bg-gray-200 transition"
+          className="w-full text-black py-3 rounded font-semibold hover:bg-gray-30 bg-gray-20 transition"
         >
           로그인
         </button>
