@@ -22,6 +22,38 @@ export default {
         cherry: '#E83043',
         'cherry-hover': '#E15D6A', //d1283c
         'cherry-active': '#b42035',
+        brand: {
+          5: '#f9f9f9',
+          20: '#f2f2f2',
+          40: '#e6e6e6',
+          50: '#dcdcdc',
+          70: '#c4c4c4',
+          80: '#bcbcbc',
+        },
+        gray: {
+          0: '#ffffff',
+          5: '#f9f9f9',
+          10: '#f2f2f2',
+          20: '#e6e6e6',
+          30: '#d1d1d1',
+          40: '#bdbdbd',
+          50: '#999999',
+          60: '#808080',
+          70: '#666666',
+          80: '#4d4d4d',
+          90: '#333333',
+          100: '#000000',
+        },
+        statement: {
+          error: '#F44336',
+          warning: '#FFCA28',
+          positive: '#4CAF50',
+        },
+        opacity: {
+          light: 'rgba(0, 0, 0, 0.2)',
+          medium: 'rgba(0, 0, 0, 0.5)',
+          dark: 'rgba(0, 0, 0, 0.8)',
+        },
       },
       boxShadow: {
         card: '2px 4px 12px 0px rgba(0, 0, 0, 0.08)',
@@ -33,6 +65,21 @@ export default {
       },
       height: {
         inherit: 'inherit',
+      },
+      fontSize: {
+        '28': ['28px', { lineHeight: '32px' }],
+        '22_sb': ['22px', { lineHeight: '24px' }],
+        '22_m': ['22px', { lineHeight: '24px' }],
+        '20_sb': ['20px', { lineHeight: '22px' }],
+        '20_r': ['20px', { lineHeight: '22px' }],
+        '14': ['28px', { lineHeight: '32px' }],
+        '13': ['22px', { lineHeight: '24px' }],
+        '12': ['22px', { lineHeight: '24px' }],
+      },
+      fontWeight: {
+        regular: '400',
+        medium: '500',
+        semibold: '600',
       },
     },
     animation: {
