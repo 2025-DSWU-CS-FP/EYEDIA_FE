@@ -21,7 +21,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-black flex items-center justify-center">
+    <div className="min-h-screen bg-white text-gray-100 flex items-center justify-center">
       <div className="p-8">
         <h2 className="text-xl font-bold mb-6">회원가입</h2>
         <input
@@ -29,33 +29,33 @@ export default function SignupPage() {
           placeholder="아이디"
           value={id}
           onChange={e => setId(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-4 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <input
           type="password"
           placeholder="비밀번호"
           value={pw}
           onChange={e => setPw(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-4 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <input
           type="text"
           placeholder="이름"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="w-full p-3 mb-4 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-4 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <input
           type="number"
           placeholder="나이"
           value={age}
           onChange={e => setAge(Number(e.target.value))}
-          className="w-full p-3 mb-4 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-4 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <select
           value={gender}
           onChange={e => setGender(e.target.value as 'MALE' | 'FEMALE')}
-          className="w-full p-3 mb-6 rounded bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white"
+          className="w-full p-3 mb-6 rounded bg-gray-20 focus:outline-none focus:ring-2 focus:ring-white"
         >
           <option value="FEMALE">여성</option>
           <option value="MALE">남성</option>
@@ -65,7 +65,7 @@ export default function SignupPage() {
           type="button"
           aria-label="로그인"
           onClick={handleSignup}
-          className="w-full bg-white text-black py-3 rounded font-semibold bg-gray-200 hover:bg-gray-300 transition"
+          className="w-full bg-white text-black py-3 rounded font-semibold bg-gray-20 hover:bg-gray-30 transition"
         >
           회원가입
         </button>
