@@ -29,9 +29,9 @@ function OnboardingPage() {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex relative flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
-      <BackButton className="text-white" />
-      <div className=" w-full px-4">
+    <div className="flex relative flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300 -mb-6">
+      <BackButton className="text-black" />
+      <div className="w-full px-4">
         <OnboardingText
           text={
             isConnected
@@ -39,11 +39,11 @@ function OnboardingPage() {
               : '전용 아이웨어를 착용하고 연결해주세요.'
           }
         />
-        <div className="relative flex justify-center items-center h-44">
+        <div className="relative flex justify-center w-[20.9rem] h-[20.9rem] items-center mx-auto">
           <img
             src={ringImage}
             alt="background ring"
-            className="absolute w-[300px] h-auto bottom-[-10px] opacity-70"
+            className="absolute w-[20.9rem] h-[20.9rem] -bottom-[5rem] opacity-70"
           />
           <SwitchTransition mode="out-in">
             <CSSTransition
