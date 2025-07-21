@@ -14,19 +14,21 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const isChatRoute = location.pathname.startsWith('/chat');
+  const isLoginRoute = location.pathname.startsWith('/login');
+  const isSignupRoute = location.pathname.startsWith('/signup');
   const isMapRoute = location.pathname.startsWith('/map');
 
   return (
     <div
       className={`mx-auto flex min-h-screen w-full flex-col bg-white ${
-        !isChatRoute ? 'pb-24' : ''
+        !isChatRoute && !isLoginRoute && !isSignupRoute && 'pb-24'
       }`}
     >
       <div className="flex-1">{children || <Outlet />}</div>
-      {!isChatRoute && (
+      {!isChatRoute && !isLoginRoute && !isSignupRoute && (
         <>
           <NavigationBar />
-          {!isMapRoute && (
+          {!isMapRoute && !isLoginRoute && !isSignupRoute && (
             <FloatingButton onClick={() => navigate('/chat-onboarding')} />
           )}
         </>
