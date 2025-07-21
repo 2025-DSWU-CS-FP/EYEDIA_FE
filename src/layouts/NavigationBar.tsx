@@ -48,7 +48,7 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-10 flex w-full max-w-md items-center justify-around rounded-t-sm bg-[#F6F6F6] h-[70px] px-2">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-10 flex w-full max-w-[430px] items-center justify-around rounded-t-sm bg-[#F6F6F6] h-[70px] px-2">
       {menuList.map(menu => (
         <Link
           key={menu.to}
