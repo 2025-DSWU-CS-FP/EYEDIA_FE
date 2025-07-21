@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { MdCheckCircle, MdDone } from 'react-icons/md';
+
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
@@ -11,7 +13,7 @@ export default function SignupPage() {
   const [pwConfirm, setPwConfirm] = useState('');
   const [name, setName] = useState('');
   const [age, setAge] = useState<number | ''>('');
-  const [gender, setGender] = useState<'MALE' | 'FEMALE'>('FEMALE');
+  const [gender, setGender] = useState<'' | 'MALE' | 'FEMALE'>('');
   const [pwMessage, setPwMessage] = useState('');
 
   const [terms, setTerms] = useState({
@@ -46,7 +48,8 @@ export default function SignupPage() {
       !name ||
       !age ||
       !terms.privacy ||
-      !terms.age
+      !terms.age ||
+      !gender
     ) {
       alert('필수 항목을 모두 입력하고 확인해주세요.');
       return;
@@ -112,34 +115,49 @@ export default function SignupPage() {
         <select
           value={gender}
           onChange={e => setGender(e.target.value as 'MALE' | 'FEMALE')}
-          className="w-full px-4 py-3 bg-white border border-gray-10 rounded-md text-sm text-gray-80"
+          className="w-full px-4 py-3 bg-white border border-gray-10 rounded-md text-sm
+                    text-gray-30
+                    focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:outline-none
+                    focus:text-gray-80"
         >
+          <option value="" disabled hidden>
+            성별
+          </option>
           <option value="FEMALE">여성</option>
           <option value="MALE">남성</option>
         </select>
       </div>
-
       <div className="w-full max-w-md mt-8 bg-white rounded-md p-4 shadow-sm space-y-3">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={terms.all}
-            onChange={handleAllTerms}
-            className="mr-2 accent-indigo-400"
-          />
+        <div className="flex items-center cursor-pointer">
+          <button
+            type="button"
+            onClick={handleAllTerms}
+            className="mr-2 text-2xl text-gray-30 cursor-pointer"
+          >
+            {terms.all ? (
+              <MdCheckCircle className="text-brand-blue" />
+            ) : (
+              <MdCheckCircle className="text-gray-30" />
+            )}
+          </button>
           <span className="font-medium text-sm text-gray-80">
             서비스 약관 전체 동의
           </span>
         </div>
         <hr className="border-gray-10" />
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={terms.privacy}
-              onChange={e => setTerms({ ...terms, privacy: e.target.checked })}
-              className="mr-2 accent-indigo-400"
-            />
+          <div className="flex items-center cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setTerms({ ...terms, privacy: !terms.privacy })}
+              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+            >
+              {terms.privacy ? (
+                <MdDone className="text-brand-blue" />
+              ) : (
+                <MdDone className="text-gray-30" />
+              )}
+            </button>
             <span className="text-sm text-gray-80">
               [필수] 이용약관 및 개인정보 처리방침
             </span>
@@ -147,26 +165,38 @@ export default function SignupPage() {
           <span className="text-xs text-brand-blue underline">자세히</span>
         </div>
         <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={terms.age}
-            onChange={e => setTerms({ ...terms, age: e.target.checked })}
-            className="mr-2 accent-indigo-400"
-          />
-          <span className="text-sm text-gray-80">
-            [필수] 만 14세 이상입니다.
-          </span>
+          <div className="flex items-center cursor-pointer">
+            <button
+              type="button"
+              onClick={() => setTerms({ ...terms, age: !terms.age })}
+              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+            >
+              {terms.age ? (
+                <MdDone className="text-brand-blue" />
+              ) : (
+                <MdDone className="text-gray-30" />
+              )}
+            </button>
+            <span className="text-sm text-gray-80">
+              [필수] 만 14세 이상입니다.
+            </span>
+          </div>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              checked={terms.marketing}
-              onChange={e =>
-                setTerms({ ...terms, marketing: e.target.checked })
+          <div className="flex items-center cursor-pointer">
+            <button
+              type="button"
+              onClick={() =>
+                setTerms({ ...terms, marketing: !terms.marketing })
               }
-              className="mr-2 accent-indigo-400"
-            />
+              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+            >
+              {terms.marketing ? (
+                <MdDone className="text-brand-blue" />
+              ) : (
+                <MdDone className="text-gray-30" />
+              )}
+            </button>
             <span className="text-sm text-gray-80">
               [선택] 마케팅 정보 수집 및 수신 동의
             </span>
