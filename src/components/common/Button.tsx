@@ -1,27 +1,32 @@
-import { ButtonHTMLAttributes } from 'react';
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 
-import clsx from 'clsx';
+import cn from '@/utils/cn';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode;
-  className?: string;
+  variant?: 'primary' | 'secondary';
+  children: ReactNode;
 }
 
 export default function Button({
+  variant = 'primary',
   children,
   className,
   onClick,
   disabled,
 }: ButtonProps) {
+  const baseStyle =
+    'w-full max-w-sm text-base font-medium py-3 rounded-md transition';
+  const variants = {
+    primary: 'bg-brand-blue text-white hover:bg-brand-blue/80',
+    secondary: 'bg-gray-30 text-black hover:bg-gray-40',
+  };
+
   return (
     <button
       type="button"
-      className={clsx(
-        'px-8 py-3 bg-white rounded-sm inline-flex justify-center items-center gap-2.5 text-black text-lg font-semibold font-["Pretendard"]',
-        className,
-      )}
       onClick={onClick}
       disabled={disabled}
+      className={cn(baseStyle, variants[variant], className)}
     >
       {children}
     </button>
