@@ -9,7 +9,7 @@ interface Props {
 export default function MainView({ children, isEmpty, className }: Props) {
   return (
     <main
-      className={`w-full max-w-[375px] mx-auto flex flex-col px-4 ${
+      className={`w-full mx-auto flex flex-col px-4 ${
         isEmpty ? 'items-center justify-center py-10' : 'pt-6 pb-[80px]'
       } ${className}`}
     >

@@ -1,6 +1,9 @@
 import { ReactNode } from 'react';
-import { Outlet } from 'react-router-dom';
 
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+
+import FloatingButton from '@/layouts/FloatingButton';
+// import HamburgerMenu from '@/layouts/MenuBar';
 import NavigationBar from '@/layouts/NavigationBar';
 
 interface LayoutProps {
@@ -8,12 +11,29 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isChatRoute = location.pathname.startsWith('/chat');
+  const isLoginRoute = location.pathname.startsWith('/login');
+  const isSignupRoute = location.pathname.startsWith('/signup');
+  const isMapRoute = location.pathname.startsWith('/map');
+
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[375px] flex-col bg-bg pb-[64px] pt-[60px]">
-      <div className="flex-1">
-        {children || <Outlet />}
-      </div>
-      <NavigationBar />
+    <div
+      className={`mx-auto flex min-h-screen w-full flex-col bg-white ${
+        !isChatRoute && !isLoginRoute && !isSignupRoute && 'pb-24'
+      }`}
+    >
+      <div className="flex-1">{children || <Outlet />}</div>
+      {!isChatRoute && !isLoginRoute && !isSignupRoute && (
+        <>
+          <NavigationBar />
+          {!isMapRoute && !isLoginRoute && !isSignupRoute && (
+            <FloatingButton onClick={() => navigate('/chat-onboarding')} />
+          )}
+        </>
+      )}
+      {/* <HamburgerMenu /> */}
     </div>
   );
 }
