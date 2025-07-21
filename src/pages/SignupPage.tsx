@@ -1,6 +1,8 @@
 import { useState } from 'react';
 
+import { IoChevronBack } from 'react-icons/io5';
 import { MdCheckCircle, MdDone } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
@@ -8,6 +10,7 @@ import TextInput from '@/components/common/TextInput';
 import useSignup from '@/services/mutations/useSignup';
 
 export default function SignupPage() {
+  const navigate = useNavigate();
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [pwConfirm, setPwConfirm] = useState('');
@@ -65,8 +68,18 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gray-5 flex flex-col items-center px-6 py-10">
-      <div className="w-full max-w-md flex items-center mb-6">
-        <span className="text-base font-semibold text-gray-80">회원가입</span>
+      <div className="w-full max-w-md flex items-center justify-between mb-6">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="text-2xl text-gray-80"
+        >
+          <IoChevronBack />
+        </button>
+        <span className="text-base font-semibold text-gray-80 mx-auto">
+          회원가입
+        </span>
+        <div className="w-6" />
       </div>
 
       <div className="w-full max-w-md mb-8">
