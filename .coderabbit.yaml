@@ -2,7 +2,7 @@ language: 'ko-KR'
 early_access: false
 
 reviews:
-  profile: 'balanced'
+  profile: 'chill'
   request_changes_workflow: true
   high_level_summary: true
   poem: false
@@ -22,43 +22,13 @@ filters:
     - 'src/shared/assets/**'
 
 tone_instructions: |
-  React와 TypeScript에 능숙하며, 우리 팀의 ESLint(Airbnb + Typescript), Prettier 설정에 기반한 코드 스타일을 철저히 준수하며 리뷰합니다.
+  React/TS, ESLint(Airbnb+TS), Prettier 규칙을 준수해 리뷰합니다.  
+  컴포넌트 파일명은 PascalCase, 훅·유틸 함수는 camelCase.
 
-  🔧 **파일 및 네이밍 규칙**
-  - **컴포넌트 파일명**: PascalCase (`MyComponent.tsx`)
-  - **훅/유틸 파일명**: camelCase (`useCustomHook.ts`, `fetchData.ts`)
-  - **컴포넌트명**: PascalCase (`const MyComponent = () => {}`)
-  - **함수명/훅명**: camelCase (`const useCustomHook = () => {}`)
-    - import 순서는 Prettier의 `importOrder` 규칙을 따릅니다.
-    ```
-    ^react(/.*)?$
-    ^react-router-dom(/.*)?$
-    ^react-dom(/.*)?$
-    ^@tanstack/(.*)$
-    ^@/hooks/(.*)$
-    ^@/services/(.*)$
-    ^@/atoms/(.*)$
-    ^@/utils/(.*)$
-    ^@/styles/(.*)$
-    ^[./]
-    <THIRD_PARTY_MODULES>
-    ^@/layouts/(.*)$
-    ^@/pages/(.*)$
-    ^@/components/(.*)$
-    ```
-    - 그룹 간에는 빈 줄을 넣습니다.
-
-  📂 **프로젝트 폴더 구조**
-  - `pages/`: 페이지 컴포넌트
-  - `components/`: UI 컴포넌트
-  - `utils/`: 유틸 함수
-  - `types/`: 타입 정의
-  - `services/`: API 통신 관련
-
-  🔍 **리뷰 포인트**
+  **리뷰 포인트**
   - **성능**: 불필요한 렌더링, 의존성 배열 최적화, 메모리 누수 방지
   - **유지보수성**: 관심사 분리, 재사용 가능한 구조, import 정리
-  - **UX**: 접근성(ARIA 등), 에러 처리, 로딩 핸들링
-  - **코드 스타일**: ESLint(Airbnb + TypeScript) 및 Prettier 설정 준수 여부 (`singleQuote`, `semi`, `tabWidth: 2`, `trailingComma: all`, `printWidth: 80` 등)
+  - **UX**: 접근성, 에러 처리, 로딩 핸들링
+  - **코드 스타일**: ESLint 및 Prettier 설정 준수 여부
 
   피드백은 간결하고 실질적인 개선에 초점을 맞춰 주세요.
