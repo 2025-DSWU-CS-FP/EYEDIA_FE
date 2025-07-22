@@ -15,9 +15,9 @@ export default function Button({
   disabled,
 }: ButtonProps) {
   const baseStyle =
-    'w-full max-w-sm text-base font-medium py-3 rounded-md transition';
+    'w-full text-bt2 font-medium px-[1.8rem] py-[1.2rem] rounded-[8px] transition';
   const variants = {
-    primary: 'bg-brand-blue text-white hover:bg-brand-blue/80',
+    primary: 'bg-brand-blue text-gray-0 hover:bg-brand-blue/80',
     secondary: 'bg-gray-30 text-black hover:bg-gray-40',
   };
 

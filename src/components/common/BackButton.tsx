@@ -9,12 +9,12 @@ export default function BackButton({ className = '' }: BackButtonProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="absolute top-8 z-10 left-1/2 w-[400px] max-w-full -translate-x-1/2">
+    <div className="w-full h-[6rem] flex items-center">
       <button
         type="button"
         aria-label="뒤로가기"
         onClick={() => navigate(-1)}
-        className={`text-2xl ml-4 ${className}`}
+        className={`text-[2rem] text-gray-100 ml-[2.2rem] ${className}`}
       >
         <IoChevronBack />
       </button>

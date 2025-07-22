@@ -54,7 +54,6 @@ export default function SearchBar({
         onChange={e => setInput(e.target.value)}
       />
 
-      {/* 🔍 서치 아이콘 */}
       <button
         type="submit"
         className={`absolute right-3 top-1/2 -translate-y-1/2 ${iconColor}`}
