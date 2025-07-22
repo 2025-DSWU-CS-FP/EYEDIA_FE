@@ -15,15 +15,15 @@ reviews:
 chat:
   auto_reply: true
 
-filters:
-  ignore_paths:
-    - 'dist/**'
-    - 'node_modules/**'
-    - 'src/shared/assets/**'
+reviews:
+  path_filters:
+    - '!dist/**'
+    - '!node_modules/**'
+    - '!src/shared/assets/**'
 
 tone_instructions: |
   React/TS, ESLint, Prettier 규칙을 준수해 리뷰합니다.  
   컴포넌트 파일명은 PascalCase, 훅·유틸 함수는 camelCase.
   React/TS 기준 ESLint·Prettier 규칙을 철저히 준수하며,
   간결하고 실질적인 개선 위주의 피드백을 제공합니다(말투는 따숩게).
-  👉 세부 가이드라인은 docs/coderabbit-review-guidelines.md 참조
+  👉 세부 가이드라인은 .github/coderabbit-review-guidelines.md 참조
