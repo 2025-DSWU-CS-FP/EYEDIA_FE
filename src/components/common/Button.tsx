@@ -14,7 +14,9 @@ export default function Button({
   onClick,
   disabled,
 }: ButtonProps) {
-  const baseStyle = 'w-full text-bt3 py-3 rounded-[6px] text-gray-0 transition';
+  const baseStyle =
+    'w-full text-bt3 py-[1.2rem] px-[1.8rem] rounded-[6px] text-gray-0 transition';
+
   const variants = {
     primary: 'bg-brand-blue text-gray-0 hover:bg-brand-blue/80',
     secondary: 'bg-gray-30 text-gray-100 hover:bg-gray-40',
