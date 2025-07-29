@@ -65,19 +65,77 @@ export default {
         inherit: 'inherit',
       },
       fontSize: {
-        '28': ['28px', { lineHeight: '32px' }],
-        '22_sb': ['22px', { lineHeight: '24px' }],
-        '22_m': ['22px', { lineHeight: '24px' }],
-        '20_sb': ['20px', { lineHeight: '22px' }],
-        '20_r': ['20px', { lineHeight: '22px' }],
-        '14': ['28px', { lineHeight: '32px' }],
-        '13': ['22px', { lineHeight: '24px' }],
-        '12': ['22px', { lineHeight: '24px' }],
-      },
-      fontWeight: {
-        regular: '400',
-        medium: '500',
-        semibold: '600',
+        // Title
+        t1: [
+          '28px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        t2: [
+          '24px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        t3: [
+          '20px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        t4: [
+          '18px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        t5: [
+          '16px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+
+        // Body
+        bd1: [
+          '16px',
+          { lineHeight: '150%', letterSpacing: '-0.02em', fontWeight: '400' },
+        ],
+        bd2: [
+          '14px',
+          { lineHeight: '150%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        bd3: [
+          '14px',
+          { lineHeight: '150%', letterSpacing: '-0.02em', fontWeight: '400' },
+        ],
+
+        // Button
+        bt1: [
+          '20px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        bt2: [
+          '18px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        bt3: [
+          '14px',
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+
+        // Caption
+        ct1: [
+          '16px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        ct2: [
+          '14px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
+        ct3: [
+          '14px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        ct4: [
+          '12px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
+        ct5: [
+          '12px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '600' },
+        ],
       },
     },
     animation: {
