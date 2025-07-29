@@ -11,17 +11,17 @@ export default function NavigationBar() {
 
   const menuList = [
     {
-      title: '홈 이동',
+      title: '홈',
       to: '/',
       icon: <HomeIcon className={iconStyle} />,
     },
     {
-      title: '갤러리 이동',
+      title: '갤러리',
       to: '/gallery',
       icon: <GalleryIcon className={iconStyle} />,
     },
     {
-      title: '마이페이지 이동',
+      title: '내 정보',
       to: '/mypage',
       icon: <ProfileIcon className={iconStyle} />,
     },
@@ -36,11 +36,20 @@ export default function NavigationBar() {
             key={menu.to}
             to={menu.to}
             title={menu.title}
-            className={`flex size-7 items-center justify-center ${
-              isActive ? 'text-[#424242]' : 'text-[#B0B8BF]'
-            }`}
+            className="flex flex-col items-center justify-center gap-[0.2rem]"
           >
-            {menu.icon}
+            <span
+              className={`${isActive ? 'text-[#424242]' : 'text-[#B0B8BF]'}`}
+            >
+              {menu.icon}
+            </span>
+            <span
+              className={`text-ct4 ${
+                isActive ? 'text-[#424242]' : 'text-[#B0B8BF]'
+              }`}
+            >
+              {menu.title}
+            </span>
           </Link>
         );
       })}
