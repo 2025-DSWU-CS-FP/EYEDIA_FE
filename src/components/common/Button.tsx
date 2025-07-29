@@ -15,10 +15,11 @@ export default function Button({
   disabled,
 }: ButtonProps) {
   const baseStyle =
-    'w-full text-bt2 font-medium px-[1.8rem] py-[1.2rem] rounded-[8px] transition';
+    'w-full text-bt3 py-[1.2rem] px-[1.8rem] rounded-[6px] text-gray-0 transition';
+
   const variants = {
     primary: 'bg-brand-blue text-gray-0 hover:bg-brand-blue/80',
-    secondary: 'bg-gray-30 text-black hover:bg-gray-40',
+    secondary: 'bg-gray-30 text-gray-100 hover:bg-gray-40',
   };
 
   return (
@@ -26,7 +27,12 @@ export default function Button({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={cn(baseStyle, variants[variant], className)}
+      className={cn(
+        baseStyle,
+        variants[variant],
+        className,
+        'text-gray-0 text-bt3',
+      )}
     >
       {children}
     </button>

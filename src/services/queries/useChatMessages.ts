@@ -1,24 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import axiosInstance from '@/services/axiosInstance';
-
-interface ChatMessage {
-  sender: 'ASSISTANT' | 'USER';
-  content: string;
-  paintingId: number;
-  chatType: string | null;
-  timestamp: string;
-}
+import queryFactory from '@/services/queryFactory';
+import type { ChatMessage } from '@/types';
 
 const useChatMessages = (chatRoomId: number, enabled: boolean = true) => {
   return useQuery<ChatMessage[]>({
     queryKey: ['chatMessages', chatRoomId],
-    queryFn: async () => {
-      const res = await axiosInstance.get(
-        `/api/v1/paintings/${chatRoomId}/chats`,
-      );
-      return res.data;
-    },
+    queryFn: queryFactory.chatMessages(chatRoomId),
     enabled,
     staleTime: 0,
     retry: false,
