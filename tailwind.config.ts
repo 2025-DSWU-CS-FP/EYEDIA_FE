@@ -65,14 +65,29 @@ export default {
         inherit: 'inherit',
       },
       fontSize: {
-        '28': ['28px', { lineHeight: '32px' }],
-        '22_sb': ['22px', { lineHeight: '24px' }],
-        '22_m': ['22px', { lineHeight: '24px' }],
-        '20_sb': ['20px', { lineHeight: '22px' }],
-        '20_r': ['20px', { lineHeight: '22px' }],
-        '14': ['28px', { lineHeight: '32px' }],
-        '13': ['22px', { lineHeight: '24px' }],
-        '12': ['22px', { lineHeight: '24px' }],
+        // Title
+        t1: ['28px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Title 1
+        t2: ['24px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Title 2
+        t3: ['20px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Title 3
+        t4: ['18px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Title 4
+        t5: ['16px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Title 5
+
+        // Body
+        bd1: ['16px', { lineHeight: '150%', letterSpacing: '-0.02em' }], // Body 1
+        bd2: ['14px', { lineHeight: '150%', letterSpacing: '-0.02em' }], // Body 2
+        bd3: ['14px', { lineHeight: '150%', letterSpacing: '-0.02em' }], // Body 3
+
+        // Button
+        bt1: ['20px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Button 1
+        bt2: ['18px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Button 2
+        bt3: ['14px', { lineHeight: '130%', letterSpacing: '-0.02em' }], // Button 3
+
+        // Caption
+        ct1: ['16px', { lineHeight: '140%', letterSpacing: '-0.02em' }], // Caption 1
+        ct2: ['14px', { lineHeight: '140%', letterSpacing: '-0.02em' }], // Caption 2
+        ct3: ['14px', { lineHeight: '140%', letterSpacing: '-0.02em' }], // Caption 3
+        ct4: ['12px', { lineHeight: '140%', letterSpacing: '-0.02em' }], // Caption 4
+        ct5: ['12px', { lineHeight: '140%', letterSpacing: '-0.02em' }], // Caption 5
       },
       fontWeight: {
         regular: '400',
