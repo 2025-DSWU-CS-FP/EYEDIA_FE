@@ -26,7 +26,7 @@ export default function TextInput({
         disabled={disabled}
         name={name}
         className={cn(
-          'w-full px-4 py-3 rounded-md shadow-sm bg-white text-sm text-gray-700 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
+          'w-full px-[1.6rem] py-[1.2rem] rounded-[6px] bg-white text-ct3 text-gray-80 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
           className,
         )}
       />

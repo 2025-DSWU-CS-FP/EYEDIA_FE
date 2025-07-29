@@ -112,7 +112,7 @@ export default {
         ],
         bt3: [
           '14px',
-          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '600' },
+          { lineHeight: '130%', letterSpacing: '-0.02em', fontWeight: '500' },
         ],
 
         // Caption
