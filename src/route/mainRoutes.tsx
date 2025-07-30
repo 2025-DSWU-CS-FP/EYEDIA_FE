@@ -18,7 +18,6 @@ const Layout = lazy(() => import('@/layouts/Layout'));
 const HelpPage = lazy(() => import('@/pages/chat/HelpPage'));
 const ErrorPage = lazy(() => import('@/pages/error/ErrorPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
-const NotFound = lazy(() => import('@/pages/error/NotFound'));
 
 const mainRoutes: RouteObject[] = [
   {
@@ -77,10 +76,6 @@ const mainRoutes: RouteObject[] = [
       {
         path: 'exhibition/:id',
         element: <ExhibitionDetailPage />,
-      },
-      {
-        path: '*',
-        element: <NotFound />,
       },
     ],
   },
