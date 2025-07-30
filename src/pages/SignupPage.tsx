@@ -67,8 +67,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-5 flex flex-col items-center px-6 py-10">
-      <div className="w-full max-w-md flex items-center justify-between mb-6">
+    <div className="flex min-h-screen flex-col items-center bg-gray-5 px-6 py-10">
+      <div className="mb-6 flex w-full max-w-md items-center justify-between">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -76,14 +76,14 @@ export default function SignupPage() {
         >
           <IoChevronBack />
         </button>
-        <span className="text-base font-semibold text-gray-80 mx-auto">
+        <span className="mx-auto text-base font-semibold text-gray-80">
           회원가입
         </span>
         <div className="w-6" />
       </div>
 
-      <div className="w-full max-w-md mb-8">
-        <h2 className="text-xl font-medium text-gray-80 leading-7">
+      <div className="mb-8 w-full max-w-md">
+        <h2 className="text-xl font-medium leading-7 text-gray-80">
           Eyedia와 함께
           <br />
           전시 경험을 높여보세요.
@@ -95,14 +95,14 @@ export default function SignupPage() {
           placeholder="아이디"
           value={id}
           onChange={e => setId(e.target.value)}
-          className="bg-white shadow-sm rounded-md border border-gray-10 px-4 py-3"
+          className="rounded-md border border-gray-10 bg-white px-4 py-3 shadow-sm"
         />
         <PasswordInput
           placeholder="비밀번호"
           value={pw}
           onChange={e => setPw(e.target.value)}
           onBlur={handlePwValidation}
-          className="bg-white shadow-sm rounded-md border border-gray-10 px-4 py-3"
+          className="rounded-md border border-gray-10 bg-white px-4 py-3 shadow-sm"
         />
         <PasswordInput
           placeholder="비밀번호 확인"
@@ -110,28 +110,25 @@ export default function SignupPage() {
           onChange={e => setPwConfirm(e.target.value)}
           onBlur={handlePwValidation}
           errorMessage={pwMessage}
-          className="bg-white shadow-sm rounded-md border border-gray-10 px-4 py-3"
+          className="rounded-md border border-gray-10 bg-white px-4 py-3 shadow-sm"
         />
         <TextInput
           placeholder="이름"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="bg-white shadow-sm rounded-md border border-gray-10 px-4 py-3"
+          className="rounded-md border border-gray-10 bg-white px-4 py-3 shadow-sm"
         />
         <TextInput
           placeholder="나이"
           type="number"
           value={age}
           onChange={e => setAge(e.target.value ? Number(e.target.value) : '')}
-          className="bg-white shadow-sm rounded-md border border-gray-10 px-4 py-3"
+          className="rounded-md border border-gray-10 bg-white px-4 py-3 shadow-sm"
         />
         <select
           value={gender}
           onChange={e => setGender(e.target.value as 'MALE' | 'FEMALE')}
-          className="w-full px-4 py-3 bg-white border border-gray-10 rounded-md text-sm
-                    text-gray-30
-                    focus:border-brand-blue focus:ring-1 focus:ring-brand-blue focus:outline-none
-                    focus:text-gray-80"
+          className="w-full rounded-md border border-gray-10 bg-white px-4 py-3 text-sm text-gray-30 focus:border-brand-blue focus:text-gray-80 focus:outline-none focus:ring-1 focus:ring-brand-blue"
         >
           <option value="" disabled hidden>
             성별
@@ -140,12 +137,12 @@ export default function SignupPage() {
           <option value="MALE">남성</option>
         </select>
       </div>
-      <div className="w-full max-w-md mt-8 bg-white rounded-md p-4 shadow-sm space-y-3">
-        <div className="flex items-center cursor-pointer">
+      <div className="mt-8 w-full max-w-md space-y-3 rounded-md bg-white p-4 shadow-sm">
+        <div className="flex cursor-pointer items-center">
           <button
             type="button"
             onClick={handleAllTerms}
-            className="mr-2 text-2xl text-gray-30 cursor-pointer"
+            className="mr-2 cursor-pointer text-2xl text-gray-30"
           >
             {terms.all ? (
               <MdCheckCircle className="text-brand-blue" />
@@ -153,17 +150,17 @@ export default function SignupPage() {
               <MdCheckCircle className="text-gray-30" />
             )}
           </button>
-          <span className="font-medium text-sm text-gray-80">
+          <span className="text-sm font-medium text-gray-80">
             서비스 약관 전체 동의
           </span>
         </div>
         <hr className="border-gray-10" />
         <div className="flex items-center justify-between">
-          <div className="flex items-center cursor-pointer">
+          <div className="flex cursor-pointer items-center">
             <button
               type="button"
               onClick={() => setTerms({ ...terms, privacy: !terms.privacy })}
-              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+              className="mr-2 cursor-pointer text-2xl text-gray-30"
             >
               {terms.privacy ? (
                 <MdDone className="text-brand-blue" />
@@ -178,11 +175,11 @@ export default function SignupPage() {
           <span className="text-xs text-brand-blue underline">자세히</span>
         </div>
         <div className="flex items-center">
-          <div className="flex items-center cursor-pointer">
+          <div className="flex cursor-pointer items-center">
             <button
               type="button"
               onClick={() => setTerms({ ...terms, age: !terms.age })}
-              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+              className="mr-2 cursor-pointer text-2xl text-gray-30"
             >
               {terms.age ? (
                 <MdDone className="text-brand-blue" />
@@ -196,13 +193,13 @@ export default function SignupPage() {
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center cursor-pointer">
+          <div className="flex cursor-pointer items-center">
             <button
               type="button"
               onClick={() =>
                 setTerms({ ...terms, marketing: !terms.marketing })
               }
-              className="mr-2 text-2xl text-gray-30 cursor-pointer"
+              className="mr-2 cursor-pointer text-2xl text-gray-30"
             >
               {terms.marketing ? (
                 <MdDone className="text-brand-blue" />
@@ -218,12 +215,12 @@ export default function SignupPage() {
         </div>
       </div>
 
-      <div className="w-full max-w-md mt-8">
+      <div className="mt-8 w-full max-w-md">
         <Button
           onClick={handleSignup}
-          className={`w-full py-3 rounded-md text-white font-medium ${
+          className={`w-full rounded-md py-3 font-medium text-white ${
             !terms.privacy || !terms.age
-              ? 'bg-gray-30 cursor-not-allowed'
+              ? 'cursor-not-allowed bg-gray-30'
               : 'bg-brand-blue hover:bg-brand-blue/80'
           }`}
           disabled={!terms.privacy || !terms.age}

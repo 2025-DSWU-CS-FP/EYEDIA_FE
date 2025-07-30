@@ -40,7 +40,7 @@ export default function SearchBar({
   return (
     <form
       onSubmit={handleSubmit}
-      className="relative w-full max-w-[90%] h-10 mx-auto"
+      className="relative mx-auto h-10 w-full max-w-[90%]"
     >
       <div
         className={`absolute inset-0 rounded-sm ${bgColor} border ${borderColor}`}
@@ -48,7 +48,7 @@ export default function SearchBar({
 
       <input
         type="text"
-        className={`absolute left-3 top-1/2 -translate-y-1/2 pr-10 w-[85%] bg-transparent text-sm font-medium outline-none ${textColor}`}
+        className={`absolute left-3 top-1/2 w-[85%] -translate-y-1/2 bg-transparent pr-10 text-sm font-medium outline-none ${textColor}`}
         placeholder={placeholder}
         value={input}
         onChange={e => setInput(e.target.value)}

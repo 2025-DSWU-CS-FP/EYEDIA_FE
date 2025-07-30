@@ -31,27 +31,27 @@ export default function ArtworkPage() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-gray-5 text-gray-100">
-      <div className="pointer-events-none absolute top-0 left-0 w-full h-[35vh]">
+    <div className="relative h-screen w-full overflow-hidden bg-gray-5 text-gray-100">
+      <div className="pointer-events-none absolute left-0 top-0 h-[35vh] w-full">
         <img
           src={Sample}
           alt="작품 이미지"
-          className="w-full h-full object-cover select-none pointer-events-none touch-none"
+          className="pointer-events-none h-full w-full touch-none select-none object-cover"
           draggable={false}
         />
       </div>
 
       {isExpanded && (
-        <div className="fixed bg-gray-5 border-b-2 border-gray-10 top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-4 py-4 z-30">
-          <div className="flex justify-between px-5 text-t2 text-[24px] pb-[1rem]">
+        <div className="fixed left-1/2 top-0 z-30 w-full max-w-[430px] -translate-x-1/2 border-b-2 border-gray-10 bg-gray-5 px-4 py-4">
+          <div className="flex justify-between px-5 pb-[1rem] text-[24px] text-t2">
             <button type="button" className="hover:text-gray-100/80">
               <IoChevronBack />
             </button>
-            <button type="button" className="hover:text-gray-100/80 text-t2">
+            <button type="button" className="text-t2 hover:text-gray-100/80">
               <FiMenu />
             </button>
           </div>
-          <div className="mt-4 flex justify-between max-w-[100%] items-end mx-7">
+          <div className="mx-7 mt-4 flex max-w-[100%] items-end justify-between">
             <div className="flex flex-col gap-[3px]">
               <h1 className="text-t4">In Bed(2005)</h1>
               <p className="text-ct5 text-gray-70">론 뮤익(Ron Mueck)</p>
@@ -68,11 +68,11 @@ export default function ArtworkPage() {
         <div className={`relative ${isExpanded ? 'pt-[112px]' : ''}`}>
           {!isExpanded && (
             <>
-              <div className="fixed flex justify-end gap-2 right-7 -top-4 z-20">
+              <div className="fixed -top-4 right-7 z-20 flex justify-end gap-2">
                 <RoundedIconButton size="lg" icon={<FiHeart />} />
                 <RoundedIconButton size="lg" icon={<FiShare />} />
               </div>
-              <div className="flex flex-col gap-[1.8rem] mb-4 select-none">
+              <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
                     <h1 className="text-t1 font-normal">In Bed(2005)</h1>
@@ -87,7 +87,7 @@ export default function ArtworkPage() {
             </>
           )}
           {(!chatMessages || chatMessages.length === 0) && (
-            <div className="pt-[1.6rem] pb-[1.2rem] px-[1.8rem]">
+            <div className="px-[1.8rem] pb-[1.2rem] pt-[1.6rem]">
               <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
             </div>
           )}
@@ -107,13 +107,13 @@ export default function ArtworkPage() {
         </div>
       </ArtworkBottomSheet>
       {!showChatInput && (
-        <div className="absolute bottom-0 left-0 w-full px-6 pb-6 flex flex-col items-center">
-          <div className="absolute inset-0 bg-gradient-to-b from-neutral-100/0 to-neutral-100 pointer-events-none" />
-          <p className="relative text-bd2 text-gray-70 mt-6 z-10">
+        <div className="absolute bottom-0 left-0 flex w-full flex-col items-center px-6 pb-6">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-neutral-100/0 to-neutral-100" />
+          <p className="relative z-10 mt-6 text-bd2 text-gray-70">
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
 
-          <div className="relative size-[12.8rem] mt-[1.6rem] z-10 flex justify-center items-center">
+          <div className="relative z-10 mt-[1.6rem] flex size-[12.8rem] items-center justify-center">
             {isRecognized ? (
               <>
                 <span className="wave" />
@@ -131,30 +131,30 @@ export default function ArtworkPage() {
             )}
           </div>
 
-          <div className="relative w-full flex justify-end z-10">
+          <div className="relative z-10 flex w-full justify-end">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
               onClick={handleFocusInput}
-              className="mt-4 py-[0.6rem] px-[1.3rem] bg-gray-10 rounded-[40px] flex justify-center items-center"
+              className="mt-4 flex items-center justify-center rounded-[40px] bg-gray-10 px-[1.3rem] py-[0.6rem]"
             >
               <img
                 src={keyboardIcon}
                 alt="키보드"
-                className="text-gray-80 w-[2.4rem]"
+                className="w-[2.4rem] text-gray-80"
               />
             </button>
           </div>
         </div>
       )}
       {showChatInput && (
-        <div className="fixed left-1/2 -translate-x-1/2 max-w-[430px] bottom-0 w-full z-20">
+        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[430px] -translate-x-1/2">
           {/* TODO: onSend={handleSendMessage} 추가하기 */}
           <ChatInputBar />
         </div>
       )}
       {showExtractCard && (
-        <div className="fixed top-0 left-0 z-50 w-full h-full flex justify-center items-center bg-black/80">
+        <div className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-black/80">
           <ExtractCard
             imageUrl={Sample}
             quote={selectionText}

@@ -17,23 +17,23 @@ export default function SelectionActionMenu({
     <div ref={menuRef} className="absolute z-50" style={{ top, left }}>
       <div className="relative inline-flex flex-col items-center">
         {/* 삼각형 */}
-        <div className="w-0 h-0 border-x-[6px] border-x-transparent border-b-[6px] border-b-[#8F2E39]" />
+        <div className="h-0 w-0 border-x-[6px] border-b-[6px] border-x-transparent border-b-[#8F2E39]" />
 
         {/* 본체 */}
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-[#8F2E39] rounded-[4px]">
+        <div className="flex items-center gap-2 rounded-[4px] bg-[#8F2E39] px-4 py-1.5">
           <button
             type="button"
             aria-label="취소"
-            className="text-white text-sm leading-tight"
+            className="text-sm leading-tight text-white"
             onClick={onCancel}
           >
             취소
           </button>
-          <div className="w-px h-4 bg-white opacity-30" />
+          <div className="h-4 w-px bg-white opacity-30" />
           <button
             type="button"
             aria-label="발췌"
-            className="text-white text-sm leading-tight"
+            className="text-sm leading-tight text-white"
             onClick={onExtract}
           >
             발췌

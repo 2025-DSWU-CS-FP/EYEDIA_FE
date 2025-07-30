@@ -26,7 +26,7 @@ export default function RoundedIconButton({
   return (
     <div
       className={twMerge(
-        `px-[1.1rem] py-[0.7rem] rounded-full backdrop-blur-sm cursor-pointer flex justify-center items-center ${bgColor} ${iconColor} ${sizeMap[size]}`,
+        `flex cursor-pointer items-center justify-center rounded-full px-[1.1rem] py-[0.7rem] backdrop-blur-sm ${bgColor} ${iconColor} ${sizeMap[size]}`,
         className,
       )}
     >

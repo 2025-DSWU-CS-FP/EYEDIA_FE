@@ -1,29 +1,33 @@
-export interface Exhibition {
+export interface Keyword {
+  id: string;
+  label: string;
+  isSelected: boolean;
+}
+
+export interface KeywordListProps {
+  keywords: Keyword[];
+}
+
+interface TasteArtwork {
   id: string;
   title: string;
-  location: string;
+  artist: string;
+  imageUrl: string;
 }
+
+export interface TasteArtworkSectionProps {
+  keywords: Keyword[];
+  artworks: TasteArtwork[];
+}
+
+export interface ArtworkCardProps {
+  title: string;
+  artist: string;
+  imageUrl: string;
+}
+
 export interface ExhibitionCardProps {
-  id?: string;
-  imageUrl: string;
   title: string;
   location: string;
-}
-export interface ExhibitionItem {
-  id: number;
-  title: string;
-  count: number;
-  img: string;
-}
-
-export interface BannerItem {
-  id: string;
   imageUrl: string;
-  title: string;
-  subtitle: string;
-  date: string;
-}
-
-export interface BannerCarouselProps {
-  banners: BannerItem[];
 }

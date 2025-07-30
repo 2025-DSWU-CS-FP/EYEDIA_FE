@@ -1,23 +1,21 @@
 import { ExhibitionCardProps } from '@/types';
 
 export default function ExhibitionCard({
-  imageUrl,
   title,
   location,
+  imageUrl,
 }: ExhibitionCardProps) {
   return (
-    <div className="w-40 flex-shrink-0">
+    <div className="flex flex-col items-start justify-start gap-[0.8rem]">
       <img
+        className="h-[18rem] min-w-[15rem] rounded-[12px]"
         src={imageUrl}
         alt={title}
-        className="h-40 w-full rounded-sm object-cover"
       />
-      <h3 className="w-32 justify-start text-black text-base font-medium leading-tight pt-2 pb-1">
-        {title}
-      </h3>
-      <p className="w-32 justify-start text-neutral-400 text-xs font-medium">
-        {location}
-      </p>
+      <div className="flex flex-col items-start justify-start gap-1">
+        <div className="justify-start text-t5 text-gray-90">{title}</div>
+        <div className="justify-start text-ct4 text-gray-50">{location}</div>
+      </div>
     </div>
   );
 }
