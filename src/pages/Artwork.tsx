@@ -108,10 +108,12 @@ export default function ArtworkPage() {
       </ArtworkBottomSheet>
       {!showChatInput && (
         <div className="absolute bottom-0 left-0 w-full px-6 pb-6 flex flex-col items-center">
-          <p className="text-bd2 text-gray-70 mt-6">
+          <div className="absolute inset-0 bg-gradient-to-b from-neutral-100/0 to-neutral-100 pointer-events-none" />
+          <p className="relative text-bd2 text-gray-70 mt-6 z-10">
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
-          <div className="relative size-[12.8rem] mt-[1.6rem]">
+
+          <div className="relative size-[12.8rem] mt-[1.6rem] z-10 flex justify-center items-center">
             {isRecognized ? (
               <>
                 <span className="wave" />
@@ -120,17 +122,17 @@ export default function ArtworkPage() {
                 <div className="glow-core wave-border" />
               </>
             ) : (
-              <div className="relative size-[12.8rem] mt-[1.6rem] flex justify-center items-center">
-                <button
-                  aria-label="음성 인식 시작"
-                  type="button"
-                  className="glow-pulse"
-                  onClick={() => setIsRecognized(true)}
-                />
-              </div>
+              <button
+                aria-label="음성 인식 시작"
+                type="button"
+                className="glow-pulse"
+                onClick={() => setIsRecognized(true)}
+              />
             )}
           </div>
-          <div className="w-full flex justify-end">
+
+          {/* 키보드 버튼 */}
+          <div className="relative w-full flex justify-end z-10">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
