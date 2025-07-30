@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import CustomSelect, { SelectOption } from '@/components/auth/CustomSelect';
 import TermsAgreement from '@/components/auth/TermsAgreement';
 import Button from '@/components/common/Button';
@@ -9,6 +11,7 @@ import Header from '@/layouts/Header';
 import useSignup from '@/services/mutations/useSignup';
 
 export default function SignupPage() {
+  const navigate = useNavigate();
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [pwConfirm, setPwConfirm] = useState('');
@@ -34,10 +37,18 @@ export default function SignupPage() {
   };
 
   const handleToggleTerm = (key: keyof typeof terms) => {
-    setTerms(prev => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setTerms(prev => {
+      const newTerms = {
+        ...prev,
+        [key]: !prev[key],
+      };
+
+      if (key !== 'all') {
+        newTerms.all = newTerms.privacy && newTerms.age && newTerms.marketing;
+      }
+
+      return newTerms;
+    });
   };
 
   const genderOptions: SelectOption[] = [
@@ -69,7 +80,10 @@ export default function SignupPage() {
     signupMutation.mutate(
       { id, pw, name, age: Number(age), gender },
       {
-        onSuccess: () => alert('회원가입 성공!'),
+        onSuccess: () => {
+          alert('회원가입 성공!');
+          navigate('/login');
+        },
         onError: () => alert('회원가입 실패'),
       },
     );
