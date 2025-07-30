@@ -38,7 +38,7 @@ export default function RecentArtworkWithAIMessage({
           <span className="text-t5 text-gray-90">{title}</span>
           <span className="text-ct5 font-medium text-gray-40">{viewDate}</span>
         </div>
-        <div className="text-ct4flex items-center rounded-[4px] bg-gray-10 px-[0.8rem] py-[0.4rem] text-gray-50">
+        <div className="flex items-center rounded-[4px] bg-gray-10 px-[0.8rem] py-[0.4rem] text-ct4 text-gray-50">
           {conversationCount}건의 대화
         </div>
       </div>
