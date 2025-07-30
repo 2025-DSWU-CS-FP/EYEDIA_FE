@@ -13,6 +13,7 @@ import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
 import ExtractCard from '@/components/chat/ExtractCard';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
+import Divider from '@/components/mypage/Divider';
 import useChatMessages from '@/services/queries/useChatMessages';
 
 export default function ArtworkPage() {
@@ -30,7 +31,7 @@ export default function ArtworkPage() {
   };
 
   return (
-    <div className="relative w-full max-w-md h-screen overflow-hidden bg-neutral-900 text-white">
+    <div className="relative w-full h-screen overflow-hidden bg-gray-5 text-gray-100">
       <div className="pointer-events-none absolute top-0 left-0 w-full h-[35vh]">
         <img
           src={Sample}
@@ -41,23 +42,21 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <div className="fixed bg-neutral-900 border-b-2 border-stone-900 top-0 left-1/2 -translate-x-1/2 w-full max-w-[425px] px-4 py-4 z-30">
+        <div className="fixed bg-gray-5 border-b-2 border-gray-10 top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-4 py-4 z-30">
           <div className="flex justify-between mx-5 text-2xl">
-            <button type="button" className="hover:text-white/90">
+            <button type="button" className="hover:text-gray-0/90">
               <IoChevronBack />
             </button>
-            <button type="button" className="hover:text-white/90">
+            <button type="button" className="hover:text-gray-0/90">
               <FiMenu />
             </button>
           </div>
           <div className="mt-4 flex justify-between max-w-[100%] items-end mx-7">
             <div className="flex flex-col gap-[3px]">
-              <h1 className="text-lg font-normal">In Bed(2005)</h1>
-              <p className="text-xs font-light text-[#8E8E8E]">
-                론 뮤익(Ron Mueck)
-              </p>
+              <h1 className="text-t1">In Bed(2005)</h1>
+              <p className="text-ct4 text-gray-70">론 뮤익(Ron Mueck)</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-[0.8rem]">
               <RoundedIconButton icon={<FiHeart />} />
               <RoundedIconButton icon={<FiShare />} />
             </div>
@@ -66,21 +65,24 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <div className={`relative px-4 ${isExpanded ? 'pt-[112px]' : ''}`}>
+        <div className={`relative ${isExpanded ? 'pt-[112px]' : ''}`}>
           {!isExpanded && (
             <>
               <div className="fixed flex justify-end gap-2 right-7 -top-4 z-20">
                 <RoundedIconButton icon={<FiHeart />} />
                 <RoundedIconButton icon={<FiShare />} />
               </div>
-              <div className="flex flex-col gap-2 mb-4 select-none">
-                <div className="flex flex-col gap-[3px]">
-                  <h1 className="text-2xl font-normal">In Bed(2005)</h1>
-                  <p className="text-xs font-light">론 뮤익(Ron Mueck)</p>
+              <div className="flex flex-col gap-[1.8rem] mb-4 select-none">
+                <div className="px-[2.4rem]">
+                  <div className="flex flex-col gap-[0.3rem]">
+                    <h1 className="text-t1 font-normal">In Bed(2005)</h1>
+                    <p className="text-ct4 text-gray-70">론 뮤익(Ron Mueck)</p>
+                  </div>
+                  <p className="text-ct4 text-gray-50">
+                    제 13회 서울미디어시티비엔날레
+                  </p>
                 </div>
-                <p className="text-xs text-neutral-400 pb-3 border-b-2 border-stone-900">
-                  제 13회 서울미디어시티비엔날레
-                </p>
+                <Divider />
               </div>
             </>
           )}
@@ -107,10 +109,10 @@ export default function ArtworkPage() {
       </ArtworkBottomSheet>
       {!showChatInput && (
         <div className="absolute bottom-0 left-0 w-full px-6 pb-6 flex flex-col items-center">
-          <p className="text-sm text-stone-300 mt-6">
+          <p className="text-bd2 text-gray-70 mt-6">
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
-          <div className="relative w-20 h-20 mt-4">
+          <div className="relative size-[12.8rem] mt-4">
             {isRecognized ? (
               <>
                 <span className="wave" />
@@ -140,7 +142,7 @@ export default function ArtworkPage() {
         </div>
       )}
       {showChatInput && (
-        <div className="fixed left-1/2 -translate-x-1/2 max-w-[425px] bottom-0 w-full z-20">
+        <div className="fixed left-1/2 -translate-x-1/2 max-w-[430px] bottom-0 w-full z-20">
           {/* TODO: onSend={handleSendMessage} 추가하기 */}
           <ChatInputBar />
         </div>

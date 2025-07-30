@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Sample from '@/assets/images/sample/chat-gaze.png';
 import BackButton from '@/components/common/BackButton';
 import Button from '@/components/common/Button';
-import useConfirmPainting from '@/services/mutations/useConfirmPainting';
+// import useConfirmPainting from '@/services/mutations/useConfirmPainting';
 
 const artworkInfo = {
   title: 'In Bed (2005)',
@@ -14,7 +14,7 @@ const artworkInfo = {
 
 function GazePage() {
   const navigate = useNavigate();
-  const { mutate } = useConfirmPainting();
+  // const { mutate } = useConfirmPainting();
   const [trackingComplete, setTrackingComplete] = useState(false);
 
   useEffect(() => {
@@ -23,12 +23,13 @@ function GazePage() {
   }, []);
 
   const handleStartConversation = () => {
-    mutate(4, {
-      onSuccess: () => {
-        navigate('/chat-artwork');
-      },
-      onError: () => {},
-    });
+    // mutate(4, {
+    //   onSuccess: () => {
+    //     navigate('/chat-artwork');
+    //   },
+    //   onError: () => {},
+    // });
+    navigate('/chat-artwork');
   };
 
   return (

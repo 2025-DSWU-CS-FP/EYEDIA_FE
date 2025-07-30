@@ -4,24 +4,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#f5f5f7',
-        black: '#222222',
-
-        // 회색조
-        normalGray: '#d9d9d9',
-        'normalGray-hover': '#c3c3c3',
-        'normalGray-active': '#aeaeae',
-        lightGray: '#fbfbfb',
-        'lightGray-hover': '#f9f9f9',
-        'lightGray-active': '#f3f3f3',
-        darkGray: '#a3a3a3',
-        'darkGray-hover': '#828282',
-        'darkGray-active': '#626262',
-
-        // 포인트 색상
-        cherry: '#E83043',
-        'cherry-hover': '#E15D6A', //d1283c
-        'cherry-active': '#b42035',
         brand: {
           blue: '#769DFF',
           'blue-light': '#C0D2FF',
