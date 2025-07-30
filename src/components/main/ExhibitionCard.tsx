@@ -10,7 +10,7 @@ export default function ExhibitionCard({
     <div className="flex flex-col items-start justify-start gap-[0.8rem]">
       <div className="relative">
         <img
-          className="h-[18rem] min-w-[15rem] rounded-[12px] object-cover"
+          className="aspect-[3/4] w-full rounded-[12px] object-cover"
           src={imageUrl}
           alt={title}
         />

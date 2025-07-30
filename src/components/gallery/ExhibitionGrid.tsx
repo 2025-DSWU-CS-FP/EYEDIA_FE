@@ -14,7 +14,7 @@ interface ExhibitionGridProps {
 
 export default function ExhibitionGrid({ exhibitions }: ExhibitionGridProps) {
   return (
-    <div className="mx-auto grid grid-cols-2 gap-x-[2.7rem] gap-y-[2.6rem] pt-[4rem]">
+    <div className="mx-auto grid grid-cols-2 gap-x-[2.7rem] gap-y-[2.6rem] px-[2.4rem] py-[4rem]">
       {exhibitions.map(exh => (
         <ExhibitionCard
           key={exh.id}
