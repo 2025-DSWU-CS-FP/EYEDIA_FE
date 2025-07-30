@@ -29,9 +29,9 @@ function OnboardingPage() {
   }, [isConnected, navigate]);
 
   return (
-    <div className="flex relative flex-col justify-around items-center max-h-[100vh] h-[100vh] overflow-hidden bg-black text-white -mb-6">
-      <BackButton className="text-white" />
-      <div className=" w-full px-4">
+    <div className="flex relative flex-col justify-start items-center max-h-[100vh] h-[100vh] overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300 -mb-6">
+      <BackButton className="text-gray-100" />
+      <div className="w-full px-4 pt-[10rem]">
         <OnboardingText
           text={
             isConnected
@@ -39,11 +39,11 @@ function OnboardingPage() {
               : '전용 아이웨어를 착용하고 연결해주세요.'
           }
         />
-        <div className="relative flex justify-center items-center h-44">
+        <div className="relative flex justify-center w-[20.9rem] h-[20.9rem] items-center mx-auto">
           <img
             src={ringImage}
             alt="background ring"
-            className="absolute w-[300px] h-auto bottom-[-10px] opacity-70"
+            className="absolute w-[20.9rem] h-[20.9rem] -bottom-[5rem] opacity-70 pointer-events-none"
           />
           <SwitchTransition mode="out-in">
             <CSSTransition
@@ -63,7 +63,7 @@ function OnboardingPage() {
           <button
             type="button"
             onClick={() => setIsConnected(true)}
-            className="mt-6 w-full bg-white/30 text-white py-2 rounded-md text-sm"
+            className="mt-6 w-[25rem] mx-auto flex justify-center bg-gray-30 text-gray-90 py-2 rounded-md text-bt3 z-10"
           >
             연결됨으로 설정 (임시)
           </button>

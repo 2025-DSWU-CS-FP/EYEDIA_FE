@@ -160,10 +160,10 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`disable-native-selection relative text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
+      className={`disable-native-selection relative text-bd3 px-[1.4rem] py-[1rem] rounded-[8px] whitespace-pre-wrap break-words max-w-[80%] select-text ${
         isFromUser
-          ? 'self-end bg-white text-black'
-          : 'bg-stone-50/10 text-white'
+          ? 'self-end bg-brand-blue text-gray-0'
+          : 'bg-gray-0 text-gray-90'
       }`}
     >
       {menuPosition && highlightRange && (

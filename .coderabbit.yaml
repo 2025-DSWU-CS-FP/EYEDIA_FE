@@ -11,15 +11,13 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
-
-chat:
-  auto_reply: true
-
-reviews:
   path_filters:
     - '!dist/**'
     - '!node_modules/**'
     - '!src/shared/assets/**'
+
+chat:
+  auto_reply: true
 
 tone_instructions: |
   React/TS, ESLint, Prettier 규칙을 준수해 리뷰합니다.  

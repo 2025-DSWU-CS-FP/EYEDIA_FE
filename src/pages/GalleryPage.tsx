@@ -1,7 +1,7 @@
 export default function GalleryPage() {
   return (
     <div>
-      <span>수정 예정</span>
+      <p>갤러리페이지 공사 중..</p>
     </div>
   );
 }

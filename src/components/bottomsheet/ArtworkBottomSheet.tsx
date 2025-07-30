@@ -84,13 +84,13 @@ export default function ArtworkBottomSheet({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed flex justify-center max-w-[425px] w-full items-end transition-all duration-500 ease-in-out">
+    <div className="fixed flex justify-center max-w-[43rem] w-full items-end transition-all duration-500 ease-in-out">
       <div
         ref={sheetRef}
         onPointerDown={handlePointerDown}
         className={`
-          w-full max-w-[425px] bg-neutral-900 transition-transform duration-300 touch-none
-          ${isFullyExpanded ? '' : 'rounded-t-2xl'}
+          w-full max-w-[43rem] bg-gray-5 transition-transform duration-300 touch-none
+          ${isFullyExpanded ? '' : 'rounded-t-[2.4rem]'}
         `}
         style={{
           transform: `translateY(${translateY}px)`,
@@ -99,10 +99,10 @@ export default function ArtworkBottomSheet({
         }}
       >
         {!isFullyExpanded && (
-          <div className="w-10 h-1.5 bg-gray-500 rounded-full mx-auto my-3" />
+          <div className="w-[5rem] h-[0.35rem] bg-gray-30 cursor-pointer rounded-full mx-auto my-[1.9rem]" />
         )}
 
-        <div className="px-6 overflow-y-auto max-h-[calc(100%-40px)] pb-32">
+        <div className="overflow-y-auto max-h-[calc(100%-6.4rem)] pb-[20rem]">
           {children}
         </div>
       </div>
