@@ -25,20 +25,18 @@ export default function SortSelect({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1 rounded-[6px] border border-gray-30 bg-gray-0 px-3 py-2 text-ct3 text-gray-60"
+        className="flex items-center gap-[0.4rem] rounded-[6px] bg-gray-0 px-[1.2rem] py-[0.8rem] text-ct3 text-gray-60"
       >
         {sort}
         <IoChevronDown className="text-gray-60" />
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-[100px] rounded-md border border-gray-30 bg-white shadow-md">
+        <div className="absolute right-0 top-full mt-2 w-[100px] rounded-[5px] bg-gray-0">
           {options.map(option => (
             <button
               type="button"
               key={option}
-              className={`cursor-pointer px-3 py-2 text-ct3 hover:bg-gray-10 ${
-                option === sort ? 'font-semibold text-gray-90' : 'text-gray-60'
-              }`}
+              className="cursor-pointer px-[1.2rem] py-[0.8rem] text-ct3 text-gray-60 hover:bg-gray-10"
               onClick={() => handleSelect(option)}
             >
               {option}
