@@ -2,20 +2,20 @@ import { lazy } from 'react';
 
 import { RouteObject } from 'react-router-dom';
 
-const Main = lazy(() => import('@/pages/MainPage'));
-const LoginPage = lazy(() => import('@/pages/LoginPage'));
-const SignupPage = lazy(() => import('@/pages/SignupPage'));
-const MyPage = lazy(() => import('@/pages/MyPage'));
-const Onboarding = lazy(() => import('@/pages/Onboarding'));
-const GazePage = lazy(() => import('@/pages/GazePage'));
+const Main = lazy(() => import('@/pages/main/MainPage'));
+const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
+const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
+const MyPage = lazy(() => import('@/pages/auth/MyPage'));
+const Onboarding = lazy(() => import('@/pages/chat/Onboarding'));
+const GazePage = lazy(() => import('@/pages/chat/GazePage'));
 const Artwork = lazy(() => import('@/pages/Artwork'));
-const Gallery = lazy(() => import('@/pages/GalleryPage'));
-const GalleryDetail = lazy(() => import('@/pages/GalleryDetailPage'));
+const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
+const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
 const Layout = lazy(() => import('@/layouts/Layout'));
-const HelpPage = lazy(() => import('@/pages/HelpPage'));
-const ErrorPage = lazy(() => import('@/pages/ErrorPage'));
+const HelpPage = lazy(() => import('@/pages/chat/HelpPage'));
+const ErrorPage = lazy(() => import('@/pages/error/ErrorPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
+const NotFound = lazy(() => import('@/pages/error/NotFound'));
 
 const mainRoutes: RouteObject[] = [
   {
