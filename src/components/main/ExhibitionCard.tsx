@@ -1,23 +1,29 @@
-import { ExhibitionCardProps } from '@/types';
+interface ExhibitionCardProps {
+  title: string;
+  location: string;
+  imageUrl: string;
+}
 
 export default function ExhibitionCard({
-  imageUrl,
   title,
   location,
+  imageUrl,
 }: ExhibitionCardProps) {
   return (
-    <div className="w-40 flex-shrink-0">
+    <div className="flex flex-col justify-start items-start gap-[0.8rem]">
       <img
+        className="self-stretch min-w-[15rem] h-[18rem] rounded-[12px]"
         src={imageUrl}
         alt={title}
-        className="h-40 w-full rounded-sm object-cover"
       />
-      <h3 className="w-32 justify-start text-black text-base font-medium leading-tight pt-2 pb-1">
-        {title}
-      </h3>
-      <p className="w-32 justify-start text-neutral-400 text-xs font-medium">
-        {location}
-      </p>
+      <div className="self-stretch flex flex-col justify-start items-start gap-1">
+        <div className="self-stretch justify-start text-zinc-900 text-base font-bold font-['Pretendard'] leading-snug">
+          {title}
+        </div>
+        <div className="self-stretch justify-start text-gray-50 text-ct4">
+          {location}
+        </div>
+      </div>
     </div>
   );
 }
