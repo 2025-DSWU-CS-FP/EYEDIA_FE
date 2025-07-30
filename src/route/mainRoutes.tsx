@@ -14,70 +14,61 @@ const GazePage = lazy(() => import('@/pages/chat/GazePage'));
 const Artwork = lazy(() => import('@/pages/Artwork'));
 const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
-const Layout = lazy(() => import('@/layouts/Layout'));
 const HelpPage = lazy(() => import('@/pages/chat/HelpPage'));
-const ErrorPage = lazy(() => import('@/pages/error/ErrorPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
 
 const mainRoutes: RouteObject[] = [
   {
-    path: '/',
-    element: <Layout />,
-    ErrorBoundary: ErrorPage,
-    children: [
-      {
-        index: true,
-        element: <Main />,
-      },
-      {
-        path: 'popular-exhibition',
-        element: <PopularExhibitionPage />,
-      },
-      {
-        path: 'mypage',
-        element: <MyPage />,
-      },
-      {
-        path: 'login',
-        element: <LoginPage />,
-      },
-      {
-        path: 'signup',
-        element: <SignupPage />,
-      },
-      {
-        path: 'chat-onboarding',
-        element: <Onboarding />,
-      },
-      {
-        path: 'chat-gaze',
-        element: <GazePage />,
-      },
-      {
-        path: 'chat-artwork',
-        element: <Artwork />,
-      },
-      {
-        path: 'help',
-        element: <HelpPage />,
-      },
-      {
-        path: 'gallery',
-        element: <Gallery />,
-      },
-      {
-        path: 'gallery/:id',
-        element: <GalleryDetail />,
-      },
-      {
-        path: 'signup',
-        element: <SignupPage />,
-      },
-      {
-        path: 'exhibition/:id',
-        element: <ExhibitionDetailPage />,
-      },
-    ],
+    index: true,
+    element: <Main />,
+  },
+  {
+    path: 'popular-exhibition',
+    element: <PopularExhibitionPage />,
+  },
+  {
+    path: 'mypage',
+    element: <MyPage />,
+  },
+  {
+    path: 'login',
+    element: <LoginPage />,
+  },
+  {
+    path: 'signup',
+    element: <SignupPage />,
+  },
+  {
+    path: 'chat-onboarding',
+    element: <Onboarding />,
+  },
+  {
+    path: 'chat-gaze',
+    element: <GazePage />,
+  },
+  {
+    path: 'chat-artwork',
+    element: <Artwork />,
+  },
+  {
+    path: 'help',
+    element: <HelpPage />,
+  },
+  {
+    path: 'gallery',
+    element: <Gallery />,
+  },
+  {
+    path: 'gallery/:id',
+    element: <GalleryDetail />,
+  },
+  {
+    path: 'signup',
+    element: <SignupPage />,
+  },
+  {
+    path: 'exhibition/:id',
+    element: <ExhibitionDetailPage />,
   },
 ];
 

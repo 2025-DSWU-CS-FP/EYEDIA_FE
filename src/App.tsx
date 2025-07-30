@@ -21,7 +21,7 @@ const router = createBrowserRouter([
     children: mainRoutes,
   },
   {
-    path: '*', // NotFound는 Layout 없이 따로
+    path: '*',
     element: <NotFound />,
   },
 ]);
