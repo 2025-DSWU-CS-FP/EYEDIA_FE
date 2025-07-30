@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface RecentArtworkWithAIMessageProps {
   title: string;
   viewDate: string;
@@ -16,39 +14,34 @@ export default function RecentArtworkWithAIMessage({
   imageUrl,
 }: RecentArtworkWithAIMessageProps) {
   return (
-    <div className="w-80 inline-flex flex-col justify-start items-start">
-      <div className="w-80 h-36 relative rounded-tl-xl rounded-tr-xl overflow-hidden">
-        <div className="w-80 h-64 left-0 top-[-0.50px] absolute bg-zinc-800/40" />
-        <div className="left-[57.23px] top-[36px] absolute text-center justify-start text-white text-base font-semibold font-['Pretendard'] leading-snug">
-          {aiMessage}
-        </div>
-        <div className="w-1.5 h-1.5 left-[265px] top-[61px] absolute bg-white rounded-full border-[0.44px] border-white" />
-        <div className="w-1.5 h-1.5 left-[271.11px] top-[61px] absolute bg-white rounded-full border-[0.44px] border-white" />
-        <div className="w-1 h-[3.27px] left-[265.59px] top-[65.36px] absolute bg-white outline outline-[0.44px] outline-offset-[-0.22px] outline-white" />
-        <div className="w-1 h-[3.27px] left-[271.70px] top-[65.36px] absolute bg-white outline outline-[0.44px] outline-offset-[-0.22px] outline-white" />
-        <div className="w-1.5 h-1.5 left-[59.35px] top-[43.21px] absolute bg-white rounded-full border-[0.44px] border-white" />
-        <div className="w-1.5 h-1.5 left-[53.24px] top-[43.21px] absolute bg-white rounded-full border-[0.44px] border-white" />
-        <div className="w-1 h-[3.27px] left-[58.75px] top-[45.61px] absolute bg-white outline outline-[0.44px] outline-offset-[-0.22px] outline-white" />
-        <div className="w-1 h-[3.27px] left-[52.64px] top-[45.61px] absolute bg-white outline outline-[0.44px] outline-offset-[-0.22px] outline-white" />
-        <div className="left-[128.69px] top-[89.91px] absolute justify-start text-white text-xs font-medium font-['Pretendard'] leading-none">
-          -AI의 메세지
+    <div className="min-w-[31.2rem] rounded-2xl overflow-hidden bg-white shadow flex flex-col">
+      {/* 이미지 + 오버레이 + AI 메시지 */}
+      <div className="relative w-full h-[15rem] flex items-center justify-center bg-black">
+        <img
+          src={imageUrl}
+          alt={title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-zinc-800/40" />
+        <div className="absolute inset-0 flex flex-col gap-[1.2rem] items-center justify-center px-6">
+          <div className="text-gray-0 text-t5 font-semibold text-center leading-snug">
+            <span>❝ </span>
+            {aiMessage}
+            <span> ❞</span>
+          </div>
+          <span className="mt-2 text-gray-0 text-ct4">-AI의 메세지</span>
         </div>
       </div>
-      <div className="w-80 p-4 bg-white rounded-bl-xl rounded-br-xl inline-flex justify-between items-start">
-        <div className="flex-1 inline-flex flex-col justify-start items-start gap-1">
-          <div className="self-stretch justify-center text-zinc-900 text-base font-bold font-['Pretendard'] leading-snug">
-            {title}
-          </div>
-          <div className="self-stretch justify-center text-neutral-400 text-xs font-medium font-['Pretendard'] leading-none">
-            {viewDate}
-          </div>
+      {/* 하단 정보 */}
+      <div className="flex items-start justify-between p-[1.6rem] bg-white">
+        <div className="flex-1 flex flex-col gap-[0.4rem]">
+          <span className="text-ct5 text-gray-90 font-bold">{title}</span>
+          <span className="text-ct5 text-gray-40 font-medium">{viewDate}</span>
         </div>
-        <div className="px-2 py-1 bg-gray-200 rounded flex justify-center items-center gap-2.5">
-          <div className="text-center justify-center text-zinc-500 text-xs font-medium font-['Pretendard']">
-            {conversationCount}건의 대화
-          </div>
+        <div className="px-[0.8rem] py-[0.4rem] bg-gray-10 rounded-[4px] text-gray-50 text-ct4flex items-center">
+          {conversationCount}건의 대화
         </div>
       </div>
     </div>
   );
-} 
+}

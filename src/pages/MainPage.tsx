@@ -86,7 +86,7 @@ export default function MainPage() {
     <div className="w-full flex justify-center bg-neutral-100 min-h-screen">
       <div className="w-full max-w-[430px] flex flex-col gap-10 px-[2.7rem] pt-[3rem]">
         <UserGreeting userName="김아트" viewCount={12} />
-        <div className="">
+        <div className="flex flex-col gap-[4rem]">
           {/* 인기 전시 섹션 */}
           <section className="flex flex-col gap-4">
             <div className="flex items-center justify-between">
@@ -111,7 +111,7 @@ export default function MainPage() {
               <h2 className="text-t3 text-gray-90">최근 감상 작품</h2>
               <span className="text-bd2 text-gray-40">더보기</span>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-[1.2rem] overflow-x-auto">
               {recentArtworks.map(art =>
                 art.aiMessage ? (
                   <RecentArtworkWithAIMessage
