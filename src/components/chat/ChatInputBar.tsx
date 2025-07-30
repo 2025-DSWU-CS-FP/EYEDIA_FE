@@ -25,7 +25,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
   }, [inputValue]);
 
   return (
-    <div className="max-w-[425px] w-screen px-4 py-3 bg-neutral-800 rounded-t-2xl flex flex-col gap-2">
+    <div className="max-w-[430px] w-screen px-[2.4rem] py-[1.8rem] bg-gray-10 rounded-t-[2.4rem] flex flex-col gap-2">
       <textarea
         ref={textareaRef}
         value={inputValue}
@@ -33,13 +33,13 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
         placeholder="작품에 대해 질문해보세요"
         rows={1}
-        className="resize-none max-h-[222px] overflow-y-auto bg-transparent text-white caret-cherry placeholder:text-neutral-500 text-sm font-normal outline-none w-full"
+        className="resize-none max-h-[222px] overflow-y-auto bg-transparent text-gray-90 caret-cherry placeholder:text-gray-50 text-bd2 font-normal outline-none w-full"
       />
       <div className="flex w-full justify-end gap-2">
         <button
           type="button"
           aria-label="음성 인식"
-          className="w-10 h-10 rounded-full bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-800 flex items-center justify-center"
+          className="py-[0.6rem] px-[1.3rem] rounded-full bg-gray-20 hover:bg-gray-30/90 active:bg-gray-30 flex items-center justify-center"
         >
           <img src={micIcon} alt="마이크" />
         </button>
@@ -47,10 +47,10 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
           type="button"
           aria-label="보내기"
           onClick={handleSend}
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors
-            ${inputValue.trim() ? 'bg-cherry hover:bg-cherry-hover active:bg-cherry-active' : 'bg-neutral-700'}`}
+          className={`py-[0.6rem] px-[1.3rem] rounded-full flex items-center justify-center transition-colors
+            ${inputValue.trim() ? 'bg-brand-blue hover:bg-brand-blue-light' : 'bg-gray-20 cursor-default'}`}
         >
-          <SendIcon fill={inputValue.trim() ? '#ffffff' : '#696969'} />
+          <SendIcon fill={inputValue.trim() ? '#ffffff' : '#C4C8CD'} />
         </button>
       </div>
     </div>

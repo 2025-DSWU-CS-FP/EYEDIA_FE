@@ -131,7 +131,6 @@ export default function ArtworkPage() {
             )}
           </div>
 
-          {/* 키보드 버튼 */}
           <div className="relative w-full flex justify-end z-10">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
