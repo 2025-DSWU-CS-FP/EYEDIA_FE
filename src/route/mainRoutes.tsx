@@ -3,6 +3,9 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
 const Main = lazy(() => import('@/pages/main/MainPage'));
+const PopularExhibitionPage = lazy(
+  () => import('@/pages/main/PopularExhibitionPage'),
+);
 const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const MyPage = lazy(() => import('@/pages/auth/MyPage'));
@@ -26,6 +29,10 @@ const mainRoutes: RouteObject[] = [
       {
         index: true,
         element: <Main />,
+      },
+      {
+        path: 'popular-exhibition',
+        element: <PopularExhibitionPage />,
       },
       {
         path: 'mypage',
