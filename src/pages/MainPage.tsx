@@ -84,7 +84,7 @@ export default function MainPage() {
 
   return (
     <div className="w-full flex justify-center bg-neutral-100 min-h-screen">
-      <div className="w-full max-w-[430px] flex flex-col gap-10 px-[2.7rem] pt-[3rem]">
+      <div className="w-full max-w-[430px] flex flex-col gap-10 px-[2.7rem] py-[3rem]">
         <UserGreeting userName="김아트" viewCount={12} />
         <div className="flex flex-col gap-[4rem]">
           {/* 인기 전시 섹션 */}
@@ -128,8 +128,6 @@ export default function MainPage() {
                     title={art.title}
                     artist={art.artist}
                     imageUrl={art.imageUrl}
-                    viewDate={art.viewDate}
-                    conversationCount={art.conversationCount}
                   />
                 ),
               )}
@@ -144,8 +142,8 @@ export default function MainPage() {
                 당신의 감상 패턴을 분석한 추천 키워드
               </span>
             </div>
-            <div>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-[2rem]">
+              <div className="flex flex-wrap gap-[0.8rem]">
                 {keywords.map(kw => (
                   <div
                     key={kw.id}
@@ -159,7 +157,7 @@ export default function MainPage() {
                   </div>
                 ))}
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-[1.2rem] overflow-x-auto">
                 {tasteArtworks.map(art => (
                   <ArtworkCard
                     key={art.id}
