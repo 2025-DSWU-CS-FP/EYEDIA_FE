@@ -7,10 +7,10 @@ export default function ExhibitionCard({
   artworkCount,
 }: ExhibitionCardProps) {
   return (
-    <div className="flex flex-col items-start justify-start gap-[0.8rem]">
-      <div className="relative">
+    <div className="group flex cursor-pointer flex-col items-start justify-start gap-[0.8rem]">
+      <div className="relative overflow-hidden rounded-[12px]">
         <img
-          className="aspect-[3/4] w-full rounded-[12px] object-cover"
+          className="aspect-[3/4] w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
           src={imageUrl}
           alt={title}
         />

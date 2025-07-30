@@ -21,7 +21,7 @@ export default function SortSelect({
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-10">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -39,7 +39,7 @@ export default function SortSelect({
               <button
                 type="button"
                 key={option}
-                className={`w-full cursor-pointer px-[1.2rem] py-[0.8rem] text-left text-ct3 text-gray-60 hover:bg-gray-10 ${
+                className={`w-full cursor-pointer px-[1.2rem] py-[0.8rem] text-left text-ct3 text-gray-60 hover:bg-gray-5 ${
                   isFirst ? 'rounded-t-[5px]' : ''
                 } ${isLast ? 'rounded-b-[5px]' : ''}`}
                 onClick={() => handleSelect(option)}

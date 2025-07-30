@@ -7,6 +7,7 @@ import SearchBar from '@/components/common/SearchBar';
 import ExhibitionGrid from '@/components/gallery/ExhibitionGrid';
 import FilterButtons from '@/components/gallery/FilterButtons';
 import SortSelect from '@/components/gallery/SortSelect';
+import Header from '@/layouts/Header';
 
 const exhibitionsData = [
   {
@@ -56,9 +57,11 @@ export default function GalleryPage() {
 
   return (
     <div className="flex min-h-screen w-full flex-col pb-8">
-      <div className="px-6 pb-4 pt-8">
-        <h1 className="text-center text-t2 font-bold">나의 전시</h1>
-      </div>
+      <Header
+        title="나의 전시"
+        backgroundColorClass="bg-gray-5"
+        showBackButton
+      />
       <div className="flex flex-col gap-[1.6rem] px-[2.4rem]">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-2">
