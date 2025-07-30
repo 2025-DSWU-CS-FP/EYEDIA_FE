@@ -3,20 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ArtworkCard from '@/components/main/ArtworkCard';
 import RecentArtworkWithAIMessage from '@/components/main/RecentArtworkWithAIMessage';
 import SectionHeader from '@/components/main/SectionHeader';
-
-interface Artwork {
-  id: string;
-  title: string;
-  artist: string;
-  imageUrl: string;
-  viewDate: string;
-  conversationCount: number;
-  aiMessage?: string;
-}
-
-interface RecentArtworkSectionProps {
-  artworks: Artwork[];
-}
+import { RecentArtworkSectionProps } from '@/types';
 
 export default function RecentArtworkSection({
   artworks,

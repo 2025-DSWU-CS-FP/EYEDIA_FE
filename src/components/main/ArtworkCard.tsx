@@ -1,8 +1,4 @@
-interface ArtworkCardProps {
-  title: string;
-  artist: string;
-  imageUrl: string;
-}
+import { ArtworkCardProps } from '@/types';
 
 export default function ArtworkCard({
   title,

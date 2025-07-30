@@ -1,10 +1,4 @@
-interface RecentArtworkWithAIMessageProps {
-  title: string;
-  viewDate: string;
-  conversationCount: number;
-  aiMessage: string;
-  imageUrl: string;
-}
+import { RecentArtworkWithAIMessageProps } from '@/types';
 
 export default function RecentArtworkWithAIMessage({
   title,

@@ -1,9 +1,5 @@
 import TitleImage from '@/assets/icons/main-title.svg?react';
-
-interface UserGreetingProps {
-  userName: string;
-  viewCount: number;
-}
+import { UserGreetingProps } from '@/types';
 
 export default function UserGreeting({
   userName,

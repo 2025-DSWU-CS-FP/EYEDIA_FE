@@ -2,17 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 import PopularExhibitionCard from '@/components/main/ExhibitionCard';
 import SectionHeader from '@/components/main/SectionHeader';
-
-interface Exhibition {
-  id: string;
-  title: string;
-  location: string;
-  imageUrl: string;
-}
-
-interface PopularExhibitionSectionProps {
-  exhibitions: Exhibition[];
-}
+import { PopularExhibitionSectionProps } from '@/types';
 
 export default function PopularExhibitionSection({
   exhibitions,

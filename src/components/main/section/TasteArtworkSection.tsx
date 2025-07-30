@@ -1,23 +1,6 @@
 import ArtworkCard from '@/components/main/ArtworkCard';
 import KeywordList from '@/components/main/KeywordList';
-
-interface Keyword {
-  id: string;
-  label: string;
-  isSelected: boolean;
-}
-
-interface TasteArtwork {
-  id: string;
-  title: string;
-  artist: string;
-  imageUrl: string;
-}
-
-interface TasteArtworkSectionProps {
-  keywords: Keyword[];
-  artworks: TasteArtwork[];
-}
+import { TasteArtworkSectionProps } from '@/types';
 
 export default function TasteArtworkSection({
   keywords,

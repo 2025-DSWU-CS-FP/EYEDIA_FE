@@ -1,12 +1,4 @@
-interface Keyword {
-  id: string;
-  label: string;
-  isSelected: boolean;
-}
-
-interface KeywordListProps {
-  keywords: Keyword[];
-}
+import { KeywordListProps } from '@/types';
 
 export default function KeywordList({ keywords }: KeywordListProps) {
   return (

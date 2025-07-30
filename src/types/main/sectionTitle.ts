@@ -1,5 +1,10 @@
-export interface SectionTitleProps {
+export interface SectionHeaderProps {
   title: string;
-  actionText?: string;
-  onActionClick?: () => void;
+  onMoreClick?: () => void;
+  showMore?: boolean;
+}
+
+export interface UserGreetingProps {
+  userName: string;
+  viewCount: number;
 }

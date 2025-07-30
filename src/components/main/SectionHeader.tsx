@@ -1,8 +1,4 @@
-interface SectionHeaderProps {
-  title: string;
-  onMoreClick?: () => void;
-  showMore?: boolean;
-}
+import { SectionHeaderProps } from '@/types';
 
 export default function SectionHeader({
   title,
