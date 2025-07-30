@@ -87,12 +87,11 @@ export default function ArtworkPage() {
             </>
           )}
           {(!chatMessages || chatMessages.length === 0) && (
-            <>
-              <div className="my-4" />
+            <div className="pt-[1.6rem] pb-[1.2rem] px-[1.8rem]">
               <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(3초 이상 응시한 객체에 대해서 설명해 줍니다)." />
-            </>
+            </div>
           )}
-          <div className="mt-4 flex flex-col gap-2">
+          <div className="mt-4 flex flex-col gap-[1.2rem]">
             {chatMessages?.map(msg => (
               <ChatMessage
                 key={nanoid()}
@@ -112,7 +111,7 @@ export default function ArtworkPage() {
           <p className="text-bd2 text-gray-70 mt-6">
             버튼을 누르고 작품에 대해 물어보세요.
           </p>
-          <div className="relative size-[12.8rem] mt-4">
+          <div className="relative size-[12.8rem] mt-[1.6rem]">
             {isRecognized ? (
               <>
                 <span className="wave" />
@@ -121,12 +120,14 @@ export default function ArtworkPage() {
                 <div className="glow-core wave-border" />
               </>
             ) : (
-              <button
-                aria-label="음성 인식 시작"
-                type="button"
-                className="glow-pulse"
-                onClick={() => setIsRecognized(true)}
-              />
+              <div className="relative size-[12.8rem] mt-[1.6rem] flex justify-center items-center">
+                <button
+                  aria-label="음성 인식 시작"
+                  type="button"
+                  className="glow-pulse"
+                  onClick={() => setIsRecognized(true)}
+                />
+              </div>
             )}
           </div>
           <div className="w-full flex justify-end">
@@ -134,9 +135,13 @@ export default function ArtworkPage() {
             <button
               type="button"
               onClick={handleFocusInput}
-              className="mt-4 w-12 h-9 bg-white/20 rounded-[40px] flex justify-center items-center"
+              className="mt-4 py-[0.6rem] px-[1.3rem] bg-gray-10 rounded-[40px] flex justify-center items-center"
             >
-              <img src={keyboardIcon} alt="키보드" />
+              <img
+                src={keyboardIcon}
+                alt="키보드"
+                className="text-gray-80 w-[2.4rem]"
+              />
             </button>
           </div>
         </div>
