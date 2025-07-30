@@ -2,7 +2,7 @@ import { KeywordListProps } from '@/types';
 
 export default function KeywordList({ keywords }: KeywordListProps) {
   return (
-    <div className="flex flex-wrap gap-[0.8rem]">
+    <div className="flex flex-wrap gap-[0.8rem] pr-[2.7rem]">
       {keywords.map(kw => (
         <div
           key={kw.id}

@@ -6,7 +6,7 @@ export default function SectionHeader({
   showMore = true,
 }: SectionHeaderProps) {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between pr-[2.7rem]">
       <h2 className="text-t3 text-gray-90">{title}</h2>
       {showMore && (
         <button

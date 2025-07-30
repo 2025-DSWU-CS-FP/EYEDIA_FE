@@ -12,7 +12,7 @@ import {
 export default function MainPage() {
   return (
     <div className="flex min-h-screen w-full justify-center">
-      <div className="flex w-full max-w-[43rem] flex-col gap-10 px-[2.7rem] py-[3rem]">
+      <div className="flex w-full max-w-[43rem] flex-col gap-10 py-[3rem] pl-[2.7rem]">
         <UserGreeting userName="김아트" viewCount={12} />
         <div className="flex flex-col gap-[4rem]">
           <PopularExhibitionSection exhibitions={popularExhibitions} />

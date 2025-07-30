@@ -6,7 +6,7 @@ export default function UserGreeting({
   viewCount,
 }: UserGreetingProps) {
   return (
-    <div className="flex w-full items-center justify-between">
+    <div className="flex w-full items-center justify-between pr-[2.7rem]">
       <div className="inline-flex flex-col items-start justify-center gap-2">
         <div className="justify-start text-ct1 text-brand-mint">
           {userName}님
