@@ -43,18 +43,18 @@ export default function ArtworkPage() {
 
       {isExpanded && (
         <div className="fixed bg-gray-5 border-b-2 border-gray-10 top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] px-4 py-4 z-30">
-          <div className="flex justify-between mx-5 text-2xl">
-            <button type="button" className="hover:text-gray-0/90">
+          <div className="flex justify-between px-5 text-t2 text-[24px] pb-[1rem]">
+            <button type="button" className="hover:text-gray-100/80">
               <IoChevronBack />
             </button>
-            <button type="button" className="hover:text-gray-0/90">
+            <button type="button" className="hover:text-gray-100/80 text-t2">
               <FiMenu />
             </button>
           </div>
           <div className="mt-4 flex justify-between max-w-[100%] items-end mx-7">
             <div className="flex flex-col gap-[3px]">
-              <h1 className="text-t1">In Bed(2005)</h1>
-              <p className="text-ct4 text-gray-70">론 뮤익(Ron Mueck)</p>
+              <h1 className="text-t4">In Bed(2005)</h1>
+              <p className="text-ct5 text-gray-70">론 뮤익(Ron Mueck)</p>
             </div>
             <div className="flex gap-[0.8rem]">
               <RoundedIconButton size="lg" icon={<FiHeart />} />
