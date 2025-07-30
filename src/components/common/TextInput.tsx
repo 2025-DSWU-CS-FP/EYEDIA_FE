@@ -8,7 +8,7 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function TextInput({
   errorMessage,
-  className,
+  className = 'text-bd2',
   type = 'text',
   placeholder,
   value,

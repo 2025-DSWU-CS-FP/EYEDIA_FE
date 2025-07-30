@@ -13,7 +13,7 @@ export default function PopularExhibitionSection({
     <section className="flex flex-col gap-4">
       <SectionHeader
         title="지금 인기 전시"
-        onMoreClick={() => navigate('/exhibitions')}
+        onMoreClick={() => navigate('/popular-exhibition')}
       />
       <div className="flex gap-[1.2rem] overflow-x-auto pb-2">
         {exhibitions.map(exh => (

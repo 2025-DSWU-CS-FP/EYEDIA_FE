@@ -11,7 +11,7 @@ interface PasswordInputProps
 
 export default function PasswordInput({
   errorMessage,
-  className,
+  className = 'text-bd2',
   placeholder,
   value,
   onChange,

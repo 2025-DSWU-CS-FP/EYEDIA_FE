@@ -16,20 +16,23 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-20 flex items-center px-[1.6rem] py-[2rem] ${backgroundColorClass}`}
+      className={`sticky top-0 z-20 flex w-full items-center justify-between px-[1.6rem] py-[2rem] ${backgroundColorClass}`}
     >
-      {showBackButton && (
+      {showBackButton ? (
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="mr-2 flex items-center justify-center"
+          className="flex items-center justify-center"
         >
           <IoChevronBack className="text-gray-100" size={24} />
         </button>
+      ) : (
+        <div className="w-6" />
       )}
       <h1 className="flex-1 text-center text-t5 font-semibold text-gray-100">
         {title}
       </h1>
+      <div className="w-6" />
     </header>
   );
 }
