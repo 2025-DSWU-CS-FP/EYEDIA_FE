@@ -4,13 +4,13 @@ interface FloatingButtonProps {
 
 function FloatingButton({ onClick }: FloatingButtonProps) {
   return (
-    <div className="fixed left-1/2 -translate-x-1/2 z-10 w-full max-w-md items-center bottom-[80px]">
+    <div className="fixed left-1/2 -translate-x-1/2 z-10 w-full max-w-[430px] items-center bottom-[8rem]">
       <div className="flex justify-end px-4">
         <button
           type="button"
           onClick={onClick}
           aria-label="button"
-          className="flex items-center gap-2 rounded-full w-[60px] h-[60px] bg-black text-white px-4 py-2 hover:bg-gray-800 transition"
+          className="flex items-center gap-2 rounded-full w-[60px] h-[60px] bg-gray-100 text-white px-4 py-2 hover:bg-gray-80 transition"
         >
           <svg
             width="38"

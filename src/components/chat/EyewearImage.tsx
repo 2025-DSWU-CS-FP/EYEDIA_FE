@@ -4,8 +4,8 @@ interface EyewearImageProps {
 }
 function EyewearImage({ src, alt }: EyewearImageProps) {
   return (
-    <div className="flex justify-center items-center h-44">
-      <img src={src} alt={alt} className="w-[220px] h-auto" />
+    <div className="flex h-44 items-center justify-center">
+      <img src={src} alt={alt} className="h-auto w-[220px]" />
     </div>
   );
 }

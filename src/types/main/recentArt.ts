@@ -1,7 +1,21 @@
-export interface RecentArtworkCardProps {
-  imageUrl: string;
-  artist: string;
+export interface Artwork {
+  id: string;
   title: string;
-  year: string;
-  onReplay?: () => void;
+  artist: string;
+  imageUrl: string;
+  viewDate: string;
+  conversationCount: number;
+  aiMessage?: string;
+}
+
+export interface RecentArtworkSectionProps {
+  artworks: Artwork[];
+}
+
+export interface RecentArtworkWithAIMessageProps {
+  title: string;
+  viewDate: string;
+  conversationCount: number;
+  aiMessage: string;
+  imageUrl: string;
 }

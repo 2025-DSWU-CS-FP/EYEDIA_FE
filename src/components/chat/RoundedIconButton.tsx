@@ -18,15 +18,15 @@ const sizeMap = {
 
 export default function RoundedIconButton({
   icon,
-  bgColor = 'bg-[#3F3F3F70] hover:bg-[#3F3F3F65] active:bg-[#3F3F3F60]',
-  iconColor = 'text-white',
+  bgColor = 'bg-gray-10 hover:bg-gray-10/90 active:bg-gray-10/80',
+  iconColor = 'text-brand-blue',
   size = 'md',
   className = '',
 }: RoundedIconButtonProps) {
   return (
     <div
       className={twMerge(
-        `rounded-full backdrop-blur-sm cursor-pointer flex justify-center items-center ${bgColor} ${iconColor} ${sizeMap[size]}`,
+        `flex cursor-pointer items-center justify-center rounded-full px-[1.1rem] py-[0.7rem] backdrop-blur-sm ${bgColor} ${iconColor} ${sizeMap[size]}`,
         className,
       )}
     >

@@ -5,7 +5,7 @@ interface SendIconProps {
 
 export default function SendIcon({
   fill = '#696969',
-  size = 30,
+  size = 24,
 }: SendIconProps) {
   return (
     <svg
@@ -21,10 +21,10 @@ export default function SendIcon({
         maskUnits="userSpaceOnUse"
         x="0"
         y="0"
-        width="30"
-        height="30"
+        width="24"
+        height="24"
       >
-        <rect width="30" height="30" fill="#D9D9D9" />
+        <rect width="24" height="24" fill={fill} />
       </mask>
       <g mask="url(#mask0)">
         <path

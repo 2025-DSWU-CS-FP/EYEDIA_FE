@@ -20,8 +20,8 @@ export default function ArtworkBottomSheet({
   const MIN_HEIGHT_VH = 70;
   const MAX_HEIGHT_VH = 100;
 
-  const minTranslateY = window.innerHeight * (1 - MAX_HEIGHT_VH / 100); // 0px
-  const maxTranslateY = window.innerHeight * (1 - MIN_HEIGHT_VH / 100); // 예: 30% 아래
+  const minTranslateY = window.innerHeight * (1 - MAX_HEIGHT_VH / 100);
+  const maxTranslateY = window.innerHeight * (1 - MIN_HEIGHT_VH / 100);
 
   const isFullyExpanded = translateY === minTranslateY;
 
@@ -84,14 +84,11 @@ export default function ArtworkBottomSheet({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed flex justify-center max-w-[425px] w-full items-end transition-all duration-500 ease-in-out">
+    <div className="fixed flex w-full max-w-[43rem] items-end justify-center transition-all duration-500 ease-in-out">
       <div
         ref={sheetRef}
         onPointerDown={handlePointerDown}
-        className={`
-          w-full max-w-[425px] bg-neutral-900 transition-transform duration-300 touch-none
-          ${isFullyExpanded ? '' : 'rounded-t-2xl'}
-        `}
+        className={`w-full max-w-[43rem] touch-none bg-gray-5 transition-transform duration-300 ${isFullyExpanded ? '' : 'rounded-t-[2.4rem]'} `}
         style={{
           transform: `translateY(${translateY}px)`,
           height: `calc(100vh - ${translateY}px)`,
@@ -99,10 +96,10 @@ export default function ArtworkBottomSheet({
         }}
       >
         {!isFullyExpanded && (
-          <div className="w-10 h-1.5 bg-gray-500 rounded-full mx-auto my-3" />
+          <div className="mx-auto my-[1.9rem] h-[0.35rem] w-[5rem] cursor-pointer rounded-full bg-gray-30" />
         )}
 
-        <div className="px-6 overflow-y-auto max-h-[calc(100%-40px)] pb-32">
+        <div className="max-h-[calc(100%-6.4rem)] overflow-y-auto pb-[20rem]">
           {children}
         </div>
       </div>

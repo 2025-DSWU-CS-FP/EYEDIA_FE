@@ -8,7 +8,7 @@ interface TextInputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export default function TextInput({
   errorMessage,
-  className,
+  className = 'text-bd2',
   type = 'text',
   placeholder,
   value,
@@ -26,12 +26,12 @@ export default function TextInput({
         disabled={disabled}
         name={name}
         className={cn(
-          'w-full px-4 py-3 rounded-md shadow-sm bg-white text-sm text-gray-700 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
+          'w-full rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-gray-80 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
           className,
         )}
       />
       {errorMessage && (
-        <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+        <p className="mt-1 text-xs text-red-500">{errorMessage}</p>
       )}
     </div>
   );

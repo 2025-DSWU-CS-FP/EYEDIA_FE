@@ -1,23 +1,45 @@
 import { ExhibitionCardProps } from '@/types';
+import cn from '@/utils/cn';
+
+interface ExhibitionCardExtendedProps extends ExhibitionCardProps {
+  className?: string;
+  imageClassName?: string;
+}
 
 export default function ExhibitionCard({
-  imageUrl,
   title,
   location,
-}: ExhibitionCardProps) {
+  imageUrl,
+  artworkCount,
+  className = '',
+  imageClassName = '',
+}: ExhibitionCardExtendedProps) {
   return (
-    <div className="w-40 flex-shrink-0">
-      <img
-        src={imageUrl}
-        alt={title}
-        className="h-40 w-full rounded-sm object-cover"
-      />
-      <h3 className="w-32 justify-start text-black text-base font-medium leading-tight pt-2 pb-1">
-        {title}
-      </h3>
-      <p className="w-32 justify-start text-neutral-400 text-xs font-medium">
-        {location}
-      </p>
+    <div
+      className={cn(
+        'group flex cursor-pointer flex-col items-start justify-start gap-[0.8rem]',
+        className,
+      )}
+    >
+      <div className="relative overflow-hidden rounded-[12px]">
+        <img
+          className={cn(
+            'aspect-[3/4] w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110',
+            imageClassName,
+          )}
+          src={imageUrl}
+          alt={title}
+        />
+        {artworkCount !== undefined && (
+          <span className="absolute bottom-[0.8rem] right-[0.8rem] rounded-[4px] bg-gray-0 px-[0.8rem] py-[0.4rem] text-ct4 text-gray-90">
+            {artworkCount}개 작품
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col items-start justify-start gap-1">
+        <div className="text-t5 text-gray-90">{title}</div>
+        <div className="text-ct4 text-gray-50">{location}</div>
+      </div>
     </div>
   );
 }

@@ -11,9 +11,9 @@ interface ChatMessageProps {
 
 function Marker() {
   return (
-    <div className="absolute -top-[3px] -left-[4px] w-2.5 h-7 pointer-events-none">
-      <div className="w-[2px] h-6 absolute left-[4.5px] top-0 bg-[#F68C8C]" />
-      <div className="w-2.5 h-2.5 absolute left-0 top-0 bg-[#F68C8C] rounded-full" />
+    <div className="pointer-events-none absolute -left-[4px] -top-[3px] h-7 w-2.5">
+      <div className="absolute left-[4.5px] top-0 h-6 w-[2px] bg-[#F68C8C]" />
+      <div className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-[#F68C8C]" />
     </div>
   );
 }
@@ -143,7 +143,7 @@ export default function ChatMessage({
     return (
       <>
         {text.slice(0, start)}
-        <span className="relative bg-rose-200/20 rounded px-0.5">
+        <span className="relative rounded bg-rose-200/20 px-0.5">
           <span className="absolute left-0">
             <Marker />
           </span>
@@ -160,10 +160,10 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`disable-native-selection relative text-sm px-4 py-2 rounded whitespace-pre-wrap break-words max-w-[80%] select-text ${
+      className={`disable-native-selection relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] text-bd3 ${
         isFromUser
-          ? 'self-end bg-white text-black'
-          : 'bg-stone-50/10 text-white'
+          ? 'self-end bg-brand-blue text-gray-0'
+          : 'bg-gray-0 text-gray-90'
       }`}
     >
       {menuPosition && highlightRange && (
