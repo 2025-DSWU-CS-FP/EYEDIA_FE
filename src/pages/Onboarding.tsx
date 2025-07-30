@@ -39,11 +39,11 @@ function OnboardingPage() {
               : '전용 아이웨어를 착용하고 연결해주세요.'
           }
         />
-        <div className="relative flex justify-center w-[20.9rem] h-[20.9rem] items-center mx-auto">
+        <div className="relative flex justify-center w-[30rem] h-[24rem] items-center mx-auto">
           <img
             src={ringImage}
             alt="background ring"
-            className="absolute w-[20.9rem] h-[20.9rem] -bottom-[5rem] opacity-70 pointer-events-none"
+            className="absolute w-[30rem] h-[23rem] -bottom-[5rem] opacity-70 pointer-events-none"
           />
           <SwitchTransition mode="out-in">
             <CSSTransition
