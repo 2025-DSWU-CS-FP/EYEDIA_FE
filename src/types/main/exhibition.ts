@@ -30,4 +30,5 @@ export interface ExhibitionCardProps {
   title: string;
   location: string;
   imageUrl: string;
+  artworkCount?: number;
 }
