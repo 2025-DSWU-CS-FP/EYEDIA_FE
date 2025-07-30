@@ -6,11 +6,11 @@ interface MenuButtonProps {
 
 export default function MenuButton({ className = '' }: MenuButtonProps) {
   return (
-    <div className="absolute top-8 left-1/2 -translate-x-1/2 max-w-[400px] px-4 flex justify-between z-10">
+    <div className="absolute left-1/2 top-8 z-10 flex max-w-[400px] -translate-x-1/2 justify-between px-4">
       <button
         type="button"
         aria-label="메뉴"
-        className={`text-2xl mr-4 ${className}`}
+        className={`mr-4 text-2xl ${className}`}
       >
         <FiMenu />
       </button>

@@ -12,17 +12,17 @@ export default function ProfileCard({
   exhibitionCount,
 }: ProfileCardProps) {
   return (
-    <div className="flex justify-between cursor-pointer bg-white items-center px-[3.7rem]">
+    <div className="flex cursor-pointer items-center justify-between bg-white px-[3.7rem]">
       <div className="flex items-center gap-[2.4rem]">
-        <Logo className="text-gray-50 w-[4rem]" />
+        <Logo className="w-[4rem] text-gray-50" />
         <div className="flex flex-col">
-          <span className="text-gray-80 text-t3 font-semibold">{name}</span>
-          <span className="text-gray-60 text-ct4 font-medium">
+          <span className="text-t3 font-semibold text-gray-80">{name}</span>
+          <span className="text-ct4 font-medium text-gray-60">
             현재 수집한 전시 {exhibitionCount}개
           </span>
         </div>
       </div>
-      <IoChevronForward className="text-gray-80 text-t3" />
+      <IoChevronForward className="text-t3 text-gray-80" />
     </div>
   );
 }

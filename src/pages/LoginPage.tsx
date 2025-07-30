@@ -39,11 +39,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen px-[2.5rem] bg-gray-5 flex flex-col pt-[12rem] items-center p-6">
-      <div className="flex flex-col items-center w-full justify-between h-[37rem]">
+    <div className="flex min-h-screen flex-col items-center bg-gray-5 p-6 px-[2.5rem] pt-[12rem]">
+      <div className="flex h-[37rem] w-full flex-col items-center justify-between">
         <div className="flex flex-col items-center gap-[1.4rem]">
           <img src="/logo-login.svg" alt="로고" className="w-[12.5rem]" />
-          <span className="text-gray-50 text-t3 font-bold">EYEDIA</span>
+          <span className="text-t3 font-bold text-gray-50">EYEDIA</span>
         </div>
         <div className="w-full space-y-[0.8rem] text-gray-80 placeholder-gray-30">
           <TextInput
@@ -61,13 +61,13 @@ export default function LoginPage() {
             className="text-ct3"
           />
         </div>
-        <div className="w-full flex flex-col text-gray-0 gap-[2.2rem]">
+        <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
           <Button onClick={handleLogin}>로그인</Button>
-          <div className="flex justify-center items-center space-x-3 text-ct4 text-gray-80">
+          <div className="flex items-center justify-center space-x-3 text-ct4 text-gray-80">
             <button type="button">아이디 찾기</button>
-            <span className="w-px h-3.5 bg-gray-300" />
+            <span className="h-3.5 w-px bg-gray-300" />
             <button type="button">비밀번호 찾기</button>
-            <span className="w-px h-3.5 bg-gray-300" />
+            <span className="h-3.5 w-px bg-gray-300" />
             <button
               onClick={() => navigate('/signup')}
               aria-label="button"

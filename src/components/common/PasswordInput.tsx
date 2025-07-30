@@ -21,7 +21,7 @@ export default function PasswordInput({
   const [showPw, setShowPw] = useState(false);
 
   return (
-    <div className="w-full relative">
+    <div className="relative w-full">
       <input
         type={showPw ? 'text' : 'password'}
         placeholder={placeholder}
@@ -30,7 +30,7 @@ export default function PasswordInput({
         name={name}
         disabled={disabled}
         className={cn(
-          'w-full px-[1.6rem] py-[1.2rem] rounded-[6px] bg-white text-ct3 text-gray-80 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
+          'w-full rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-ct3 text-gray-80 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light',
           className,
         )}
       />
@@ -47,7 +47,7 @@ export default function PasswordInput({
         )}
       </button>
       {errorMessage && (
-        <p className="text-red-500 text-xs mt-1">{errorMessage}</p>
+        <p className="mt-1 text-xs text-red-500">{errorMessage}</p>
       )}
     </div>
   );

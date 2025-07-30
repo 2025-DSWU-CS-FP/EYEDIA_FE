@@ -25,7 +25,7 @@ export default function ArtworkImageGrid({
               onClickImage?.(img.id);
             }
           }}
-          className="mb-2 break-inside-avoid rounded-sm cursor-pointer outline-none"
+          className="mb-2 cursor-pointer break-inside-avoid rounded-sm outline-none"
         >
           <img
             src={img.src}

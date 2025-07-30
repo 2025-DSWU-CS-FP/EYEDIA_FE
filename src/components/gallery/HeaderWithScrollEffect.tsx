@@ -13,15 +13,15 @@ export default function HeaderWithScrollEffect() {
 
   return (
     <div
-      className={`fixed top-0 left-0 right-0 z-20 mx-auto w-full max-w-[430px] transition backdrop-blur-sm ${
+      className={`fixed left-0 right-0 top-0 z-20 mx-auto w-full max-w-[430px] backdrop-blur-sm transition ${
         isScrolled ? 'bg-[#C9C9C9]/[0.64]' : 'bg-white'
       }`}
     >
-      <div className="px-5 py-4 flex justify-between items-center">
-        <h1 className="text-xl text-black font-semibold">나의 전시</h1>
+      <div className="flex items-center justify-between px-5 py-4">
+        <h1 className="text-xl font-semibold text-black">나의 전시</h1>
         <button type="button" aria-label="검색">
           <svg
-            className="w-6 h-6 text-black"
+            className="h-6 w-6 text-black"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

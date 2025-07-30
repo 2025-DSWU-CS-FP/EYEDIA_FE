@@ -10,17 +10,17 @@ export default function ExhibitionCard({
   imageUrl,
 }: ExhibitionCardProps) {
   return (
-    <div className="flex flex-col justify-start items-start gap-[0.8rem]">
+    <div className="flex flex-col items-start justify-start gap-[0.8rem]">
       <img
-        className="self-stretch min-w-[15rem] h-[18rem] rounded-[12px]"
+        className="h-[18rem] min-w-[15rem] self-stretch rounded-[12px]"
         src={imageUrl}
         alt={title}
       />
-      <div className="self-stretch flex flex-col justify-start items-start gap-1">
-        <div className="self-stretch justify-start text-t5 text-gray-90">
+      <div className="flex flex-col items-start justify-start gap-1 self-stretch">
+        <div className="justify-start self-stretch text-t5 text-gray-90">
           {title}
         </div>
-        <div className="self-stretch justify-start text-gray-50 text-ct4">
+        <div className="justify-start self-stretch text-ct4 text-gray-50">
           {location}
         </div>
       </div>

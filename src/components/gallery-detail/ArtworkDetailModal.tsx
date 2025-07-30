@@ -20,12 +20,12 @@ export default function ArtworkDetailModal({
   onContinueChat,
 }: ArtworkDetailModalProps) {
   return (
-    <div className="fixed inset-0 z-10 left-1/2 max-w-[425px] w-full -translate-x-1/2 flex items-center justify-center bg-black/60 px-10 py-22">
+    <div className="py-22 fixed inset-0 left-1/2 z-10 flex w-full max-w-[425px] -translate-x-1/2 items-center justify-center bg-black/60 px-10">
       <button
         type="button"
         aria-label="close"
         onClick={onClose}
-        className="fixed top-5 right-5 z-10 text-white text-2xl p-1"
+        className="fixed right-5 top-5 z-10 p-1 text-2xl text-white"
       >
         <IoClose />
       </button>
@@ -35,23 +35,23 @@ export default function ArtworkDetailModal({
           <img
             src={src}
             alt="작품 상세"
-            className="w-full object-cover rounded-2xl"
+            className="w-full rounded-2xl object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-b from-black/0 to-black/70 rounded-2xl pointer-events-none" />
+          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 to-black/70" />
 
-          <div className="absolute bottom-0 left-0 w-full p-4 text-white z-10">
-            <div className="inline-flex flex-col justify-end items-start gap-4">
-              <div className="flex flex-col justify-start items-start gap-3.5">
-                <div className="self-stretch flex flex-col justify-start items-start gap-1">
-                  <div className="text-white text-xl font-medium font-['Pretendard']">
+          <div className="absolute bottom-0 left-0 z-10 w-full p-4 text-white">
+            <div className="inline-flex flex-col items-start justify-end gap-4">
+              <div className="flex flex-col items-start justify-start gap-3.5">
+                <div className="flex flex-col items-start justify-start gap-1 self-stretch">
+                  <div className="font-['Pretendard'] text-xl font-medium text-white">
                     {title}
                   </div>
-                  <div className="text-white text-base font-medium font-['Pretendard']">
+                  <div className="font-['Pretendard'] text-base font-medium text-white">
                     {artist}
                   </div>
                 </div>
-                <div className="text-neutral-400 text-xs font-normal font-['Pretendard']">
+                <div className="font-['Pretendard'] text-xs font-normal text-neutral-400">
                   마지막 대화: {lastChatDate}
                 </div>
               </div>
@@ -59,7 +59,7 @@ export default function ArtworkDetailModal({
           </div>
         </div>
 
-        <div className="flex justify-center mt-4">
+        <div className="mt-4 flex justify-center">
           <Button onClick={onContinueChat}>대화 이어하기</Button>
         </div>
       </div>

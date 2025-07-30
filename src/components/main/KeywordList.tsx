@@ -14,7 +14,7 @@ export default function KeywordList({ keywords }: KeywordListProps) {
       {keywords.map(kw => (
         <div
           key={kw.id}
-          className={`cursor-pointer px-[1.2rem] py-[0.8rem] rounded-[4px] flex justify-center items-center gap-2.5 ${
+          className={`flex cursor-pointer items-center justify-center gap-2.5 rounded-[4px] px-[1.2rem] py-[0.8rem] ${
             kw.isSelected ? 'bg-gray-80 text-gray-0' : 'bg-gray-0 text-gray-60'
           }`}
         >

@@ -10,11 +10,11 @@ export default function ArtworkCard({
   imageUrl,
 }: ArtworkCardProps) {
   return (
-    <div className="min-w-[21rem] flex flex-col gap-[0.8rem]">
+    <div className="flex min-w-[21rem] flex-col gap-[0.8rem]">
       <img src={imageUrl} className="rounded-[12px]" alt={title} />
-      <div className="flex flex-col justify-start items-start gap-1">
-        <span className="text-gray-90 text-t5">{title}</span>
-        <div className="text-gray-50 text-ct4 font-medium font-['Pretendard'] leading-none">
+      <div className="flex flex-col items-start justify-start gap-1">
+        <span className="text-t5 text-gray-90">{title}</span>
+        <div className="font-['Pretendard'] text-ct4 font-medium leading-none text-gray-50">
           {artist}
         </div>
       </div>

@@ -31,7 +31,7 @@ export default function Button({
         baseStyle,
         variants[variant],
         className,
-        'text-gray-0 text-bt3',
+        'text-bt3 text-gray-0',
       )}
     >
       {children}

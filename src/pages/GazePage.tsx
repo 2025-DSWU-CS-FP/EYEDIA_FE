@@ -33,10 +33,10 @@ function GazePage() {
   };
 
   return (
-    <div className="w-full max-h-svh justify-around overflow-auto text-white relative flex flex-col items-center">
+    <div className="relative flex max-h-svh w-full flex-col items-center justify-around overflow-auto text-white">
       <BackButton className="text-gray-100" />
-      <div className="space-y-[2.2rem] w-[30.7rem]">
-        <div className="flex flex-col gap-[0.4rem] mx-auto">
+      <div className="w-[30.7rem] space-y-[2.2rem]">
+        <div className="mx-auto flex flex-col gap-[0.4rem]">
           {trackingComplete ? (
             <div className="mt-6 text-ct2 font-medium text-brand-blue">
               시선추적 성공!
@@ -46,23 +46,23 @@ function GazePage() {
               시선추적중...
             </div>
           )}
-          <div className="mt-2 text-t3 whitespace-pre-line text-gray-100">
+          <div className="mt-2 whitespace-pre-line text-t3 text-gray-100">
             {trackingComplete
               ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
               : '궁금한 작품을\n2초 이상 응시하세요.'}
           </div>
         </div>
-        <div className="w-[30.7rem] h-[43.5rem] rounded-2xl relative overflow-hidden self-center">
+        <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
           {trackingComplete ? (
-            <div className="relative w-full h-full">
+            <div className="relative h-full w-full">
               <img
                 src={Sample}
                 alt={artworkInfo.title}
-                className="rounded-2xl object-cover w-full h-full"
+                className="h-full w-full rounded-2xl object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/40 to-black/80 rounded-2xl" />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
               {trackingComplete && (
-                <div className="absolute bottom-[2.5rem] left-[2rem] text-left space-y-[0.4rem]">
+                <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-t3 text-white">{artworkInfo.title}</div>
                   <div className="text-ct4 text-white/80">
                     {artworkInfo.artist}
@@ -71,11 +71,11 @@ function GazePage() {
               )}
             </div>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-blue-100 rounded-2xl flex justify-center items-center">
-              <div className="flex gap-2 items-end">
-                <div className="w-[1rem] h-[1rem] bg-white rounded-full animate-bounce-delay-1" />
-                <div className="w-[1rem] h-[1rem] bg-white rounded-full animate-bounce-delay-2" />
-                <div className="w-[1rem] h-[1rem] bg-white rounded-full animate-bounce-delay-3" />
+            <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-200 to-blue-100">
+              <div className="flex items-end gap-2">
+                <div className="h-[1rem] w-[1rem] animate-bounce-delay-1 rounded-full bg-white" />
+                <div className="h-[1rem] w-[1rem] animate-bounce-delay-2 rounded-full bg-white" />
+                <div className="h-[1rem] w-[1rem] animate-bounce-delay-3 rounded-full bg-white" />
               </div>
             </div>
           )}

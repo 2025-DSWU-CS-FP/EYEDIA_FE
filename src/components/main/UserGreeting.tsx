@@ -10,12 +10,12 @@ export default function UserGreeting({
   viewCount,
 }: UserGreetingProps) {
   return (
-    <div className="w-full flex justify-between items-center">
-      <div className="inline-flex flex-col justify-center items-start gap-2">
-        <div className="justify-start text-brand-mint text-ct1">
+    <div className="flex w-full items-center justify-between">
+      <div className="inline-flex flex-col items-start justify-center gap-2">
+        <div className="justify-start text-ct1 text-brand-mint">
           {userName}님
         </div>
-        <div className="self-stretch justify-start text-gray-90 text-t2">
+        <div className="justify-start self-stretch text-t2 text-gray-90">
           이번 달 {viewCount}회 감상,
           <br />
           전시의 달인이시네요.

@@ -25,7 +25,7 @@ export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
             }}
           >
             <div
-              className="w-1 h-3 rounded-sm bg-neutral-400 opacity-30"
+              className="h-3 w-1 rounded-sm bg-neutral-400 opacity-30"
               style={{
                 animation: `fade 1.2s linear infinite`,
                 animationDelay: `${(i * 0.1).toFixed(1)}s`,

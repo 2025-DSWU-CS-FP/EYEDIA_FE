@@ -6,6 +6,7 @@
   "printWidth": 80,
   "endOfLine": "auto",
   "arrowParens": "avoid",
+  "plugins": ["prettier-plugin-tailwindcss"],
   "importOrder": [
     "^react(/.*)?$",
     "^react-router-dom(/.*)?$",

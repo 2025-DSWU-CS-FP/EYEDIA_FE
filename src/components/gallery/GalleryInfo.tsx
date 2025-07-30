@@ -11,7 +11,7 @@ export default function GalleryInfoHeader({
 }: GalleryInfoHeaderProps) {
   return (
     <div className="absolute left-[22px] top-[166px] flex flex-col gap-3">
-      <div className="text-2xl font-semibold leading-loose text-black whitespace-pre-line">
+      <div className="whitespace-pre-line text-2xl font-semibold leading-loose text-black">
         {title}
       </div>
       <div className="flex flex-col gap-px text-stone-500">
