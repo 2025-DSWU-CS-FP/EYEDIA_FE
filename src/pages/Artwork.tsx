@@ -57,8 +57,8 @@ export default function ArtworkPage() {
               <p className="text-ct4 text-gray-70">론 뮤익(Ron Mueck)</p>
             </div>
             <div className="flex gap-[0.8rem]">
-              <RoundedIconButton icon={<FiHeart />} />
-              <RoundedIconButton icon={<FiShare />} />
+              <RoundedIconButton size="lg" icon={<FiHeart />} />
+              <RoundedIconButton size="lg" icon={<FiShare />} />
             </div>
           </div>
         </div>
@@ -69,8 +69,8 @@ export default function ArtworkPage() {
           {!isExpanded && (
             <>
               <div className="fixed flex justify-end gap-2 right-7 -top-4 z-20">
-                <RoundedIconButton icon={<FiHeart />} />
-                <RoundedIconButton icon={<FiShare />} />
+                <RoundedIconButton size="lg" icon={<FiHeart />} />
+                <RoundedIconButton size="lg" icon={<FiShare />} />
               </div>
               <div className="flex flex-col gap-[1.8rem] mb-4 select-none">
                 <div className="px-[2.4rem]">
