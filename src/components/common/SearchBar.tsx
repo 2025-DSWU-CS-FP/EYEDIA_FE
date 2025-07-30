@@ -1,65 +1,25 @@
-import React from 'react';
-
-import { FiSearch } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { IoSearch } from 'react-icons/io5';
 
 interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
   placeholder?: string;
-  onSearch?: (value: string) => void;
-  color?: 'white' | 'black';
 }
 
 export default function SearchBar({
-  placeholder = '원하시는 전시를 검색해보세요',
-  onSearch,
-  color = 'white',
+  value,
+  onChange,
+  placeholder = '전시/작품 이름으로 검색',
 }: SearchBarProps) {
-  const [input, setInput] = React.useState('');
-  const navigate = useNavigate();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = input.trim();
-    if (!trimmed) return;
-
-    if (onSearch) {
-      onSearch(trimmed);
-    } else {
-      navigate(`/search?query=${encodeURIComponent(trimmed)}`);
-    }
-  };
-
-  const isBlack = color === 'black';
-  const borderColor = isBlack ? 'border-black/60' : 'border-white/60';
-  const bgColor = isBlack ? 'bg-lightGray' : 'bg-white/10';
-  const textColor = isBlack
-    ? 'text-black/70 placeholder-black/70'
-    : 'text-white/80 placeholder-white/80';
-  const iconColor = isBlack ? 'text-black/70' : 'text-white/80';
-
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="relative mx-auto h-10 w-full max-w-[90%]"
-    >
-      <div
-        className={`absolute inset-0 rounded-sm ${bgColor} border ${borderColor}`}
-      />
-
+    <div className="flex items-center justify-between rounded-[8px] bg-white px-[2rem] py-[1rem] shadow-sm">
       <input
-        type="text"
-        className={`absolute left-3 top-1/2 w-[85%] -translate-y-1/2 bg-transparent pr-10 text-sm font-medium outline-none ${textColor}`}
+        className="flex-1 bg-transparent text-ct3 text-gray-60 outline-none placeholder:text-gray-60"
         placeholder={placeholder}
-        value={input}
-        onChange={e => setInput(e.target.value)}
+        value={value}
+        onChange={e => onChange(e.target.value)}
       />
-
-      <button
-        type="submit"
-        className={`absolute right-3 top-1/2 -translate-y-1/2 ${iconColor}`}
-      >
-        <FiSearch size={18} />
-      </button>
-    </form>
+      <IoSearch className="ml-2 text-gray-60" size={20} />
+    </div>
   );
 }
