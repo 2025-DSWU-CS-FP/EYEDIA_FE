@@ -22,6 +22,7 @@ export default function PopularExhibitionSection({
             title={exh.title}
             location={exh.location}
             imageUrl={exh.imageUrl}
+            imageClassName="min-w-[15rem]"
           />
         ))}
       </div>

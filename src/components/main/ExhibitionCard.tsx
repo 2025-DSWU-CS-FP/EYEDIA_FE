@@ -1,16 +1,32 @@
 import { ExhibitionCardProps } from '@/types';
+import cn from '@/utils/cn';
+
+interface ExhibitionCardExtendedProps extends ExhibitionCardProps {
+  className?: string;
+  imageClassName?: string;
+}
 
 export default function ExhibitionCard({
   title,
   location,
   imageUrl,
   artworkCount,
-}: ExhibitionCardProps) {
+  className = '',
+  imageClassName = '',
+}: ExhibitionCardExtendedProps) {
   return (
-    <div className="group flex cursor-pointer flex-col items-start justify-start gap-[0.8rem]">
+    <div
+      className={cn(
+        'group flex cursor-pointer flex-col items-start justify-start gap-[0.8rem]',
+        className,
+      )}
+    >
       <div className="relative overflow-hidden rounded-[12px]">
         <img
-          className="aspect-[3/4] w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110"
+          className={cn(
+            'aspect-[3/4] w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-110',
+            imageClassName,
+          )}
           src={imageUrl}
           alt={title}
         />
