@@ -14,7 +14,7 @@ export default function RecentArtworkWithAIMessage({
   imageUrl,
 }: RecentArtworkWithAIMessageProps) {
   return (
-    <div className="min-w-[31.2rem] rounded-2xl overflow-hidden bg-white shadow flex flex-col">
+    <div className="min-w-[31.2rem] rounded-[12px] overflow-hidden bg-white shadow flex flex-col">
       {/* 이미지 + 오버레이 + AI 메시지 */}
       <div className="relative w-full h-[15rem] flex items-center justify-center bg-black">
         <img
@@ -35,7 +35,7 @@ export default function RecentArtworkWithAIMessage({
       {/* 하단 정보 */}
       <div className="flex items-start justify-between p-[1.6rem] bg-white">
         <div className="flex-1 flex flex-col gap-[0.4rem]">
-          <span className="text-ct5 text-gray-90 font-bold">{title}</span>
+          <span className="text-t5 text-gray-90">{title}</span>
           <span className="text-ct5 text-gray-40 font-medium">{viewDate}</span>
         </div>
         <div className="px-[0.8rem] py-[0.4rem] bg-gray-10 rounded-[4px] text-gray-50 text-ct4flex items-center">
