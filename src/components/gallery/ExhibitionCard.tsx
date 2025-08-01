@@ -3,6 +3,7 @@ interface ExhibitionCardProps {
   title?: string;
   subTitle: string;
   showArrow?: boolean;
+  onClick?: () => void;
 }
 
 export default function ExhibitionCard({
@@ -10,9 +11,14 @@ export default function ExhibitionCard({
   title,
   subTitle,
   showArrow,
+  onClick,
 }: ExhibitionCardProps) {
   return (
-    <div className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-[10px]">
+    <button
+      type="button"
+      onClick={onClick}
+      className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-[10px]"
+    >
       <img
         src={imageUrl}
         alt={title ?? '작품 이미지'}
@@ -28,6 +34,6 @@ export default function ExhibitionCard({
           </div>
         </div>
       )}
-    </div>
+    </button>
   );
 }
