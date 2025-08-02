@@ -1,21 +1,31 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Player from 'lottie-react';
 import { useNavigate } from 'react-router-dom';
 
+import logoLottie from '@/assets/lottie/logo.json';
+import splashLottie from '@/assets/lottie/splash.json';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
-import logoLottie from '@/lottie/logo.json';
 import useLogin from '@/services/mutations/useLogin';
 
 export default function LoginPage() {
+  const [showSplash, setShowSplash] = useState(true);
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
-  const loginMutation = useLogin();
-  const navigate = useNavigate();
   const [idError, setIdError] = useState('');
   const [pwError, setPwError] = useState('');
+
+  const loginMutation = useLogin();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleLogin = () => {
     setIdError('');
@@ -23,7 +33,6 @@ export default function LoginPage() {
 
     if (!id) setIdError('아이디를 입력해주세요.');
     if (!pw) setPwError('비밀번호를 입력해주세요.');
-
     if (!id || !pw) return;
 
     loginMutation.mutate(
@@ -40,6 +49,19 @@ export default function LoginPage() {
     );
   };
 
+  if (showSplash) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-[#769DFF]">
+        <Player
+          autoplay
+          loop
+          animationData={splashLottie}
+          className="mb-[7rem] w-[18rem]"
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center bg-gray-5 p-6 px-[2.5rem] pt-[12rem]">
       <div className="flex h-[37rem] w-full flex-col items-center justify-between">
@@ -50,8 +72,9 @@ export default function LoginPage() {
             animationData={logoLottie}
             className="w-[12.5rem]"
           />
-          <span className="text-t3 font-bold text-gray-50">EYEDIA</span>
+          <span className="text-t2 font-bold text-gray-50">EYEDIA</span>
         </div>
+
         <div className="w-full space-y-[0.8rem] text-gray-80 placeholder-gray-30">
           <TextInput
             placeholder="아이디"
@@ -68,6 +91,7 @@ export default function LoginPage() {
             className="text-ct3"
           />
         </div>
+
         <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
           <Button onClick={handleLogin}>로그인</Button>
           <div className="flex items-center justify-center space-x-3 text-ct4 text-gray-80">

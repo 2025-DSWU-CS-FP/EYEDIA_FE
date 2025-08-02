@@ -26,7 +26,6 @@ export default function GalleryCardDetail({ data, onBack }: Props) {
           <CalendarBox month={data.month} date={data.date} />
         </div>
 
-        {/* 하단 그라데이션 텍스트 */}
         <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem]">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-[0.2rem]">
