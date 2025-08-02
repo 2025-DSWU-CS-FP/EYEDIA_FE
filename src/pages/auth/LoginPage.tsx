@@ -75,7 +75,7 @@ export default function LoginPage() {
           <span className="text-t2 font-bold text-gray-50">EYEDIA</span>
         </div>
 
-        <div className="w-full space-y-[0.8rem] text-gray-80 placeholder-gray-30">
+        <div className="w-full space-y-[1rem] text-gray-80 placeholder-gray-30">
           <TextInput
             placeholder="아이디"
             value={id}
