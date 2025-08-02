@@ -18,6 +18,7 @@ export default function ExhibitionGrid({ exhibitions }: ExhibitionGridProps) {
       {exhibitions.map(exh => (
         <ExhibitionCard
           key={exh.id}
+          id={exh.id}
           title={exh.title}
           location={exh.location}
           imageUrl={exh.imageUrl}
