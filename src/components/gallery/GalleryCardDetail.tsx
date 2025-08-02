@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import MoreIcon from '@/assets/icons/card-more.svg?react';
+import quoteIc from '@/assets/icons/quote.svg';
 import BackCard from '@/assets/images/gallery-back-card.png';
 import CalendarBox from '@/components/gallery/CalendarBox';
 import IndicatorDots from '@/components/gallery/IndicatorDots';
@@ -57,7 +58,7 @@ export default function GalleryCardDetail({
 
             <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem] text-gray-0">
               <div className="flex items-center justify-between">
-                <div className="flex flex-col gap-[0.2rem]">
+                <div className="flex flex-col gap-[0.2rem] text-left">
                   <p className="text-bd2">{data.location}</p>
                   <p className="text-t2 font-bold">{data.subTitle}</p>
                 </div>
@@ -67,12 +68,22 @@ export default function GalleryCardDetail({
           </div>
 
           <div
-            className="absolute h-full w-full rounded-2xl bg-cover bg-center [backface-visibility:hidden]"
+            className="absolute h-full w-full rounded-2xl [backface-visibility:hidden]"
             style={{
               transform: 'rotateY(180deg)',
               backgroundImage: `url(${BackCard})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
-          />
+          >
+            <div className="flex h-full w-full flex-col items-center justify-center gap-[1.6rem] px-[3.5rem] text-[#347EB5]">
+              <img src={quoteIc} alt="quote" className="w-[3.2rem]" />
+              <span className="text-t3 leading-relaxed">
+                수영하는 풍경, 그곳을 보고 나는 떠나기로 결심했다.
+              </span>
+              <span className="text-ct1">- 요시고</span>
+            </div>
+          </div>
         </div>
       </button>
 
