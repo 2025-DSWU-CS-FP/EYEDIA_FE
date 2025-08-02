@@ -3,11 +3,14 @@ import { useState } from 'react';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function ProfileEdit() {
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingUserId, setIsEditingUserId] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
+
+  const { showToast } = useToast();
 
   const [nickname, setNickname] = useState('기존 닉네임');
   const [userId, setUserId] = useState('eyedia');
@@ -36,7 +39,12 @@ export default function ProfileEdit() {
             <div className="flex-[1]">
               <Button
                 className="w-full"
-                onClick={() => setIsEditingNickname(prev => !prev)}
+                onClick={() => {
+                  if (isEditingNickname) {
+                    showToast('닉네임이 수정되었습니다.', 'success');
+                  }
+                  setIsEditingNickname(prev => !prev);
+                }}
               >
                 {isEditingNickname ? '완료' : '변경하기'}
               </Button>
@@ -58,7 +66,12 @@ export default function ProfileEdit() {
             <div className="flex-[1]">
               <Button
                 className="w-full"
-                onClick={() => setIsEditingUserId(prev => !prev)}
+                onClick={() => {
+                  if (isEditingUserId) {
+                    showToast('아이디가 수정되었습니다.', 'info');
+                  }
+                  setIsEditingUserId(prev => !prev);
+                }}
               >
                 {isEditingUserId ? '완료' : '변경하기'}
               </Button>
@@ -82,7 +95,12 @@ export default function ProfileEdit() {
                   value={confirmPw}
                   onChange={e => setConfirmPw(e.target.value)}
                 />
-                <Button onClick={() => setIsEditingPassword(false)}>
+                <Button
+                  onClick={() => {
+                    setIsEditingPassword(false);
+                    showToast('비밀번호가 수정되었습니다.', 'error');
+                  }}
+                >
                   완료
                 </Button>
               </div>

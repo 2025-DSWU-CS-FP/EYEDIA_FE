@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import LoopLoading from '@/components/common/LoopLoading';
+import { ToastProvider } from '@/contexts/ToastContext';
 import MainView from '@/layouts/MainView';
 import mainRoutes from '@/route/mainRoutes';
 
@@ -36,7 +37,9 @@ export default function App() {
           </MainView>
         }
       >
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </Suspense>
     </QueryClientProvider>
   );
