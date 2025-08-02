@@ -35,6 +35,9 @@ export default {
           deep: 'rgba(0, 0, 0, 0.8)',
         },
       },
+      rotate: {
+        'y-180': '180deg',
+      },
       boxShadow: {
         card: '2px 4px 12px 0px rgba(0, 0, 0, 0.08)',
         modal: '2px 2px 16px 0px rgba(0, 0, 0, 0.25)',
