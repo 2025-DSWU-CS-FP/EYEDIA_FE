@@ -9,10 +9,23 @@ interface Props {
     date?: string;
     month?: string;
   };
+  currentIndex: number;
+  total: number;
   onBack: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  onDotClick?: (index: number) => void;
 }
 
-export default function GalleryCardDetail({ data, onBack }: Props) {
+export default function GalleryCardDetail({
+  data,
+  onBack,
+  onPrev,
+  onNext,
+  currentIndex,
+  total,
+  onDotClick,
+}: Props) {
   return (
     <div className="flex w-full max-w-[36rem] flex-col items-center gap-[5.6rem] px-[2.4rem]">
       <div className="relative w-full">
@@ -46,7 +59,32 @@ export default function GalleryCardDetail({ data, onBack }: Props) {
         </div>
       </div>
 
-      <IndicatorDots />
+      <IndicatorDots
+        count={total}
+        activeIndex={currentIndex}
+        onDotClick={onDotClick}
+      />
+
+      <div className="absolute bottom-[2.4rem] right-[2.4rem] flex gap-2">
+        <button
+          type="button"
+          aria-label="이전"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm"
+          onClick={onPrev}
+          disabled={currentIndex === 0}
+        >
+          <span className="rotate-180">{'>'}</span>
+        </button>
+        <button
+          type="button"
+          aria-label="다음"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white/50 backdrop-blur-sm"
+          onClick={onNext}
+          disabled={currentIndex === total - 1}
+        >
+          {'>'}
+        </button>
+      </div>
     </div>
   );
 }
