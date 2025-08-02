@@ -7,6 +7,7 @@ import LoopLoading from '@/components/common/LoopLoading';
 import { ConfirmProvider } from '@/contexts/ConfirmContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import MainView from '@/layouts/MainView';
+import loginRoutes from '@/route/loginRoutes';
 import mainRoutes from '@/route/mainRoutes';
 
 const Layout = lazy(() => import('@/layouts/Layout'));
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <Layout />,
     errorElement: <ErrorPage />,
-    children: mainRoutes,
+    children: [...mainRoutes, ...loginRoutes],
   },
   {
     path: '*',
