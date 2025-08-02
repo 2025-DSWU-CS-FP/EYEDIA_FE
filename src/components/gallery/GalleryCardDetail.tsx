@@ -1,3 +1,4 @@
+import MoreIcon from '@/assets/icons/card-more.svg?react';
 import CalendarBox from '@/components/gallery/CalendarBox';
 import IndicatorDots from '@/components/gallery/IndicatorDots';
 
@@ -6,12 +7,12 @@ interface Props {
     imageUrl: string;
     title: string;
     subTitle: string;
+    location: string;
     date?: string;
     month?: string;
   };
   currentIndex: number;
   total: number;
-  onBack: () => void;
   onPrev: () => void;
   onNext: () => void;
   onDotClick?: (index: number) => void;
@@ -19,7 +20,6 @@ interface Props {
 
 export default function GalleryCardDetail({
   data,
-  onBack,
   onPrev,
   onNext,
   currentIndex,
@@ -40,21 +40,12 @@ export default function GalleryCardDetail({
         </div>
 
         <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem]">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between text-gray-0">
             <div className="flex flex-col gap-[0.2rem]">
-              <p className="text-xs font-semibold text-white">
-                {data.subTitle}
-              </p>
-              <p className="text-3xl font-bold text-white">{data.title}</p>
+              <p className="text-bd2">{data.location}</p>
+              <p className="text-t2 font-bold">{data.subTitle}</p>
             </div>
-            <button
-              aria-label="뒤로가기"
-              type="button"
-              className="flex h-6 w-6 rotate-180 items-center justify-center"
-              onClick={onBack}
-            >
-              <div className="h-4 w-4 outline outline-2 outline-offset-[-1px] outline-white" />
-            </button>
+            <MoreIcon className="w-[2.4rem] cursor-pointer" />
           </div>
         </div>
       </div>

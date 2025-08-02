@@ -56,7 +56,6 @@ export default function GalleryDetailPage() {
               data={artworks[selectedIndex]}
               currentIndex={selectedIndex}
               total={artworks.length}
-              onBack={() => setSelectedIndex(null)}
               onPrev={() =>
                 setSelectedIndex(prev => (prev! > 0 ? prev! - 1 : prev))
               }
@@ -65,7 +64,9 @@ export default function GalleryDetailPage() {
                   prev! < artworks.length - 1 ? prev! + 1 : prev,
                 )
               }
-              onDotClick={index => setSelectedIndex(index)}
+              onDotClick={index => {
+                setSelectedIndex(index);
+              }}
             />
           </div>
         )}

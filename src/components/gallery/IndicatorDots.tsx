@@ -12,7 +12,7 @@ export default function IndicatorDots({
   onDotClick,
 }: IndicatorDotsProps) {
   return (
-    <div className="flex gap-[0.6rem]">
+    <div className="z-40 flex gap-[0.6rem]">
       {DOT_KEYS.slice(0, count).map((key, i) => (
         <button
           key={key}
