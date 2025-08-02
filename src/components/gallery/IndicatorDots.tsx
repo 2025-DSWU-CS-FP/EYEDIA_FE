@@ -12,14 +12,14 @@ export default function IndicatorDots({
   onDotClick,
 }: IndicatorDotsProps) {
   return (
-    <div className="z-40 flex gap-[0.6rem]">
+    <div className="pointer-events-auto flex gap-[0.6rem]">
       {DOT_KEYS.slice(0, count).map((key, i) => (
         <button
           key={key}
           type="button"
           aria-label={`작품 ${i + 1} 보기`}
           onClick={() => onDotClick?.(i)}
-          className={`h-[0.8rem] w-[0.8rem] rounded-full transition-colors ${
+          className={`relative z-10 h-[0.8rem] w-[0.8rem] rounded-full transition-colors ${
             i === activeIndex ? 'bg-blue-500' : 'bg-neutral-200'
           }`}
         />
