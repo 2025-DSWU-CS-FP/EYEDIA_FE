@@ -1,10 +1,12 @@
 import { useState } from 'react';
 
+import Player from 'lottie-react';
 import { useNavigate } from 'react-router-dom';
 
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
+import logoLottie from '@/lottie/logo.json';
 import useLogin from '@/services/mutations/useLogin';
 
 export default function LoginPage() {
@@ -41,8 +43,13 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center bg-gray-5 p-6 px-[2.5rem] pt-[12rem]">
       <div className="flex h-[37rem] w-full flex-col items-center justify-between">
-        <div className="flex flex-col items-center gap-[1.4rem]">
-          <img src="/logo-login.svg" alt="로고" className="w-[12.5rem]" />
+        <div className="flex flex-col items-center gap-[1rem]">
+          <Player
+            autoplay
+            loop={false}
+            animationData={logoLottie}
+            className="w-[12.5rem]"
+          />
           <span className="text-t3 font-bold text-gray-50">EYEDIA</span>
         </div>
         <div className="w-full space-y-[0.8rem] text-gray-80 placeholder-gray-30">
