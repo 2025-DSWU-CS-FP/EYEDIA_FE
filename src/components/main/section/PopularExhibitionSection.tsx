@@ -18,6 +18,7 @@ export default function PopularExhibitionSection({
       <div className="flex gap-[1.2rem] overflow-x-auto pb-2">
         {exhibitions.map(exh => (
           <PopularExhibitionCard
+            id={exh.id}
             key={exh.id}
             title={exh.title}
             location={exh.location}

@@ -28,7 +28,8 @@
         "tsx": "never",
         "svg": "always",
         "css": "always",
-        "png": "always"
+        "png": "always",
+        "json": "always"
       }
     ],
     "no-param-reassign": [
@@ -39,28 +40,35 @@
       }
     ],
     "import/order": [
-        "error",
-        {
-          "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-          "pathGroups": [
-            {
-              "pattern": "react",
-              "group": "external",
-              "position": "before"
-            },
-            {
-              "pattern": "@/**",
-              "group": "internal"
-            }
-          ],
-          "pathGroupsExcludedImportTypes": ["react"],
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          "parent",
+          "sibling",
+          "index"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "react",
+            "group": "external",
+            "position": "before"
           },
-          "newlines-between": "always"
-        }
-      ],
+          {
+            "pattern": "@/**",
+            "group": "internal"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["react"],
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        },
+        "newlines-between": "always"
+      }
+    ],
     "prettier/prettier": [
       "error",
       {

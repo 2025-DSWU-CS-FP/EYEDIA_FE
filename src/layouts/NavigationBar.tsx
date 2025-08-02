@@ -28,7 +28,7 @@ export default function NavigationBar() {
   ];
 
   return (
-    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-10 flex w-full max-w-[430px] items-center justify-around rounded-t-sm bg-white h-[70px] px-2">
+    <div className="fixed bottom-0 left-1/2 z-10 flex h-[70px] w-full max-w-[430px] -translate-x-1/2 items-center justify-around rounded-t-sm bg-white px-2">
       {menuList.map(menu => {
         const isActive = pathname === menu.to;
         return (

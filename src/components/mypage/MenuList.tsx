@@ -1,16 +1,34 @@
-import Divider from './Divider';
-import MenuItem from './MenuItem';
+import { useNavigate } from 'react-router-dom';
+
+import Divider from '@/components/mypage/Divider';
+import MenuItem from '@/components/mypage/MenuItem';
+import { useConfirm } from '@/contexts/ConfirmContext';
 
 export default function MenuList() {
+  const navigate = useNavigate();
+  const { showConfirm } = useConfirm();
+
+  const handleLogoutClick = async () => {
+    const confirmed = await showConfirm('로그아웃 하시겠습니까?');
+    if (confirmed) {
+      localStorage.removeItem('accessToken');
+
+      navigate('/login');
+    }
+  };
+
   return (
     <nav className="flex w-full flex-col gap-[3rem] overflow-hidden px-[3.5rem] py-[2rem]">
       <MenuItem label="나의 뱃지" />
       <Divider />
       <MenuItem label="서비스 이용약관" />
       <MenuItem label="개인정보 처리방침" />
-      <MenuItem label="앱 설정" />
+      <MenuItem
+        onClick={() => navigate('/edit-profile')}
+        label="내 정보 수정"
+      />
       <Divider />
-      <MenuItem label="로그아웃" />
+      <MenuItem onClick={handleLogoutClick} label="로그아웃" />
     </nav>
   );
 }

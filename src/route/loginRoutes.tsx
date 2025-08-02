@@ -1,10 +1,9 @@
-/*
 import { lazy } from 'react';
 
 import { RouteObject } from 'react-router-dom';
 
-const Login = lazy(() => import('@/pages/Login'));
-const SignUp = lazy(() => import('@/pages/SignUp'));
+const Login = lazy(() => import('@/pages/auth/LoginPage'));
+const Signup = lazy(() => import('@/pages/auth/SignupPage'));
 
 const loginRoutes: RouteObject[] = [
   {
@@ -13,9 +12,8 @@ const loginRoutes: RouteObject[] = [
   },
   {
     path: '/signup',
-    element: <SignUp />,
+    element: <Signup />,
   },
 ];
 
 export default loginRoutes;
-*/

@@ -2,13 +2,13 @@ import { lazy } from 'react';
 
 import { RouteObject } from 'react-router-dom';
 
-const Main = lazy(() => import('@/pages/main/MainPage'));
+import RedirectRoot from '@/components/auth/RedirectRoot';
+
 const PopularExhibitionPage = lazy(
   () => import('@/pages/main/PopularExhibitionPage'),
 );
-const LoginPage = lazy(() => import('@/pages/auth/LoginPage'));
-const SignupPage = lazy(() => import('@/pages/auth/SignupPage'));
 const MyPage = lazy(() => import('@/pages/auth/MyPage'));
+const EditProfilePage = lazy(() => import('@/pages/auth/EditProfile'));
 const Onboarding = lazy(() => import('@/pages/chat/Onboarding'));
 const GazePage = lazy(() => import('@/pages/chat/GazePage'));
 const Artwork = lazy(() => import('@/pages/Artwork'));
@@ -20,7 +20,7 @@ const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
 const mainRoutes: RouteObject[] = [
   {
     index: true,
-    element: <Main />,
+    element: <RedirectRoot />,
   },
   {
     path: 'popular-exhibition',
@@ -31,12 +31,8 @@ const mainRoutes: RouteObject[] = [
     element: <MyPage />,
   },
   {
-    path: 'login',
-    element: <LoginPage />,
-  },
-  {
-    path: 'signup',
-    element: <SignupPage />,
+    path: 'edit-profile',
+    element: <EditProfilePage />,
   },
   {
     path: 'chat-onboarding',
@@ -61,10 +57,6 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'gallery/:id',
     element: <GalleryDetail />,
-  },
-  {
-    path: 'signup',
-    element: <SignupPage />,
   },
   {
     path: 'exhibition/:id',

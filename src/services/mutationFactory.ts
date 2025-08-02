@@ -25,6 +25,17 @@ const mutationFactory = {
     );
     return res.data;
   },
+  verifyPassword: async (password: string): Promise<{ message: string }> => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (password === '1234') {
+          resolve({ message: '인증 성공' });
+        } else {
+          reject(new Error('비밀번호가 일치하지 않습니다.'));
+        }
+      }, 500);
+    });
+  },
 };
 
 export default mutationFactory;

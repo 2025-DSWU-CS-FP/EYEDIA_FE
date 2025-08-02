@@ -1,12 +1,16 @@
+import { useNavigate } from 'react-router-dom';
+
 import { ExhibitionCardProps } from '@/types';
 import cn from '@/utils/cn';
 
 interface ExhibitionCardExtendedProps extends ExhibitionCardProps {
+  id: string;
   className?: string;
   imageClassName?: string;
 }
 
 export default function ExhibitionCard({
+  id,
   title,
   location,
   imageUrl,
@@ -14,8 +18,16 @@ export default function ExhibitionCard({
   className = '',
   imageClassName = '',
 }: ExhibitionCardExtendedProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/gallery/${id}`);
+  };
+
   return (
-    <div
+    <button
+      type="button"
+      onClick={handleClick}
       className={cn(
         'group flex cursor-pointer flex-col items-start justify-start gap-[0.8rem]',
         className,
@@ -40,6 +52,6 @@ export default function ExhibitionCard({
         <div className="text-t5 text-gray-90">{title}</div>
         <div className="text-ct4 text-gray-50">{location}</div>
       </div>
-    </div>
+    </button>
   );
 }
