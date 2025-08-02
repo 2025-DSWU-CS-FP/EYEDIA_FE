@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
+import ScrollToTop from '@/components/common/ScrollToTop';
 import FloatingButton from '@/layouts/FloatingButton';
 // import HamburgerMenu from '@/layouts/MenuBar';
 import Footer from '@/layouts/Footer';
@@ -35,6 +36,7 @@ export default function Layout({ children }: LayoutProps) {
       {!hideUI && (
         <>
           <NavigationBar />
+          <ScrollToTop />
           {!isMapRoute && (
             <FloatingButton onClick={() => navigate('/chat-onboarding')} />
           )}
