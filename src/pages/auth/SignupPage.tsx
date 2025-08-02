@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import CustomSelect, { SelectOption } from '@/components/auth/CustomSelect';
 import SignupSuccess from '@/components/auth/SignupSuccess';
+import StepPreference from '@/components/auth/StepPreference';
 import TermsAgreement from '@/components/auth/TermsAgreement';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
@@ -18,6 +19,7 @@ export default function SignupPage() {
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<'' | 'MALE' | 'FEMALE'>('');
   const [isSignupComplete, setIsSignupComplete] = useState(false);
+  const [showPreference, setShowPreference] = useState(false);
   const [terms, setTerms] = useState({
     all: false,
     privacy: false,
@@ -83,13 +85,15 @@ export default function SignupPage() {
       { id, pw, name, age: Number(age), gender },
       {
         onSuccess: () => {
-          setIsSignupComplete(true);
+          setShowPreference(true);
         },
         onError: () => showToast('회원가입 실패', 'error'),
       },
     );
   };
   if (isSignupComplete) return <SignupSuccess name={name} />;
+  if (showPreference)
+    return <StepPreference onComplete={() => setIsSignupComplete(true)} />;
   return (
     <div className="flex min-h-screen flex-col bg-gray-5">
       <Header
