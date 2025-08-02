@@ -7,6 +7,7 @@ import TermsAgreement from '@/components/auth/TermsAgreement';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
+import { useToast } from '@/contexts/ToastContext';
 import Header from '@/layouts/Header';
 import useSignup from '@/services/mutations/useSignup';
 
@@ -18,13 +19,14 @@ export default function SignupPage() {
   const [name, setName] = useState('');
   const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState<'' | 'MALE' | 'FEMALE'>('');
-  const [pwMessage, setPwMessage] = useState('');
   const [terms, setTerms] = useState({
     all: false,
     privacy: false,
     age: false,
     marketing: false,
   });
+
+  const { showToast } = useToast();
 
   const handleAllTerms = () => {
     const allChecked = !terms.all;
@@ -59,8 +61,9 @@ export default function SignupPage() {
   const signupMutation = useSignup();
 
   const handlePwValidation = () => {
-    if (!pw || !pwConfirm) return;
-    setPwMessage(pw !== pwConfirm ? '비밀번호가 일치하지 않습니다.' : '');
+    if (pw && pwConfirm && pw !== pwConfirm) {
+      showToast('비밀번호가 일치하지 않습니다.', 'error');
+    }
   };
 
   const handleSignup = () => {
@@ -74,17 +77,17 @@ export default function SignupPage() {
       !terms.age ||
       !gender
     ) {
-      alert('필수 항목을 모두 입력하고 확인해주세요.');
+      showToast('필수 항목을 모두 입력하고 확인해주세요.', 'error');
       return;
     }
     signupMutation.mutate(
       { id, pw, name, age: Number(age), gender },
       {
         onSuccess: () => {
-          alert('회원가입 성공!');
+          showToast('회원가입 성공!', 'success');
           navigate('/login');
         },
-        onError: () => alert('회원가입 실패'),
+        onError: () => showToast('회원가입 실패', 'error'),
       },
     );
   };
@@ -123,7 +126,6 @@ export default function SignupPage() {
               value={pwConfirm}
               onChange={e => setPwConfirm(e.target.value)}
               onBlur={handlePwValidation}
-              errorMessage={pwMessage}
             />
             <TextInput
               placeholder="이름"

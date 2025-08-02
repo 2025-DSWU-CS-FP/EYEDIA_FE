@@ -8,6 +8,7 @@ import splashLottie from '@/assets/lottie/splash.json';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
+import { useToast } from '@/contexts/ToastContext';
 import useLogin from '@/services/mutations/useLogin';
 
 export default function LoginPage() {
@@ -20,6 +21,8 @@ export default function LoginPage() {
   const loginMutation = useLogin();
   const navigate = useNavigate();
 
+  const { showToast } = useToast();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowSplash(false);
@@ -31,9 +34,16 @@ export default function LoginPage() {
     setIdError('');
     setPwError('');
 
-    if (!id) setIdError('아이디를 입력해주세요.');
-    if (!pw) setPwError('비밀번호를 입력해주세요.');
-    if (!id || !pw) return;
+    if (!id || !pw) {
+      if (!id && !pw) {
+        showToast('아이디와 비밀번호를 입력해주세요.', 'error');
+      } else if (!id) {
+        showToast('아이디를 입력해주세요.', 'error');
+      } else if (!pw) {
+        showToast('비밀번호를 입력해주세요.', 'error');
+      }
+      return;
+    }
 
     loginMutation.mutate(
       { id, pw },
@@ -43,7 +53,7 @@ export default function LoginPage() {
           navigate('/');
         },
         onError: () => {
-          setPwError('아이디 혹은 비밀번호를 잘못 입력하였습니다.');
+          showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error');
         },
       },
     );
