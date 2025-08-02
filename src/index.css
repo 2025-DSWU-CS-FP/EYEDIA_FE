@@ -8,14 +8,14 @@
 
 html,
 body {
-  @apply flex justify-center w-full min-h-screen bg-white;
-    font-size: 62.5%;
-    display: flex;
-    font-size: 62.5%;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0 auto;
-    font-family: 'Pretendard';
+  @apply flex min-h-screen w-full justify-center bg-white;
+  font-size: 62.5%;
+  display: flex;
+  font-size: 62.5%;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0 auto;
+  font-family: 'Pretendard';
 }
 
 #root {
@@ -24,7 +24,7 @@ body {
   max-width: 430px;
   width: 100%;
   margin: 0 auto;
-  --background: #F5F7F9;
+  --background: #f5f7f9;
   --foreground: #171717;
   box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.2);
 }
@@ -40,6 +40,21 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Pretendard';
+}
+
+button {
+  font-size: 15px;
+  font-family: 'Pretendard';
+  font-weight: 500;
+}
+
+input,
+textarea,
+select {
+  all: unset;
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
 }
 
 @layer utilities {
