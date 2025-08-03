@@ -14,7 +14,11 @@ export default function ProfileCard({
 }: ProfileCardProps) {
   const navigate = useNavigate();
   return (
-    <div className="flex cursor-pointer items-center justify-between bg-white px-[3.7rem]">
+    <button
+      type="button"
+      onClick={() => navigate('/mygallery')}
+      className="flex cursor-pointer items-center justify-between bg-white px-[3.7rem] text-left"
+    >
       <div className="flex items-center gap-[2.4rem]">
         <Logo className="w-[4rem] text-gray-50" />
         <div className="flex flex-col">
@@ -24,10 +28,7 @@ export default function ProfileCard({
           </span>
         </div>
       </div>
-      <IoChevronForward
-        className="text-t3 text-gray-80"
-        onClick={() => navigate('/mygallery')}
-      />
-    </div>
+      <IoChevronForward className="text-t3 text-gray-80" />
+    </button>
   );
 }
