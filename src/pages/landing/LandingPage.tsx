@@ -37,18 +37,27 @@ const slides = [
 
 export default function LandingPage() {
   const [step, setStep] = useState(0);
+  const [isFading, setIsFading] = useState(false);
   const navigate = useNavigate();
 
   const handleNext = () => {
     if (step < slides.length - 1) {
       setStep(prev => prev + 1);
     } else {
-      navigate('/');
+      setIsFading(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
     }
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-between overflow-hidden px-[2.4rem] py-[3.2rem] text-center">
+    <motion.div
+      initial={{ opacity: 1 }}
+      animate={{ opacity: isFading ? 0 : 1 }}
+      transition={{ duration: 0.6 }}
+      className="flex min-h-screen w-full flex-col items-center justify-between overflow-hidden px-[2.4rem] py-[3.2rem] text-center"
+    >
       <ProgressBar step={step} total={slides.length} />
       <BgLogo className="absolute top-[9rem] w-[25rem] text-brand-blue opacity-10" />
       <div className="relative flex w-full flex-1 overflow-hidden">
@@ -91,6 +100,6 @@ export default function LandingPage() {
       <Button onClick={handleNext} className="mt-auto">
         {slides[step].buttonText}
       </Button>
-    </div>
+    </motion.div>
   );
 }
