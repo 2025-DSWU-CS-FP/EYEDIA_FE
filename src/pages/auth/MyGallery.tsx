@@ -10,7 +10,12 @@ import Header from '@/layouts/Header';
 import 'swiper/css';
 import 'swiper/css/effect-coverflow';
 
-const galleryItems = [
+interface GalleryItem {
+  id: number;
+  image: string;
+  title: string;
+}
+const galleryItems: GalleryItem[] = [
   { id: 1, image: artImg1, title: 'Artwork 1' },
   { id: 2, image: artImg2, title: 'Artwork 2' },
   { id: 3, image: artImg3, title: 'Artwork 3' },
