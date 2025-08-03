@@ -1,4 +1,5 @@
 import { IoChevronForward } from 'react-icons/io5';
+import { useNavigate } from 'react-router-dom';
 
 import Logo from '@/assets/icons/main-title.svg?react';
 
@@ -11,6 +12,7 @@ export default function ProfileCard({
   name,
   exhibitionCount,
 }: ProfileCardProps) {
+  const navigate = useNavigate();
   return (
     <div className="flex cursor-pointer items-center justify-between bg-white px-[3.7rem]">
       <div className="flex items-center gap-[2.4rem]">
@@ -22,7 +24,10 @@ export default function ProfileCard({
           </span>
         </div>
       </div>
-      <IoChevronForward className="text-t3 text-gray-80" />
+      <IoChevronForward
+        className="text-t3 text-gray-80"
+        onClick={() => navigate('/mygallery')}
+      />
     </div>
   );
 }

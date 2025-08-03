@@ -8,6 +8,7 @@ const PopularExhibitionPage = lazy(
   () => import('@/pages/main/PopularExhibitionPage'),
 );
 const MyPage = lazy(() => import('@/pages/auth/MyPage'));
+const MyGalleryPage = lazy(() => import('@/pages/auth/MyGallery'));
 const EditProfilePage = lazy(() => import('@/pages/auth/EditProfile'));
 const Onboarding = lazy(() => import('@/pages/chat/Onboarding'));
 const GazePage = lazy(() => import('@/pages/chat/GazePage'));
@@ -29,6 +30,10 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'mypage',
     element: <MyPage />,
+  },
+  {
+    path: 'mygallery',
+    element: <MyGalleryPage />,
   },
   {
     path: 'edit-profile',
