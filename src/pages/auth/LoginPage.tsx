@@ -50,6 +50,7 @@ export default function LoginPage() {
       {
         onSuccess: data => {
           localStorage.setItem('accessToken', data.accessToken);
+          showToast('로그인에 성공했습니다!', 'success');
           navigate('/');
         },
         onError: () => {

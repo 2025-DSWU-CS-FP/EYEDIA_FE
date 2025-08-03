@@ -13,6 +13,7 @@ import mainRoutes from '@/route/mainRoutes';
 const Layout = lazy(() => import('@/layouts/Layout'));
 const NotFound = lazy(() => import('@/pages/error/NotFound'));
 const ErrorPage = lazy(() => import('@/pages/error/ErrorPage'));
+const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
 
 const queryClient = new QueryClient();
 
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
     element: <Layout />,
     errorElement: <ErrorPage />,
     children: [...mainRoutes, ...loginRoutes],
+  },
+  {
+    path: '/landing',
+    element: <LandingPage />,
   },
   {
     path: '*',
