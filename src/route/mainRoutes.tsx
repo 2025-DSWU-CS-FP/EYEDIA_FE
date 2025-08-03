@@ -3,6 +3,8 @@ import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
 import RedirectRoot from '@/components/auth/RedirectRoot';
+import PrivacyPolicy from '@/pages/auth/PrivacyPolicy';
+import TermsOfService from '@/pages/auth/TermsOfService';
 
 const PopularExhibitionPage = lazy(
   () => import('@/pages/main/PopularExhibitionPage'),
@@ -34,6 +36,14 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'mygallery',
     element: <MyGalleryPage />,
+  },
+  {
+    path: 'privacy',
+    element: <PrivacyPolicy />,
+  },
+  {
+    path: 'terms-of-service',
+    element: <TermsOfService />,
   },
   {
     path: 'edit-profile',

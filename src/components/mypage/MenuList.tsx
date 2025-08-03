@@ -21,8 +21,14 @@ export default function MenuList() {
     <nav className="flex w-full flex-col gap-[3rem] overflow-hidden px-[3.5rem] py-[2rem]">
       <MenuItem label="나의 뱃지" />
       <Divider />
-      <MenuItem label="서비스 이용약관" />
-      <MenuItem label="개인정보 처리방침" />
+      <MenuItem
+        onClick={() => navigate('/terms-of-service')}
+        label="서비스 이용약관"
+      />
+      <MenuItem
+        onClick={() => navigate('/privacy')}
+        label="개인정보 처리방침"
+      />
       <MenuItem
         onClick={() => navigate('/edit-profile')}
         label="내 정보 수정"
