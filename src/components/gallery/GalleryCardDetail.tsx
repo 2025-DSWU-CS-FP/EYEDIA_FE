@@ -4,7 +4,6 @@ import MoreIcon from '@/assets/icons/card-more.svg?react';
 import quoteIc from '@/assets/icons/quote.svg';
 import BackCard from '@/assets/images/gallery-back-card.png';
 import CalendarBox from '@/components/gallery/CalendarBox';
-import IndicatorDots from '@/components/gallery/IndicatorDots';
 
 interface Props {
   data: {
@@ -15,17 +14,9 @@ interface Props {
     date?: string;
     month?: string;
   };
-  currentIndex: number;
-  total: number;
-  onDotClick?: (index: number) => void;
 }
 
-export default function GalleryCardDetail({
-  data,
-  currentIndex,
-  total,
-  onDotClick,
-}: Props) {
+export default function GalleryCardDetail({ data }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
@@ -86,14 +77,6 @@ export default function GalleryCardDetail({
           </div>
         </div>
       </button>
-
-      <div className="z-10 mt-[-2rem]">
-        <IndicatorDots
-          count={total}
-          activeIndex={currentIndex}
-          onDotClick={onDotClick}
-        />
-      </div>
     </div>
   );
 }

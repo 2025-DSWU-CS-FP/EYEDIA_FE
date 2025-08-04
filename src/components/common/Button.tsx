@@ -19,7 +19,7 @@ export default function Button({
       disabled={disabled}
       className={cn(
         className,
-        'w-full rounded-[6px] bg-brand-blue px-[1.8rem] py-[1.2rem] text-gray-0 transition hover:bg-brand-blue/80',
+        'w-full whitespace-nowrap rounded-[6px] bg-brand-blue px-[1.8rem] py-[1.2rem] text-gray-0 transition hover:bg-brand-blue/80',
       )}
     >
       {children}
