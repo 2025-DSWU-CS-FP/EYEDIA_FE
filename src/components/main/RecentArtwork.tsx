@@ -1,14 +1,18 @@
-import { RecentArtworkWithAIMessageProps } from '@/types';
+import { RecentArtworkProps } from '@/types';
 
-export default function RecentArtworkWithAIMessage({
+export default function RecentArtwork({
   title,
   viewDate,
   conversationCount,
   aiMessage,
   imageUrl,
-}: RecentArtworkWithAIMessageProps) {
+  useGradientBackground,
+}: RecentArtworkProps) {
+  const backgroundClass = useGradientBackground
+    ? 'bg-gradient-to-b from-black/0 to-black'
+    : 'bg-gray-0';
   return (
-    <div className="flex min-w-[31.2rem] flex-col overflow-hidden rounded-[12px] bg-gray-0">
+    <div className="flex min-w-[31.2rem] flex-col overflow-hidden rounded-[12px]">
       <div className="relative flex h-[15rem] w-full items-center justify-center bg-gray-900">
         <img
           src={imageUrl}
@@ -26,7 +30,9 @@ export default function RecentArtworkWithAIMessage({
         </div>
       </div>
 
-      <div className="flex items-start justify-between bg-gray-0 p-[1.6rem]">
+      <div
+        className={`flex items-start justify-between p-[1.6rem] ${backgroundClass}`}
+      >
         <div className="flex flex-1 flex-col gap-[0.4rem]">
           <span className="text-t5 text-gray-90">{title}</span>
           <span className="text-ct5 font-medium text-gray-40">{viewDate}</span>

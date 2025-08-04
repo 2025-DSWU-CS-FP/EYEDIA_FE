@@ -12,10 +12,11 @@ export interface RecentArtworkSectionProps {
   artworks: Artwork[];
 }
 
-export interface RecentArtworkWithAIMessageProps {
+export interface RecentArtworkProps {
   title: string;
   viewDate: string;
   conversationCount: number;
   aiMessage: string;
   imageUrl: string;
+  useGradientBackground?: boolean;
 }

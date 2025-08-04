@@ -19,6 +19,7 @@ const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
 const HelpPage = lazy(() => import('@/pages/chat/HelpPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
+const RecentViewedPage = lazy(() => import('@/pages/main/RecentViewedPage'));
 
 const mainRoutes: RouteObject[] = [
   {
@@ -28,6 +29,10 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'popular-exhibition',
     element: <PopularExhibitionPage />,
+  },
+  {
+    path: 'recent-viewed',
+    element: <RecentViewedPage />,
   },
   {
     path: 'mypage',
