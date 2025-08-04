@@ -14,7 +14,7 @@ export default function RecentArtworkSection({
     <section className="flex flex-col gap-4">
       <SectionHeader
         title="최근 감상 작품"
-        onMoreClick={() => navigate('/recent')}
+        onMoreClick={() => navigate('/recent-viewed')}
       />
       <div className="flex gap-[1.2rem] overflow-x-auto">
         {artworks.map(art =>

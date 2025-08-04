@@ -1,6 +1,6 @@
 import RecentArtwork from '@/components/main/RecentArtwork';
 import Header from '@/layouts/Header';
-import { recentArtworks } from '@/mock/mainData'; // 총 3개 있다고 가정
+import { recentArtworks } from '@/mock/mainData';
 
 export default function RecentViewedPage() {
   return (
@@ -11,7 +11,7 @@ export default function RecentViewedPage() {
         showBackButton
       />
 
-      <div className="mt-[3.2rem] flex flex-col gap-[3rem] px-[2.4rem]">
+      <div className="mt-[3.2rem] flex flex-col gap-[3rem] px-[3rem]">
         {recentArtworks.slice(0, 3).map(artwork => (
           <RecentArtwork
             key={artwork.id}
