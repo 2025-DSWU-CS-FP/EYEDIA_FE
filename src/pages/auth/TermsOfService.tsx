@@ -4,12 +4,12 @@ function TermsOfService() {
   return (
     <div>
       <Header
-        title="서비스 이용방침"
+        title="서비스 이용약관"
         showBackButton
         backgroundColorClass="bg-gray-5"
       />
       <div className="px-[2.4rem] py-[4rem] text-left">
-        <h1 className="mb-[2rem] text-[2rem] font-bold">서비스 이용방침</h1>
+        <h1 className="mb-[2rem] text-[2rem] font-bold">서비스 이용약관</h1>
         <p className="whitespace-pre-line text-[1.4rem] leading-[180%] text-gray-70">
           {`
 본 이용약관은 Eyedia 서비스의 이용과 관련하여 사용자와 Eyedia 간의 권리, 의무 및 책임사항을 규정합니다.
