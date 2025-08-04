@@ -10,7 +10,7 @@ export default function MyPage() {
 
   return (
     <div className="flex w-full flex-col">
-      <Header />
+      <Header title="마이페이지" />
       <main className="flex flex-col gap-[2rem]">
         <ProfileCard
           name={mockProfile.name}

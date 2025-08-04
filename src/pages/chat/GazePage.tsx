@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/sample/chat-gaze.png';
-import BackButton from '@/components/common/BackButton';
 import Button from '@/components/common/Button';
+import Header from '@/layouts/Header';
 // import useConfirmPainting from '@/services/mutations/useConfirmPainting';
 
 const artworkInfo = {
@@ -33,16 +33,16 @@ function GazePage() {
   };
 
   return (
-    <div className="relative flex max-h-svh w-full flex-col items-center justify-around overflow-auto text-white">
-      <BackButton className="text-gray-100" />
+    <div className="relative flex h-svh w-full flex-col items-center justify-around overflow-auto pb-[3rem] text-white">
+      <Header showBackButton backgroundColorClass="bg-transparent" />
       <div className="w-[30.7rem] space-y-[2.2rem]">
         <div className="mx-auto flex flex-col gap-[0.4rem]">
           {trackingComplete ? (
-            <div className="mt-6 text-ct2 font-medium text-brand-blue">
+            <div className="text-ct2 font-medium text-brand-blue">
               시선추적 성공!
             </div>
           ) : (
-            <div className="mt-6 text-ct2 font-medium text-gray-60">
+            <div className="text-ct2 font-medium text-gray-60">
               시선추적중...
             </div>
           )}
@@ -83,13 +83,15 @@ function GazePage() {
       </div>
 
       {trackingComplete && (
-        <Button
-          type="button"
-          onClick={handleStartConversation}
-          className="mt-[6rem] w-[33rem] text-bt2"
-        >
-          대화 시작하기
-        </Button>
+        <div className="w-full px-[2rem]">
+          <Button
+            type="button"
+            onClick={handleStartConversation}
+            className="mt-[3rem] text-bt2"
+          >
+            대화 시작하기
+          </Button>
+        </div>
       )}
     </div>
   );

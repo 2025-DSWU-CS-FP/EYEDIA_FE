@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export default function Header({
-  title = '마이페이지',
+  title = '',
   showBackButton = false,
   backgroundColorClass = 'bg-white',
 }: HeaderProps) {
@@ -29,7 +29,11 @@ export default function Header({
       ) : (
         <div className="w-6" />
       )}
-      <h1 className="flex-1 text-center text-t5 font-semibold text-gray-100">
+      <h1
+        className={`flex-1 text-center text-t5 font-semibold ${
+          title ? 'text-gray-100' : 'invisible'
+        }`}
+      >
         {title}
       </h1>
       <div className="w-6" />
