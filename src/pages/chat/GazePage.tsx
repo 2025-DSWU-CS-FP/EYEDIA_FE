@@ -33,7 +33,7 @@ function GazePage() {
   };
 
   return (
-    <div className="relative flex max-h-svh w-full flex-col items-center justify-around overflow-auto text-white">
+    <div className="relative flex h-svh w-full flex-col items-center justify-around overflow-auto text-white">
       <BackButton className="text-gray-100" />
       <div className="w-[30.7rem] space-y-[2.2rem]">
         <div className="mx-auto flex flex-col gap-[0.4rem]">
@@ -83,13 +83,15 @@ function GazePage() {
       </div>
 
       {trackingComplete && (
-        <Button
-          type="button"
-          onClick={handleStartConversation}
-          className="mt-[6rem] w-[33rem] text-bt2"
-        >
-          대화 시작하기
-        </Button>
+        <div className="w-full px-[2rem]">
+          <Button
+            type="button"
+            onClick={handleStartConversation}
+            className="mt-[6rem] text-bt2"
+          >
+            대화 시작하기
+          </Button>
+        </div>
       )}
     </div>
   );
