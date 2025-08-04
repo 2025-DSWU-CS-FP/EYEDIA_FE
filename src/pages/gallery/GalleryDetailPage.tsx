@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { Swiper as SwiperClass } from 'swiper';
+import { EffectCoverflow } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 import ExhibitionCard from '@/components/gallery/ExhibitionCard';
 import ExhibitionInfoCard from '@/components/gallery/ExhibitionInfoCard';
 import GalleryCardDetail from '@/components/gallery/GalleryCardDetail';
+import IndicatorDots from '@/components/gallery/IndicatorDots';
 import Header from '@/layouts/Header';
 import { artworks, exhibitionInfo } from '@/mock/galleryDetailData';
 
+import 'swiper/css';
+import 'swiper/css/effect-coverflow';
+
 export default function GalleryDetailPage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const swiperRef = useRef<SwiperClass>();
 
   const handleCardClick = (index: number) => {
     setSelectedIndex(index);
@@ -42,7 +51,7 @@ export default function GalleryDetailPage() {
                   subTitle={art.subTitle}
                   showArrow={art.showArrow}
                   onClick={() => handleCardClick(idx)}
-                  isSelected={selectedIndex === idx}
+                  isSelected={false}
                 />
               ))}
             </div>
@@ -50,17 +59,49 @@ export default function GalleryDetailPage() {
         )}
 
         {selectedIndex !== null && (
-          <div className="flex justify-center px-[2.4rem] pt-[4rem]">
-            <GalleryCardDetail
-              key={selectedIndex}
-              data={artworks[selectedIndex]}
-              currentIndex={selectedIndex}
-              total={artworks.length}
-              onDotClick={index => {
-                setSelectedIndex(index);
-              }}
-            />
-          </div>
+          <>
+            <div className="w-full px-[2.4rem] pt-[4rem]">
+              <Swiper
+                effect="coverflow"
+                grabCursor
+                centeredSlides
+                slidesPerView="auto"
+                onSlideChange={swiper => setSelectedIndex(swiper.realIndex)}
+                initialSlide={selectedIndex}
+                onSwiper={swiper => {
+                  swiperRef.current = swiper;
+                }}
+                coverflowEffect={{
+                  rotate: 45,
+                  stretch: 0,
+                  depth: 150,
+                  modifier: 1,
+                  slideShadows: false,
+                }}
+                modules={[EffectCoverflow]}
+              >
+                {artworks.map(art => (
+                  <SwiperSlide
+                    key={art.id}
+                    className="flex w-[36rem] justify-center"
+                  >
+                    <GalleryCardDetail data={art} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+
+            <div className="z-10 mt-[-2rem] flex justify-center">
+              <IndicatorDots
+                count={artworks.length}
+                activeIndex={selectedIndex}
+                onDotClick={index => {
+                  setSelectedIndex(index);
+                  swiperRef.current?.slideTo(index);
+                }}
+              />
+            </div>
+          </>
         )}
       </div>
     </div>

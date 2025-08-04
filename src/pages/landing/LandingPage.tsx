@@ -56,7 +56,7 @@ export default function LandingPage() {
       initial={{ opacity: 1 }}
       animate={{ opacity: isFading ? 0 : 1 }}
       transition={{ duration: 0.6 }}
-      className="flex min-h-screen w-full flex-col items-center justify-between overflow-hidden px-[2.4rem] py-[3.2rem] text-center"
+      className="flex h-svh min-h-[100dvh] w-full flex-col items-center justify-between overflow-hidden px-[2.4rem] py-[3.2rem] text-center"
     >
       <ProgressBar step={step} total={slides.length} />
       <BgLogo className="absolute top-[9rem] w-[25rem] text-brand-blue opacity-10" />
