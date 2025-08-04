@@ -9,7 +9,7 @@ import ringImage from '@/assets/images/chat/eyewear-ring.svg';
 import BottomLink from '@/components/chat/BottomLink';
 import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
-import BackButton from '@/components/common/BackButton';
+import Header from '@/layouts/Header';
 
 import '@/styles/eyewear-transition.css';
 
@@ -30,7 +30,7 @@ function OnboardingPage() {
 
   return (
     <div className="relative -mb-6 flex h-[100vh] max-h-[100vh] flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
-      <BackButton className="text-gray-100" />
+      <Header showBackButton backgroundColorClass="bg-transperate" />
       <div className="w-full px-4 pt-[10rem]">
         <OnboardingText
           text={
