@@ -31,10 +31,10 @@ export default function Header({
       )}
       <h1
         className={`flex-1 text-center text-t5 font-semibold ${
-          title ? 'text-gray-100' : 'text-transparent'
+          title ? 'text-gray-100' : 'invisible'
         }`}
       >
-        {title || '마이페이지'}
+        {title}
       </h1>
       <div className="w-6" />
     </header>
