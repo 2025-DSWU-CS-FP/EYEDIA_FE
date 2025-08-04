@@ -34,7 +34,7 @@ function GazePage() {
 
   return (
     <div className="relative flex h-svh w-full flex-col items-center justify-around overflow-auto pb-[3rem] text-white">
-      <Header showBackButton backgroundColorClass="bg-gray-5" />
+      <Header showBackButton backgroundColorClass="bg-transparent" />
       <div className="w-[30.7rem] space-y-[2.2rem]">
         <div className="mx-auto flex flex-col gap-[0.4rem]">
           {trackingComplete ? (
