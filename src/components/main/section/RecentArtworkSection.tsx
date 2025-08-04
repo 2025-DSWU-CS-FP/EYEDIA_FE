@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import ArtworkCard from '@/components/main/ArtworkCard';
-import RecentArtworkWithAIMessage from '@/components/main/RecentArtworkWithAIMessage';
+import RecentArtwork from '@/components/main/RecentArtwork';
 import SectionHeader from '@/components/main/SectionHeader';
 import { RecentArtworkSectionProps } from '@/types';
 
@@ -14,12 +14,12 @@ export default function RecentArtworkSection({
     <section className="flex flex-col gap-4">
       <SectionHeader
         title="최근 감상 작품"
-        onMoreClick={() => navigate('/recent')}
+        onMoreClick={() => navigate('/recent-viewed')}
       />
       <div className="flex gap-[1.2rem] overflow-x-auto">
         {artworks.map(art =>
           art.aiMessage ? (
-            <RecentArtworkWithAIMessage
+            <RecentArtwork
               key={art.id}
               title={art.title}
               imageUrl={art.imageUrl}
