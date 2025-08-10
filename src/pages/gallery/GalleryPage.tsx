@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import popular1 from '@/assets/images/sample/main-popular1.png';
 import popular2 from '@/assets/images/sample/main-popular2.png';
@@ -49,6 +49,12 @@ export default function GalleryPage() {
   const [filter, setFilter] = useState('전체');
   const [sort, setSort] = useState<'최신순' | '날짜순'>('최신순');
 
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 400);
+    return () => clearTimeout(t);
+  }, []);
+
   const sortedExhibitions = [...exhibitionsData].sort((a, b) => {
     const dateA = new Date(a.date).getTime();
     const dateB = new Date(b.date).getTime();
@@ -56,13 +62,13 @@ export default function GalleryPage() {
   });
 
   return (
-    <div className="flex min-h-screen w-full flex-col pb-8">
+    <main className="flex min-h-screen w-full flex-col pb-8">
       <Header
         title="나의 전시"
         backgroundColorClass="bg-gray-5"
         showBackButton
       />
-      <div className="flex flex-col gap-[1.6rem] px-[2.4rem]">
+      <section className="flex flex-col gap-[1.6rem] px-[2.4rem]">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-2">
           <FilterButtons filter={filter} onFilterChange={setFilter} />
@@ -73,9 +79,9 @@ export default function GalleryPage() {
             options={['최신순', '날짜순']}
           />
         </div>
-      </div>
+      </section>
 
-      <ExhibitionGrid exhibitions={sortedExhibitions} />
-    </div>
+      <ExhibitionGrid exhibitions={sortedExhibitions} isLoading={isLoading} />
+    </main>
   );
 }

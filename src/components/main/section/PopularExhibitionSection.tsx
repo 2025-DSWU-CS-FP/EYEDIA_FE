@@ -21,7 +21,6 @@ export default function PopularExhibitionSection({
 }: PopularExhibitionSectionProps) {
   const navigate = useNavigate();
 
-  // 스켈레톤용 플레이스홀더 키(인덱스 키 지양)
   const skeletonKeys = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
   return (
@@ -39,11 +38,8 @@ export default function PopularExhibitionSection({
           ? skeletonKeys.map(key => (
               <PopularExhibitionCard
                 key={key}
-                // 카드 내부 스켈레톤 표시용
                 isLoading
-                // 레이아웃 유지용 최소 너비
                 imageClassName="min-w-[15rem]"
-                // 아래 props는 스켈레톤이라 빈 값 전달
                 id={key}
                 title=""
                 location=""
