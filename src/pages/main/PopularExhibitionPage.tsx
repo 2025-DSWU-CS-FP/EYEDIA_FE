@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import popular1 from '@/assets/images/sample/main-popular1.png';
 import popular2 from '@/assets/images/sample/main-popular2.png';
@@ -44,17 +44,34 @@ const exhibitionsData = [
 
 export default function PopularExhibitionPage() {
   const [search, setSearch] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // TODO: React Query isLoading 사용
+  useEffect(() => {
+    const t = setTimeout(() => setIsLoading(false), 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.trim();
+    if (!q) return exhibitionsData;
+    return exhibitionsData.filter(
+      e => e.title.includes(q) || e.location.includes(q),
+    );
+  }, [search]);
+
   return (
-    <div className="flex min-h-screen w-full flex-col pb-8">
+    <main className="flex min-h-screen w-full flex-col pb-8">
       <Header
         title="인기 전시"
         backgroundColorClass="bg-gray-5"
         showBackButton
       />
-      <div className="px-[2.4rem]">
+      <section className="px-[2.4rem]">
         <SearchBar value={search} onChange={setSearch} />
-      </div>
-      <ExhibitionGrid exhibitions={exhibitionsData} />
-    </div>
+      </section>
+
+      <ExhibitionGrid exhibitions={filtered} isLoading={isLoading} />
+    </main>
   );
 }

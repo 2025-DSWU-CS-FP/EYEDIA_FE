@@ -14,10 +14,11 @@ export interface RecentArtworkSectionProps {
 }
 
 export interface RecentArtworkProps {
-  title: string;
-  viewDate: string;
-  conversationCount: number;
-  aiMessage: string;
-  imageUrl: string;
+  title?: string;
+  viewDate?: string;
+  conversationCount?: number;
+  aiMessage?: string;
+  imageUrl?: string;
   useGradientBackground?: boolean;
+  isLoading?: boolean;
 }

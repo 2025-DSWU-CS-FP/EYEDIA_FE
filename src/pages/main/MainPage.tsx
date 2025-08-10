@@ -21,13 +21,13 @@ export default function MainPage() {
   useEffect(() => {
     const t1 = setTimeout(
       () => setLoading(s => ({ ...s, popular: false })),
-      400,
+      300,
     );
     const t2 = setTimeout(
       () => setLoading(s => ({ ...s, recent: false })),
-      400,
+      300,
     );
-    const t3 = setTimeout(() => setLoading(s => ({ ...s, taste: false })), 400);
+    const t3 = setTimeout(() => setLoading(s => ({ ...s, taste: false })), 300);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);

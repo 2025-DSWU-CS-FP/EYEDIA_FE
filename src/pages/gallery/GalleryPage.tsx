@@ -51,7 +51,7 @@ export default function GalleryPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 400);
+    const t = setTimeout(() => setIsLoading(false), 300);
     return () => clearTimeout(t);
   }, []);
 
