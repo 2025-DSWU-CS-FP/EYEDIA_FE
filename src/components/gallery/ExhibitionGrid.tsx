@@ -10,11 +10,18 @@ interface Exhibition {
 
 interface ExhibitionGridProps {
   exhibitions: Exhibition[];
+  isLoading?: boolean;
 }
 
-export default function ExhibitionGrid({ exhibitions }: ExhibitionGridProps) {
+export default function ExhibitionGrid({
+  exhibitions,
+  isLoading = false,
+}: ExhibitionGridProps) {
   return (
-    <div className="mx-auto grid grid-cols-2 gap-x-[2.7rem] gap-y-[2.6rem] px-[2.4rem] py-[4rem]">
+    <section
+      className="mx-auto grid grid-cols-2 gap-x-[2.7rem] gap-y-[2.6rem] px-[2.4rem] py-[4rem]"
+      aria-busy={isLoading}
+    >
       {exhibitions.map(exh => (
         <ExhibitionCard
           key={exh.id}
@@ -23,8 +30,9 @@ export default function ExhibitionGrid({ exhibitions }: ExhibitionGridProps) {
           location={exh.location}
           imageUrl={exh.imageUrl}
           artworkCount={exh.artworkCount}
+          isLoading={isLoading}
         />
       ))}
-    </div>
+    </section>
   );
 }

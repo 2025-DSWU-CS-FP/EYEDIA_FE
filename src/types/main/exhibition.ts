@@ -6,6 +6,7 @@ export interface Keyword {
 
 export interface KeywordListProps {
   keywords: Keyword[];
+  isLoading?: boolean;
 }
 
 interface TasteArtwork {
@@ -18,13 +19,24 @@ interface TasteArtwork {
 export interface TasteArtworkSectionProps {
   keywords: Keyword[];
   artworks: TasteArtwork[];
+  isLoading?: boolean;
 }
 
-export interface ArtworkCardProps {
-  title: string;
-  artist: string;
-  imageUrl: string;
-}
+export type ArtworkCardProps =
+  | {
+      // 스켈레톤 모드
+      isLoading: true;
+      title?: string;
+      artist?: string;
+      imageUrl?: string;
+    }
+  | {
+      // 실데이터 모드
+      isLoading?: false;
+      title: string;
+      artist: string;
+      imageUrl: string;
+    };
 
 export interface ExhibitionCardProps {
   title: string;
