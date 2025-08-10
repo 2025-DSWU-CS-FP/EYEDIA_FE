@@ -1,14 +1,14 @@
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import svgr from 'vite-plugin-svgr'
+import svgr from 'vite-plugin-svgr';
 import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    svgr()
-  ],
+  plugins: [react(), svgr()],
+  define: {
+    global: 'window', // 브라우저 환경에서 global → window
+  },
   server: {
     port: 3000,
   },
