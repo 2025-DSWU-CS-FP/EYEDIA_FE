@@ -11,7 +11,7 @@ export default function ArtworkCard({
       className="flex min-w-[21rem] flex-col gap-[0.8rem]"
       aria-busy={isLoading}
     >
-      <div className="relative overflow-hidden rounded-[12px]">
+      <figure className="relative overflow-hidden rounded-[12px]">
         {isLoading ? (
           <>
             <div className="animate-pulse h-[14.3rem] w-[21rem] bg-gray-10" />
@@ -23,10 +23,11 @@ export default function ArtworkCard({
             alt={title ?? '작품 이미지'}
             loading="lazy"
             decoding="async"
+            draggable="false"
             className="w-full rounded-[12px] object-cover"
           />
         )}
-      </div>
+      </figure>
 
       {isLoading ? (
         <div className="flex flex-col gap-[0.4rem]">

@@ -22,12 +22,21 @@ export interface TasteArtworkSectionProps {
   isLoading?: boolean;
 }
 
-export interface ArtworkCardProps {
-  title?: string;
-  artist?: string;
-  imageUrl?: string;
-  isLoading?: boolean;
-}
+export type ArtworkCardProps =
+  | {
+      // 스켈레톤 모드
+      isLoading: true;
+      title?: string;
+      artist?: string;
+      imageUrl?: string;
+    }
+  | {
+      // 실데이터 모드
+      isLoading?: false;
+      title: string;
+      artist: string;
+      imageUrl: string;
+    };
 
 export interface ExhibitionCardProps {
   title: string;

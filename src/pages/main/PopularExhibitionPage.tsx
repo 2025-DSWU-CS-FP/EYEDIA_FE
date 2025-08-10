@@ -61,7 +61,10 @@ export default function PopularExhibitionPage() {
   }, [search]);
 
   return (
-    <main className="flex min-h-screen w-full flex-col pb-8">
+    <main
+      className="flex min-h-screen w-full flex-col pb-8"
+      aria-busy={isLoading}
+    >
       <Header
         title="인기 전시"
         backgroundColorClass="bg-gray-5"

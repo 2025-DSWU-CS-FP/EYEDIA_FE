@@ -13,7 +13,9 @@ export default function RecentArtwork({
     return (
       <div
         className="relative h-[22rem] min-w-[31.2rem] overflow-hidden rounded-[12px]"
-        aria-busy
+        aria-busy="true"
+        role="status"
+        aria-live="polite"
       >
         <div className="animate-pulse h-full w-full bg-gray-10" />
 

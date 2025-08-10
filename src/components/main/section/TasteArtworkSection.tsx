@@ -2,16 +2,12 @@ import ArtworkCard from '@/components/main/ArtworkCard';
 import KeywordList from '@/components/main/KeywordList';
 import { TasteArtworkSectionProps } from '@/types';
 
-interface Props extends TasteArtworkSectionProps {
-  isLoading?: boolean;
-}
-
 export default function TasteArtworkSection({
   keywords,
   artworks,
   isLoading = false,
-}: Props) {
-  const artworkSkeletonKeys = ['aw-1', 'aw-2', 'aw-3', 'aw-4', 'aw-5'];
+}: TasteArtworkSectionProps) {
+  const artworkSkeletonKeys = ['aw-1', 'aw-2', 'aw-3', 'aw-4', 'aw-5', 'aw-6'];
 
   return (
     <section className="flex flex-col gap-[1.6rem]" aria-busy={isLoading}>
