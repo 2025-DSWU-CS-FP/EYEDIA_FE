@@ -5,10 +5,12 @@ interface LoopLoadingProps {
 }
 
 export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
+  const BAR_COUNT = 10;
   const bars = useMemo(
-    () => Array.from({ length: 12 }, () => crypto.randomUUID()),
+    () => Array.from({ length: BAR_COUNT }, () => crypto.randomUUID()),
     [],
   );
+  const step = 360 / BAR_COUNT;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
@@ -21,11 +23,11 @@ export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
             key={id}
             className="absolute left-1/2 top-1/2 origin-center"
             style={{
-              transform: `rotate(${i * 30}deg) translate(0, -${size / 3.1}px)`,
+              transform: `rotate(${i * step}deg) translate(0, -${size / 3.1}px)`,
             }}
           >
             <div
-              className="h-[1.2rem] w-[0.25rem] rounded-full bg-neutral-500"
+              className="h-[1rem] w-[0.22rem] rounded-full bg-neutral-500"
               style={{
                 animation: `spinner-fade 1.2s linear infinite`,
                 animationDelay: `${(i * 0.1).toFixed(1)}s`,
