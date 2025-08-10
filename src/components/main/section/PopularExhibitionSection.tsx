@@ -2,31 +2,72 @@ import { useNavigate } from 'react-router-dom';
 
 import PopularExhibitionCard from '@/components/main/ExhibitionCard';
 import SectionHeader from '@/components/main/SectionHeader';
-import { PopularExhibitionSectionProps } from '@/types';
+
+interface PopularExhibitionItem {
+  id: number | string;
+  title: string;
+  location: string;
+  imageUrl: string;
+}
+
+interface PopularExhibitionSectionProps {
+  exhibitions: PopularExhibitionItem[];
+  isLoading?: boolean;
+}
 
 export default function PopularExhibitionSection({
   exhibitions,
+  isLoading = false,
 }: PopularExhibitionSectionProps) {
   const navigate = useNavigate();
 
+  // 스켈레톤용 플레이스홀더 키(인덱스 키 지양)
+  const skeletonKeys = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
+
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-[1rem]" aria-busy={isLoading}>
       <SectionHeader
         title="지금 인기 전시"
         onMoreClick={() => navigate('/popular-exhibition')}
       />
-      <div className="flex gap-[1.2rem] overflow-x-auto pb-2">
-        {exhibitions.map(exh => (
-          <PopularExhibitionCard
-            id={exh.id}
-            key={exh.id}
-            title={exh.title}
-            location={exh.location}
-            imageUrl={exh.imageUrl}
-            imageClassName="min-w-[15rem]"
-          />
-        ))}
+
+      <div
+        className="flex gap-[1.2rem] overflow-x-auto pb-[0.8rem]"
+        aria-live="polite"
+      >
+        {isLoading
+          ? skeletonKeys.map(key => (
+              <PopularExhibitionCard
+                key={key}
+                // 카드 내부 스켈레톤 표시용
+                isLoading
+                // 레이아웃 유지용 최소 너비
+                imageClassName="min-w-[15rem]"
+                // 아래 props는 스켈레톤이라 빈 값 전달
+                id={key}
+                title=""
+                location=""
+                imageUrl=""
+              />
+            ))
+          : exhibitions.map(exh => (
+              <PopularExhibitionCard
+                key={exh.id}
+                id={exh.id}
+                title={exh.title}
+                location={exh.location}
+                imageUrl={exh.imageUrl}
+                imageClassName="min-w-[15rem]"
+                isLoading={false}
+              />
+            ))}
       </div>
+
+      {!isLoading && exhibitions.length === 0 && (
+        <p className="px-[0.4rem] text-ct4 text-gray-50">
+          표시할 전시가 없어요.
+        </p>
+      )}
     </section>
   );
 }

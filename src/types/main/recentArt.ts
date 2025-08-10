@@ -10,6 +10,7 @@ export interface Artwork {
 
 export interface RecentArtworkSectionProps {
   artworks: Artwork[];
+  isLoading?: boolean;
 }
 
 export interface RecentArtworkProps {
