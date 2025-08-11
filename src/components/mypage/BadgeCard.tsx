@@ -31,8 +31,8 @@ export default function BadgeCard({ badge }: Props) {
       <span
         className={[
           'pointer-events-none',
-          'absolute right-[1.2rem] top-[1.2rem]',
-          'text-ct6 rounded-[6px] px-[0.8rem] py-[0.4rem] font-semibold',
+          'absolute right-[1rem] top-[1rem]',
+          'rounded-[6px] px-[0.5rem] py-[0.3rem] text-ct6 font-semibold',
           statusChip.className,
         ].join(' ')}
       >
@@ -40,8 +40,8 @@ export default function BadgeCard({ badge }: Props) {
       </span>
 
       <div className="flex items-center justify-start">
-        <div className="flex items-center gap-[1.2rem]">
-          <div className="flex h-[4rem] w-[4rem] items-center justify-center overflow-hidden rounded-[8px] bg-gray-5">
+        <div className="flex items-center gap-[0.6rem]">
+          <div className="flex h-[3rem] w-[3rem] items-center justify-center overflow-hidden rounded-[8px] bg-gray-5">
             {iconUrl ? (
               <img
                 src={iconUrl}
@@ -49,12 +49,12 @@ export default function BadgeCard({ badge }: Props) {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <IoRibbon className="h-[2.4rem] w-[2.4rem] text-gray-50" />
+              <IoRibbon className="h-[2rem] w-[2rem] text-gray-50" />
             )}
           </div>
           <div className="flex flex-col gap-[0.4rem]">
-            <h3 className="text-t5 text-gray-90">{title}</h3>
-            <p className="text-ct4 text-gray-60">{description}</p>
+            <h3 className="text-ct3 text-gray-90">{title}</h3>
+            <p className="text-ct5 text-gray-60">{description}</p>
           </div>
         </div>
       </div>
