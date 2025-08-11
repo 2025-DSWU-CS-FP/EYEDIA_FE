@@ -23,6 +23,8 @@ export default function GalleryCardDetail({ data }: Props) {
     <div className="flex w-full flex-col items-center gap-[5.6rem] px-[2.4rem]">
       <button
         type="button"
+        aria-pressed={isFlipped}
+        aria-label={isFlipped ? '카드 앞면 보기' : '카드 뒷면 보기'}
         className="relative h-[45rem] w-full py-[2.8rem] [perspective:1000px]"
         onClick={() => setIsFlipped(!isFlipped)}
       >
