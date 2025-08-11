@@ -19,7 +19,7 @@ export default function MenuList() {
 
   return (
     <nav className="flex w-full flex-col gap-[3rem] overflow-hidden px-[3.5rem] py-[2rem]">
-      <MenuItem label="나의 뱃지" />
+      <MenuItem onClick={() => navigate('/my-badge')} label="나의 뱃지" />
       <Divider />
       <MenuItem
         onClick={() => navigate('/terms-of-service')}

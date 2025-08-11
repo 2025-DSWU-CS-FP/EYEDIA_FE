@@ -23,10 +23,8 @@ const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
   { key: 'locked', label: '잠김' },
 ];
 
-// 인덱스 대신 고정 키 사용 (규칙 만족)
 const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
-// TODO: API 연동 시 useQuery로 대체
 const MOCK_BADGES: Badge[] = [
   {
     id: 'b1',
@@ -89,7 +87,6 @@ function SkeletonGrid() {
 export default function MyBadgePage() {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('all');
 
-  // API 예시:
   // const { data = [], isLoading } = useQuery<Badge[]>({ queryKey: ['badges'], queryFn: fetchBadges });
   const data = MOCK_BADGES;
   const isLoading = false;
