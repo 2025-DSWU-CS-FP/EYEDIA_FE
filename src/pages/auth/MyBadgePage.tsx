@@ -12,8 +12,8 @@ interface Badge {
   description: string;
   iconUrl?: string;
   status: BadgeStatus;
-  progress?: number; // in_progress일 때 0~100
-  earnedAt?: string; // earned일 때 ISO
+  progress?: number;
+  earnedAt?: string;
 }
 
 const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
@@ -22,6 +22,9 @@ const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
   { key: 'in_progress', label: '진행중' },
   { key: 'locked', label: '잠김' },
 ];
+
+// 인덱스 대신 고정 키 사용 (규칙 만족)
+const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
 // TODO: API 연동 시 useQuery로 대체
 const MOCK_BADGES: Badge[] = [
@@ -60,6 +63,29 @@ const MOCK_BADGES: Badge[] = [
   },
 ];
 
+function EmptyState() {
+  return (
+    <div className="col-span-2 flex flex-col items-center gap-[1.2rem] rounded-[8px] bg-white p-[2rem] text-center shadow-sm">
+      <IoMedalOutline className="h-[3.2rem] w-[3.2rem] text-gray-40" />
+      <p className="text-ct2 text-gray-80">아직 해당 뱃지가 없어요</p>
+      <p className="text-ct4 text-gray-60">전시를 감상하거나 수집해 보세요.</p>
+    </div>
+  );
+}
+
+function SkeletonGrid() {
+  return (
+    <>
+      {SKELETON_KEYS.map(key => (
+        <div
+          key={key}
+          className="animate-pulse h-[10rem] rounded-[8px] bg-gray-5"
+        />
+      ))}
+    </>
+  );
+}
+
 export default function MyBadgePage() {
   const [tab, setTab] = useState<(typeof TABS)[number]['key']>('all');
 
@@ -84,7 +110,6 @@ export default function MyBadgePage() {
         backgroundColorClass="bg-gray-5"
       />
 
-      {/* 요약 섹션 */}
       <section className="px-[2.4rem] py-[2rem]">
         <div className="flex items-center justify-between rounded-[8px] bg-white p-[1.6rem] shadow-sm">
           <div className="flex items-center gap-[1.2rem]">
@@ -129,30 +154,15 @@ export default function MyBadgePage() {
         </ul>
       </nav>
 
-      <section className="mt-[1.6rem] grid grid-cols-2 gap-[1.2rem] px-[2.4rem] pb-[4rem]">
-        {isLoading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="animate-pulse h-[10rem] rounded-[8px] bg-gray-5"
-            />
-          ))
-        ) : filtered.length === 0 ? (
-          <EmptyState />
-        ) : (
-          filtered.map(badge => <BadgeCard key={badge.id} badge={badge} />)
-        )}
+      <section className="mt-[1.6rem] grid grid-cols-2 gap-[0.8rem] px-[2.4rem] pb-[4rem]">
+        {isLoading && <SkeletonGrid />}
+
+        {!isLoading && filtered.length === 0 && <EmptyState />}
+
+        {!isLoading &&
+          filtered.length > 0 &&
+          filtered.map(badge => <BadgeCard key={badge.id} badge={badge} />)}
       </section>
     </main>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="col-span-2 flex flex-col items-center gap-[1.2rem] rounded-[8px] bg-white p-[2rem] text-center shadow-sm">
-      <IoMedalOutline className="h-[3.2rem] w-[3.2rem] text-gray-40" />
-      <p className="text-ct2 text-gray-80">아직 해당 뱃지가 없어요</p>
-      <p className="text-ct4 text-gray-60">전시를 감상하거나 수집해 보세요.</p>
-    </div>
   );
 }
