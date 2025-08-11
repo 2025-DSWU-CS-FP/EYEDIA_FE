@@ -10,3 +10,6 @@ export * from './chat/chatMessages';
 
 /* 유저 페이지 */
 export * from './auth';
+
+/* 뱃지 */
+export * from './badge';
