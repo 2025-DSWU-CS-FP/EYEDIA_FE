@@ -20,10 +20,10 @@ export default function GalleryCardDetail({ data }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
 
   return (
-    <div className="flex w-full max-w-[36rem] flex-col items-center gap-[5.6rem] px-[2.4rem]">
+    <div className="flex w-full flex-col items-center gap-[5.6rem] px-[2.4rem]">
       <button
         type="button"
-        className="relative h-[45rem] w-full py-[2.7rem] [perspective:1000px]"
+        className="relative h-[45rem] w-full py-[2.8rem] [perspective:1000px]"
         onClick={() => setIsFlipped(!isFlipped)}
       >
         <div
