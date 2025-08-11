@@ -130,7 +130,6 @@ export default function MyBadgePage() {
         </div>
       </section>
 
-      {/* 필터 탭 */}
       <nav aria-label="뱃지 필터" className="px-[2.4rem]">
         <ul className="flex gap-[0.8rem]">
           {TABS.map(t => (
@@ -140,10 +139,10 @@ export default function MyBadgePage() {
                 onClick={() => setTab(t.key)}
                 aria-pressed={tab === t.key}
                 className={[
-                  'rounded-[20px] px-[1.2rem] py-[0.6rem] text-ct3',
+                  'rounded-[6px] px-[1.2rem] py-[0.6rem] text-ct3',
                   tab === t.key
                     ? 'bg-gray-90 text-white'
-                    : 'bg-gray-10 text-gray-70 hover:bg-gray-20',
+                    : 'bg-gray-10 text-gray-70 hover:bg-gray-20/50',
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-mint',
                 ].join(' ')}
               >
