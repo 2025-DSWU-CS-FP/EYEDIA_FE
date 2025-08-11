@@ -10,6 +10,7 @@ export const exhibitionInfo = {
   location: '서울시립미술관 서소문본관',
   totalCount: 9,
   lastDate: '5월 22일',
+  isBookmarked: false,
 };
 
 export const artworks = [
