@@ -17,6 +17,9 @@ import 'swiper/css/effect-coverflow';
 export default function GalleryDetailPage() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const swiperRef = useRef<SwiperClass>();
+  const [bookmarked, setBookmarked] = useState(
+    exhibitionInfo.isBookmarked ?? false,
+  );
 
   const handleCardClick = (index: number) => {
     setSelectedIndex(index);
@@ -40,6 +43,8 @@ export default function GalleryDetailPage() {
                 location={exhibitionInfo.location}
                 totalCount={exhibitionInfo.totalCount}
                 lastDate={exhibitionInfo.lastDate}
+                isBookmarked={bookmarked}
+                onBookmarkToggle={() => setBookmarked(prev => !prev)}
               />
             </div>
             <div className="grid grid-cols-2 gap-[1.2rem] px-[2.4rem]">
