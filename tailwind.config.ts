@@ -121,6 +121,10 @@ export default {
           '12px',
           { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '600' },
         ],
+        ct6: [
+          '10px',
+          { lineHeight: '140%', letterSpacing: '-0.02em', fontWeight: '500' },
+        ],
       },
     },
     animation: {
