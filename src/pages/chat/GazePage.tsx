@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Client, IMessage } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
+import type { IMessage } from '@stomp/stompjs';
 import { useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/sample/chat-gaze.png';
@@ -95,23 +96,19 @@ export default function GazePage() {
   };
 
   return (
-    <div className="relative flex h-svh w-full flex-col items-center justify-around overflow-auto pb-[3rem] text-white">
+    <div className="relative flex max-h-svh w-full flex-col items-center justify-around overflow-auto pb-[3rem] text-white">
       <Header showBackButton backgroundColorClass="bg-transparent" />
       <div className="w-[30.7rem] space-y-[2.2rem]">
-        <div className="mx-auto flex flex-col gap-[0.4rem]">
-          {trackingComplete ? (
-            <p className="text-ct2 font-medium text-brand-blue">
-              시선추적 성공!
-            </p>
-          ) : (
-            <p className="text-ct2 font-medium text-gray-60">시선추적중...</p>
-          )}
-          <h1 className="mt-2 whitespace-pre-line text-t3 text-gray-100">
-            {trackingComplete
-              ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
-              : '궁금한 작품을\n2초 이상 응시하세요.'}
-          </h1>
-        </div>
+        {trackingComplete ? (
+          <p className="text-ct2 font-medium text-brand-blue">시선추적 성공!</p>
+        ) : (
+          <p className="text-ct2 font-medium text-gray-60">시선추적중...</p>
+        )}
+        <h1 className="mt-2 whitespace-pre-line text-t3 text-gray-100">
+          {trackingComplete
+            ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
+            : '궁금한 작품을\n2초 이상 응시하세요.'}
+        </h1>
 
         <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
           {trackingComplete ? (
