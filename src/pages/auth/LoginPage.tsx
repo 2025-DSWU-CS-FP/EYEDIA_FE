@@ -49,7 +49,7 @@ export default function LoginPage() {
       { id, pw },
       {
         onSuccess: data => {
-          localStorage.setItem('accessToken', data.accessToken);
+          localStorage.setItem('accessToken', data.token);
           showToast('로그인에 성공했습니다!', 'success');
           navigate('/');
         },
