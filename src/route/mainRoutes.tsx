@@ -63,7 +63,7 @@ const mainRoutes: RouteObject[] = [
     element: <GazePage />,
   },
   {
-    path: 'chat-artwork',
+    path: 'chat-artwork/:roomId',
     element: <Artwork />,
   },
   {

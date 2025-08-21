@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-
+import { useEffect, useRef, useState } from 'react';
+import { Client } from '@stomp/stompjs';
 import { useNavigate } from 'react-router-dom';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 
@@ -10,23 +10,41 @@ import BottomLink from '@/components/chat/BottomLink';
 import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
 import Header from '@/layouts/Header';
+import { getAccessToken, makeStompClient } from '@/utils/stompClient';
 
 import '@/styles/eyewear-transition.css';
 
 function OnboardingPage() {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
+  const clientRef = useRef<Client | null>(null);
 
   useEffect(() => {
     if (isConnected) {
-      const timer = setTimeout(() => {
-        navigate('/chat-gaze');
-      }, 3000);
+      const timer = setTimeout(() => navigate('/chat-gaze'), 3000);
       return () => clearTimeout(timer);
     }
-
-    return undefined;
   }, [isConnected, navigate]);
+
+  useEffect(() => {
+    return () => {
+      clientRef.current?.deactivate();
+      clientRef.current = null;
+    };
+  }, []);
+
+  const handleConnectClick = () => {
+    if (clientRef.current?.active) return;
+    const token = getAccessToken();
+    const client = makeStompClient(token);
+
+    client.onConnect = () => setIsConnected(true);
+    client.onStompError = f => console.error('❌ STOMP ERROR', f);
+    client.onWebSocketError = e => console.error('🧨 WS 에러:', e);
+
+    client.activate();
+    clientRef.current = client;
+  };
 
   return (
     <div className="relative -mb-6 flex h-[100vh] max-h-[100vh] flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
@@ -62,7 +80,7 @@ function OnboardingPage() {
         {!isConnected && (
           <button
             type="button"
-            onClick={() => setIsConnected(true)}
+            onClick={handleConnectClick}
             className="z-10 mx-auto mt-6 flex w-[25rem] justify-center rounded-md bg-gray-30 py-2 text-bt3 text-gray-90"
           >
             연결됨으로 설정 (임시)
@@ -79,5 +97,4 @@ function OnboardingPage() {
     </div>
   );
 }
-
 export default OnboardingPage;
