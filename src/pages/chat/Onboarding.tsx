@@ -18,7 +18,7 @@ function OnboardingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsConnected(true), 1500);
+    const timer = window.setTimeout(() => setIsConnected(true), 3000);
     return () => window.clearTimeout(timer);
   }, []);
 

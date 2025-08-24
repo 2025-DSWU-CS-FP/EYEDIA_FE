@@ -1,0 +1,29 @@
+/* styles/typing.css */
+@keyframes typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-0.3rem);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px; /* px 대신 완전 원형 */
+  background-color: rgba(255, 255, 255, 0.7);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dot.delay-1 {
+  animation-delay: 0.15s;
+}
+.typing-dot.delay-2 {
+  animation-delay: 0.3s;
+}

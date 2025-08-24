@@ -18,7 +18,7 @@ function GazePage() {
   const [trackingComplete, setTrackingComplete] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setTrackingComplete(true), 2000);
+    const timer = setTimeout(() => setTrackingComplete(true), 3000);
     return () => clearTimeout(timer);
   }, []);
 
