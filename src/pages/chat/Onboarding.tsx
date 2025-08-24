@@ -18,18 +18,22 @@ function OnboardingPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (isConnected) {
-      const timer = setTimeout(() => {
-        navigate('/chat-gaze');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
+    const timer = window.setTimeout(() => setIsConnected(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
-    return undefined;
+  useEffect(() => {
+    const timer = isConnected
+      ? window.setTimeout(() => navigate('/chat-gaze'), 3000)
+      : null;
+
+    return () => {
+      if (timer !== null) window.clearTimeout(timer);
+    };
   }, [isConnected, navigate]);
 
   return (
-    <div className="relative -mb-6 flex h-[100vh] max-h-[100vh] flex-col items-center justify-start overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
+    <div className="relative flex h-dvh flex-col items-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
       <Header showBackButton backgroundColorClass="bg-transperate" />
       <div className="w-full px-4 pt-[10rem]">
         <OnboardingText
@@ -39,6 +43,7 @@ function OnboardingPage() {
               : '전용 아이웨어를 착용하고 연결해주세요.'
           }
         />
+
         <div className="relative mx-auto flex h-[24rem] w-[30rem] items-center justify-center">
           <img
             src={ringImage}
@@ -58,16 +63,6 @@ function OnboardingPage() {
             </CSSTransition>
           </SwitchTransition>
         </div>
-
-        {!isConnected && (
-          <button
-            type="button"
-            onClick={() => setIsConnected(true)}
-            className="z-10 mx-auto mt-6 flex w-[25rem] justify-center rounded-md bg-gray-30 py-2 text-bt3 text-gray-90"
-          >
-            연결됨으로 설정 (임시)
-          </button>
-        )}
       </div>
 
       {!isConnected && (
