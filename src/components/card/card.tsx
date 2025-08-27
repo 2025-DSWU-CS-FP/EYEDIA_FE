@@ -76,7 +76,7 @@ export default function Card() {
   return (
     <div
       ref={rootRef}
-      className={`h-dvh py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
+      className={`max-h-dvh overflow-hidden py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
     >
       <div className="output fixed">
         <div className="wrap-colors-1">
@@ -88,7 +88,7 @@ export default function Card() {
         <div className="cover" />
       </div>
 
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
+      <div className="absolute bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
         <button
           type="button"
           onClick={savePng}
