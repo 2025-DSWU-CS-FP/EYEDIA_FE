@@ -443,7 +443,7 @@
     .number {
       position: absolute;
       left: 15px;
-      bottom: -6px;
+      bottom: 1px;
       font-size: 2em;
       color: #b5ddff;
       font-weight: bolder;
@@ -645,7 +645,7 @@
 
 .front .qrcode {
   right: 5px;
-  bottom: -5px;
+  bottom: 0px;
 
   img {
     height: 70px;
@@ -673,7 +673,7 @@
     rgba(221, 255, 254, 0.4) 90%
   );
   top: -10%;
-  bottom: -10%;
+  bottom: -12%;
   left: -132%;
   transform: translateX(0) skew(-30deg);
   transition: all 0.7s ease;
