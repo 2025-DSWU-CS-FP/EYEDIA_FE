@@ -248,7 +248,7 @@ export default function ExtractCard({
           </div>
         </div>
 
-        <div className="mt-auto flex w-full justify-center pb-[max(3rem,env(safe-area-inset-bottom))]">
+        <div className="mt-auto flex w-full justify-center pb-[max(2rem,env(safe-area-inset-bottom))]">
           <div className="capture-ignore flex items-center gap-[2.7rem] rounded-full bg-brand-blue px-10 py-4 shadow-lg">
             <button
               type="button"
