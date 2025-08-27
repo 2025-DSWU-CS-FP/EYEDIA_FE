@@ -1,6 +1,7 @@
 import React from 'react';
 
 import * as htmlToImage from 'html-to-image';
+import { flushSync } from 'react-dom';
 
 import '@/styles/card.css';
 import Logo from '@/assets/images/logo.svg';
@@ -40,18 +41,25 @@ export default function Card() {
     }, []);
   }
   const savePng = async () => {
-    if (!captureRef.current) return;
+    if (!captureRef.current || isCapturing) return;
     try {
-      setIsCapturing(true);
+      flushSync(() => setIsCapturing(true));
+      await (
+        document as unknown as { fonts?: { ready?: Promise<unknown> } }
+      ).fonts?.ready?.catch(() => undefined);
+      await new Promise<void>(resolve => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve());
+        });
+      });
 
-      const dataUrl = await htmlToImage.toPng(captureRef.current, {
+      const target = captureRef.current!;
+      const dataUrl = await htmlToImage.toPng(target, {
         pixelRatio: 2,
         cacheBust: true,
         backgroundColor: '#0f1114',
-        filter: node => {
-          const el = node as HTMLElement;
-          return !el?.classList?.contains('noise');
-        },
+        filter: node =>
+          !(node instanceof Element && node.classList.contains('noise')),
       });
 
       const a = document.createElement('a');
