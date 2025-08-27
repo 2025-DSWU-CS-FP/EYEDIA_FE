@@ -33,3 +33,23 @@ export type ExhibitionPopularDetail = {
   exhibitionAuthor: string;
   location: string;
 };
+
+export type PageMeta = {
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalElements: number;
+  hasNext: boolean;
+};
+
+export type ExhibitionVisitListItem = {
+  exhibitionId: number;
+  exhibitionTitle: string;
+  exhibitionImage: string;
+  artCount: number;
+  gallery: string;
+};
+
+export type ExhibitionVisitRecentPage = PageMeta & {
+  items: ExhibitionVisitListItem[];
+};

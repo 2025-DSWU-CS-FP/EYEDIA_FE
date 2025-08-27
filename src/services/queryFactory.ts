@@ -4,6 +4,7 @@ import type {
   ExhibitionSuggestItem,
   ExhibitionVisitDetail,
   ExhibitionPopularDetail,
+  ExhibitionVisitRecentPage,
 } from '@/types/exhibition';
 
 const queryFactory = {
@@ -38,6 +39,15 @@ const queryFactory = {
     (exhibitionId: number) => async (): Promise<ExhibitionPopularDetail> => {
       const res = await axiosInstance.get(
         `/api/v1/exhibitions/popular/${exhibitionId}`,
+      );
+      return res.data.result;
+    },
+  exhibitionVisitRecent:
+    (page = 0, limit = 12) =>
+    async (): Promise<ExhibitionVisitRecentPage> => {
+      const res = await axiosInstance.get(
+        '/api/v1/exhibitions/visit/filter-recent',
+        { params: { page, limit } },
       );
       return res.data.result;
     },
