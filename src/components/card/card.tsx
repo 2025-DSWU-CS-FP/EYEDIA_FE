@@ -8,6 +8,21 @@ import Logo from '@/assets/images/logo.svg';
 import QR from '@/assets/images/qr.png';
 import { useToast } from '@/contexts/ToastContext';
 
+type WebShareNavigator = Navigator & {
+  share?: (data: {
+    files?: File[];
+    title?: string;
+    text?: string;
+    url?: string;
+  }) => Promise<void>;
+  canShare?: (data: {
+    files?: File[];
+    title?: string;
+    text?: string;
+    url?: string;
+  }) => boolean;
+};
+
 export default function Card() {
   const captureRef = React.useRef<HTMLDivElement | null>(null);
   const rootRef = React.useRef<HTMLDivElement | null>(null);
@@ -16,6 +31,7 @@ export default function Card() {
 
   const { showToast } = useToast();
   const idx = (i: number): CSSProps => ({ '--i': i });
+
   function useTodayKST() {
     return React.useMemo(() => {
       const now = new Date();
@@ -40,43 +56,136 @@ export default function Card() {
       return { dateISO, display };
     }, []);
   }
-  const savePng = async () => {
+
+  const waitFontsReady = async (): Promise<void> => {
+    const d = document as unknown as { fonts?: { ready?: Promise<unknown> } };
+    try {
+      await d.fonts?.ready;
+    } catch {
+      /*  */
+    }
+  };
+
+  const waitImagesReady = async (root: HTMLElement): Promise<void> => {
+    const imgs = Array.from(root.querySelectorAll<HTMLImageElement>('img'));
+    if (imgs.length === 0) return;
+    await Promise.all(
+      imgs.map(img => {
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+        const maybeDecode = (
+          img as HTMLImageElement & { decode?: () => Promise<unknown> }
+        ).decode;
+        if (typeof maybeDecode === 'function')
+          return maybeDecode.call(img).catch(() => undefined);
+        return new Promise<void>(resolve => {
+          img.addEventListener('load', () => resolve(), { once: true });
+          img.addEventListener('error', () => resolve(), { once: true });
+        });
+      }),
+    );
+  };
+
+  const nextFrame = (): Promise<void> =>
+    new Promise<void>(resolve => {
+      requestAnimationFrame(() => resolve());
+    });
+
+  const twoFrames = async (): Promise<void> => {
+    await nextFrame();
+    await nextFrame();
+  };
+
+  const isIOS = () =>
+    /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+
+  type HtmlToImageOptions = NonNullable<
+    Parameters<typeof htmlToImage.toBlob>[1]
+  >;
+  const captureBlob = async (): Promise<Blob> => {
+    const target = captureRef.current;
+    if (!target) throw new Error('no target');
+
+    flushSync(() => setIsCapturing(true));
+    await waitFontsReady();
+    await waitImagesReady(target);
+    await twoFrames();
+
+    const rect = target.getBoundingClientRect();
+    const width = Math.round(rect.width);
+    const height = Math.round(rect.height);
+    const scale = Math.min(2, window.devicePixelRatio || 1);
+
+    const style: Partial<CSSStyleDeclaration> = {
+      transform: 'none',
+      transformOrigin: 'top left',
+      margin: '0',
+      padding: '0',
+      borderRadius: getComputedStyle(target).borderRadius,
+      overflow: 'hidden',
+      webkitTextSizeAdjust: '100%',
+    };
+
+    const options: HtmlToImageOptions = {
+      backgroundColor: '#0f1114',
+      width,
+      height,
+      pixelRatio: scale, // 해상도 스케일
+      style,
+      cacheBust: true,
+      filter: (node: HTMLElement) =>
+        !(
+          node.classList?.contains('noise') ||
+          node.classList?.contains('capture-ignore')
+        ),
+    };
+
+    let blob = await htmlToImage.toBlob(target, options);
+    if (!blob) {
+      const dataUrl = await htmlToImage.toPng(target, options);
+      const res = await fetch(dataUrl);
+      blob = await res.blob();
+    }
+    return blob;
+  };
+
+  const savePng = async (): Promise<void> => {
     if (!captureRef.current || isCapturing) return;
     try {
-      flushSync(() => setIsCapturing(true));
-      await (
-        document as unknown as { fonts?: { ready?: Promise<unknown> } }
-      ).fonts?.ready?.catch(() => undefined);
-      await new Promise<void>(resolve => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => resolve());
-        });
-      });
+      const blob = await captureBlob();
+      const fileName = 'eyedia-ticket.png';
+      const file = new File([blob], fileName, { type: 'image/png' });
+      const n = navigator as WebShareNavigator;
 
-      const target = captureRef.current!;
-      const dataUrl = await htmlToImage.toPng(target, {
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: '#0f1114',
-        filter: node =>
-          !(node instanceof Element && node.classList.contains('noise')),
-      });
-
-      const a = document.createElement('a');
-      a.href = dataUrl;
-      a.download = `eyedia-ticket.png`;
-      a.click();
+      if (typeof n.share === 'function' && n.canShare?.({ files: [file] })) {
+        await n.share({ files: [file], title: 'Eyedia Ticket' });
+      } else if (isIOS()) {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
     } catch (e) {
       showToast('이미지 저장에 실패했습니다.', 'error');
     } finally {
       setIsCapturing(false);
     }
   };
+
   const { dateISO, display } = useTodayKST();
+
   return (
     <div
       ref={rootRef}
-      className={`h-dvh py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
+      className={`max-h-dvh overflow-hidden py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
     >
       <div className="output fixed">
         <div className="wrap-colors-1">
@@ -88,7 +197,7 @@ export default function Card() {
         <div className="cover" />
       </div>
 
-      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
+      <div className="absolute bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
         <button
           type="button"
           onClick={savePng}
@@ -98,6 +207,7 @@ export default function Card() {
           티켓 이미지 저장
         </button>
       </div>
+
       <div className="area">
         <div className="area-wrapper">
           <div className="ticket-mask">
@@ -105,6 +215,7 @@ export default function Card() {
               <div className="ticket-flip-container">
                 <div className="float">
                   <div className="front">
+                    {/* ⬇️ 캡처 대상 */}
                     <div className="ticket-body" ref={captureRef}>
                       <div className="reflex" />
 
@@ -112,6 +223,7 @@ export default function Card() {
                         src={Logo}
                         className="icon-cube max-w-[25rem]"
                         alt="로고"
+                        crossOrigin="anonymous"
                       />
 
                       <header>
@@ -160,6 +272,7 @@ export default function Card() {
 
                         <div className="barcode" />
                       </header>
+
                       <div className="contents">
                         <div className="event">
                           <div>
@@ -173,7 +286,7 @@ export default function Card() {
                         <div className="number">MuMul</div>
 
                         <div className="qrcode">
-                          <img alt="이미지" src={QR} />
+                          <img alt="이미지" src={QR} crossOrigin="anonymous" />
                         </div>
                       </div>
                     </div>
@@ -207,12 +320,11 @@ export default function Card() {
                             </span>
                           </b>
                         </div>
-
                         <time dateTime={dateISO}>{display}</time>
                       </header>
                       <div className="contents">
                         <div className="qrcode">
-                          <img alt="이미지" src={QR} />
+                          <img alt="이미지" src={QR} crossOrigin="anonymous" />
                         </div>
                       </div>
                     </div>
@@ -224,7 +336,7 @@ export default function Card() {
         </div>
       </div>
 
-      <div className="noise">
+      <div className="noise capture-ignore">
         <svg height="100%" width="100%">
           <defs>
             <pattern

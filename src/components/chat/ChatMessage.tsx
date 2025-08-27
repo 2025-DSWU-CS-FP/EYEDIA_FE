@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 import SelectionActionMenu from '@/components/chat/SelectionActionMenu';
 import '@/styles/chat-selection.css';
@@ -9,15 +9,6 @@ interface ChatMessageProps {
   onExtract?: (quote: string) => void;
 }
 
-function Marker() {
-  return (
-    <div className="pointer-events-none absolute -left-[4px] -top-[3px] h-7 w-2.5">
-      <div className="absolute left-[4.5px] top-0 h-6 w-[2px] bg-[#F68C8C]" />
-      <div className="absolute left-0 top-0 h-2.5 w-2.5 rounded-full bg-[#F68C8C]" />
-    </div>
-  );
-}
-
 export default function ChatMessage({
   text,
   isFromUser = false,
@@ -25,166 +16,145 @@ export default function ChatMessage({
 }: ChatMessageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [highlightRange, setHighlightRange] = useState<{
-    start: number;
-    end: number;
-  } | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{
+
+  const [menu, setMenu] = useState<{
     top: number;
     left: number;
+    quote: string;
   } | null>(null);
 
-  useEffect(() => {
-    const handleMouseUp = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.isCollapsed) return;
+  const selectingRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
 
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString();
+  const isSelectionInside = useCallback(
+    (sel: Selection | null): sel is Selection => {
+      if (!sel || sel.isCollapsed) return false;
+      const container = containerRef.current;
+      if (!container) return false;
+      const a = sel.anchorNode;
+      const f = sel.focusNode;
+      return !!(a && f && container.contains(a) && container.contains(f));
+    },
+    [],
+  );
 
-      if (
-        !selectedText.trim() ||
-        !containerRef.current?.contains(range.startContainer)
-      )
-        return;
+  const updateMenuFromSelection = useCallback(() => {
+    const sel = window.getSelection();
+    if (!isSelectionInside(sel)) {
+      setMenu(null);
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const rects = range.getClientRects();
+    const container = containerRef.current;
+    if (!rects.length || !container) return;
 
-      const rects = range.getClientRects();
-      const lastRect = rects[rects.length - 1];
-      const containerRect = containerRef.current!.getBoundingClientRect();
+    const lastRect = rects[rects.length - 1];
+    const cRect = container.getBoundingClientRect();
 
-      const startOffset = text.indexOf(selectedText);
-      if (startOffset === -1) return;
+    const quote = sel.toString().trim();
+    if (!quote) {
+      setMenu(null);
+      return;
+    }
 
-      setHighlightRange({
-        start: startOffset,
-        end: startOffset + selectedText.length,
-      });
+    const top = lastRect.bottom - cRect.top + 6;
+    const leftRaw = lastRect.left - cRect.left;
+    const left = Math.max(8, Math.min(leftRaw, cRect.width - 120));
 
-      setMenuPosition({
-        top: lastRect.bottom - containerRect.top + 4,
-        left: lastRect.left - containerRect.left,
-      });
-    };
+    setMenu({ top, left, quote });
+  }, [isSelectionInside]);
 
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current?.contains(e.target as Node) ||
-        menuRef.current?.contains(e.target as Node)
-      ) {
-        return;
+  const scheduleUpdate = useCallback(
+    (delay = 60) => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
-
-      setHighlightRange(null);
-      setMenuPosition(null);
-    };
-
-    const handleCopy = (e: ClipboardEvent) => {
-      if (!highlightRange) return;
-      e.preventDefault();
-      const copiedText = text.slice(highlightRange.start, highlightRange.end);
-      e.clipboardData?.setData('text/plain', copiedText);
-    };
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('copy', handleCopy);
-      document.addEventListener('mousedown', handleClickOutside);
-    };
-  }, [text, highlightRange]);
+      timerRef.current = window.setTimeout(() => {
+        rafRef.current = requestAnimationFrame(updateMenuFromSelection);
+      }, delay);
+    },
+    [updateMenuFromSelection],
+  );
 
   useEffect(() => {
-    const handleTouchEnd = () => {
-      const selection = window.getSelection();
-      if (!selection || selection.isCollapsed) return;
-
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString();
-
-      if (
-        !selectedText.trim() ||
-        !containerRef.current?.contains(range.startContainer)
-      )
-        return;
-
-      const rects = range.getClientRects();
-      const lastRect = rects[rects.length - 1];
-      const containerRect = containerRef.current!.getBoundingClientRect();
-
-      const startOffset = text.indexOf(selectedText);
-      if (startOffset === -1) return;
-
-      setHighlightRange({
-        start: startOffset,
-        end: startOffset + selectedText.length,
-      });
-
-      setMenuPosition({
-        top: lastRect.bottom - containerRect.top + 4,
-        left: lastRect.left - containerRect.left,
-      });
+    const onSelectionChange: EventListener = () => {
+      if (!selectingRef.current) return;
+      scheduleUpdate(0);
     };
 
-    document.addEventListener('touchend', handleTouchEnd);
+    const onPointerDown: EventListener = e => {
+      const target = e.target as Node | null;
+      const inContainer = !!(target && containerRef.current?.contains(target));
+      const inMenu = !!(target && menuRef.current?.contains(target));
+      if (inMenu) return;
+
+      if (inContainer) {
+        selectingRef.current = true;
+      } else {
+        selectingRef.current = false;
+        setMenu(null);
+        const sel = window.getSelection();
+        if (sel && !sel.isCollapsed) sel.removeAllRanges();
+      }
+    };
+
+    const finishSelection = () => {
+      selectingRef.current = false;
+      scheduleUpdate(80); // iOS에서 선택 사각형 안정화 대기
+    };
+
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift' || e.key.startsWith('Arrow')) scheduleUpdate(0);
+    };
+
+    document.addEventListener('selectionchange', onSelectionChange);
+    document.addEventListener('pointerdown', onPointerDown, { passive: true });
+    document.addEventListener('pointerup', finishSelection);
+    document.addEventListener('mouseup', finishSelection);
+    document.addEventListener('keyup', onKeyUp);
+
     return () => {
-      document.removeEventListener('touchend', handleTouchEnd);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timerRef.current !== null) clearTimeout(timerRef.current);
+      document.removeEventListener('selectionchange', onSelectionChange);
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('pointerup', finishSelection);
+      document.removeEventListener('mouseup', finishSelection);
+      document.removeEventListener('keyup', onKeyUp);
     };
-  }, [text]);
-
-  const renderText = () => {
-    if (!highlightRange) return text;
-
-    const { start, end } = highlightRange;
-
-    return (
-      <>
-        {text.slice(0, start)}
-        <span className="relative rounded bg-rose-200/20 px-0.5">
-          <span className="absolute left-0">
-            <Marker />
-          </span>
-          {text.slice(start, end)}
-          <span className="absolute right-0">
-            <Marker />
-          </span>
-        </span>
-        {text.slice(end)}
-      </>
-    );
-  };
+  }, [scheduleUpdate]);
 
   return (
     <div
       ref={containerRef}
-      className={`disable-native-selection relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] text-bd3 ${
+      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] text-bd3 ${
         isFromUser
           ? 'self-end bg-brand-blue text-gray-0'
           : 'bg-gray-0 text-gray-90'
       }`}
+      style={{ overflow: 'visible' }}
     >
-      {menuPosition && highlightRange && (
+      {menu && (
         <SelectionActionMenu
-          top={menuPosition.top}
-          left={menuPosition.left}
+          top={menu.top}
+          left={menu.left}
           menuRef={menuRef}
           onExtract={() => {
-            const quote = text.slice(highlightRange.start, highlightRange.end);
-            console.log('[ChatMessage] 발췌 텍스트:', quote);
-            onExtract?.(quote);
-            setHighlightRange(null);
-            setMenuPosition(null);
+            onExtract?.(menu.quote);
+            setMenu(null);
+            window.getSelection()?.removeAllRanges();
           }}
           onCancel={() => {
-            setHighlightRange(null);
-            setMenuPosition(null);
+            setMenu(null);
+            window.getSelection()?.removeAllRanges();
           }}
         />
       )}
-      {renderText()}
+      {text}
     </div>
   );
 }
