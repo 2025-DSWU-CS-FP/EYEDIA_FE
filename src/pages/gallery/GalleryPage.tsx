@@ -93,12 +93,14 @@ export default function GalleryPage() {
   }, [base, filter]);
 
   const exhibitionsForGrid = useMemo(() => {
-    const weight = (d: string) => (d === '1970-01-01' ? -1 : 1);
+    const isPlaceholder = (d: string) => d === '2010-01-01';
     return [...filtered].sort((a, b) => {
+      const aPh = isPlaceholder(a.date);
+      const bPh = isPlaceholder(b.date);
+      if (aPh !== bPh) return aPh ? 1 : -1;
       const da = new Date(a.date).getTime();
       const db = new Date(b.date).getTime();
-      if (sort === '최신순') return weight(a.date) * db - weight(b.date) * da;
-      return weight(b.date) * da - weight(a.date) * db;
+      return sort === '최신순' ? db - da : da - db;
     });
   }, [filtered, sort]);
 
