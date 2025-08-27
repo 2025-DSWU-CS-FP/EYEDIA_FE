@@ -744,3 +744,11 @@
   pointer-events: none;
   z-index: 1;
 }
+
+/* 캡처 순간 애니메이션/전환 OFF */
+.capture-still *,
+.capture-still *::before,
+.capture-still *::after {
+  animation: none !important;
+  transition: none !important;
+}

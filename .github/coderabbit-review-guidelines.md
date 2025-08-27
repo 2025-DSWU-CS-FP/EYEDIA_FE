@@ -5,6 +5,7 @@
 ---
 
 ## 1. 코드 스타일
+
 - **ESLint(Airbnb + TypeScript)** 및 **Prettier 설정**을 반드시 준수합니다.
 - Prettier 기본 규칙:
   - `singleQuote: true`
@@ -16,6 +17,7 @@
 ---
 
 ## 2. 파일 및 네이밍 규칙
+
 - **컴포넌트 파일명**: `PascalCase`  
   예: `MyComponent.tsx`
 - **훅/유틸 파일명**: `camelCase`  
@@ -28,8 +30,10 @@
 ---
 
 ## 3. Import 순서
+
 - Prettier의 `importOrder` 규칙을 따릅니다.
 - 그룹 간에는 빈 줄을 추가합니다.
+
 ```text
 ^react(/.*)?$
 ^react-router-dom(/.*)?$
@@ -45,3 +49,4 @@
 ^@/layouts/(.*)$
 ^@/pages/(.*)$
 ^@/components/(.*)$
+```
