@@ -30,7 +30,7 @@ export default function UserGreeting({
         className="gradient-rotate gradient-dramatic shine relative -ml-[0.5rem] mr-[2rem] flex h-[9.6rem] items-center justify-between gap-[1.3rem] rounded-[10px] bg-gradient-to-r from-cyan-200 via-blue-300 to-indigo-300 px-[2.4rem]"
       >
         <div className="flex flex-col justify-start gap-[0.4rem]">
-          <div className="text-left text-gray-800 bt3">
+          <div className="whitespace-nowrap text-left text-gray-800 bt3">
             친구와 함께 전시를 관람하고 싶다면?
           </div>
           <div className="text-left text-black t3">Eyedia 공유하기 →</div>
