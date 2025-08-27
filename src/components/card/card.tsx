@@ -5,6 +5,7 @@ import * as htmlToImage from 'html-to-image';
 import '@/styles/card.css';
 import Logo from '@/assets/images/logo.svg';
 import QR from '@/assets/images/qr.png';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function Card() {
   const captureRef = React.useRef<HTMLDivElement | null>(null);
@@ -12,6 +13,7 @@ export default function Card() {
   const [isCapturing, setIsCapturing] = React.useState(false);
   type CSSProps = React.CSSProperties & { '--i'?: number };
 
+  const { showToast } = useToast();
   const idx = (i: number): CSSProps => ({ '--i': i });
   function useTodayKST() {
     return React.useMemo(() => {
@@ -45,9 +47,8 @@ export default function Card() {
       const dataUrl = await htmlToImage.toPng(captureRef.current, {
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: '#0f1114', // 어두운 무대 배경색(롤러와 자연스럽게)
+        backgroundColor: '#0f1114',
         filter: node => {
-          // 노이즈/롤러 등 불필요한 오버레이는 제외(필요 시 조정)
           const el = node as HTMLElement;
           return !el?.classList?.contains('noise');
         },
@@ -58,7 +59,7 @@ export default function Card() {
       a.download = `eyedia-ticket.png`;
       a.click();
     } catch (e) {
-      // TODO: 토스트 메시지 추가
+      showToast('이미지 저장에 실패했습니다.', 'error');
     } finally {
       setIsCapturing(false);
     }
@@ -79,7 +80,7 @@ export default function Card() {
         <div className="cover" />
       </div>
 
-      <div className="absolute left-1/2 top-[6.2rem] z-30 -translate-x-1/2">
+      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
         <button
           type="button"
           onClick={savePng}
