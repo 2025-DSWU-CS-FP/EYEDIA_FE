@@ -157,13 +157,13 @@
   overflow: hidden;
   display: flex;
   justify-content: center;
-  mask-image: linear-gradient(rgba(0, 0, 0, 0.1) 0%, white 20px);
+  mask-image: linear-gradient(white 0, white 0.2rem);
   perspective: 1000px;
-  top: calc(50% - 250px);
+  top: calc(50% - 242px);
   left: 0;
   right: 0;
   height: 100%;
-  min-height: 1500px;
+  margin-top: -11rem;
 }
 
 .ticket {
@@ -742,4 +742,12 @@
   filter: grayscale(1);
   pointer-events: none;
   z-index: 1;
+}
+
+/* 캡처 순간 애니메이션/전환 OFF */
+.capture-still *,
+.capture-still *::before,
+.capture-still *::after {
+  animation: none !important;
+  transition: none !important;
 }

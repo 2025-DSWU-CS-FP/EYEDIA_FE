@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+import plugin from 'tailwindcss/plugin';
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -162,5 +163,31 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addUtilities, theme }) => {
+      const fontSizes = theme('fontSize') as Record<
+        string,
+        string | [string, Record<string, string>]
+      >;
+
+      const isTokenKey = (k: string) => /^(t|bd|bt|ct)\d+$/i.test(k);
+
+      const utilities: Record<string, any> = {};
+      for (const [key, val] of Object.entries(fontSizes)) {
+        if (!isTokenKey(key)) continue;
+
+        if (typeof val === 'string') {
+          utilities[`.${key}`] = { fontSize: val };
+        } else {
+          const [size, options] = val;
+          utilities[`.${key}`] = { fontSize: size, ...(options ?? {}) };
+        }
+      }
+
+      addUtilities(utilities, {
+        respectPrefix: true,
+        respectImportant: true,
+      });
+    }),
+  ],
 };

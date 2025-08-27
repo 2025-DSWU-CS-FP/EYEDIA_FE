@@ -1,42 +1,84 @@
 import React from 'react';
 
+import * as htmlToImage from 'html-to-image';
+import { flushSync } from 'react-dom';
+
 import '@/styles/card.css';
 import Logo from '@/assets/images/logo.svg';
 import QR from '@/assets/images/qr.png';
-
-type CSSProps = React.CSSProperties & { '--i'?: number };
-
-const idx = (i: number): CSSProps => ({ '--i': i });
-function useTodayKST() {
-  return React.useMemo(() => {
-    const now = new Date();
-
-    const dateISO = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(now);
-
-    const display = new Intl.DateTimeFormat('ko-KR', {
-      timeZone: 'Asia/Seoul',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    })
-      .format(now)
-      .replace(/\s/g, '')
-      .replace(/\.$/, '');
-
-    return { dateISO, display };
-  }, []);
-}
+import { useToast } from '@/contexts/ToastContext';
 
 export default function Card() {
+  const captureRef = React.useRef<HTMLDivElement | null>(null);
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const [isCapturing, setIsCapturing] = React.useState(false);
+  type CSSProps = React.CSSProperties & { '--i'?: number };
+
+  const { showToast } = useToast();
+  const idx = (i: number): CSSProps => ({ '--i': i });
+  function useTodayKST() {
+    return React.useMemo(() => {
+      const now = new Date();
+
+      const dateISO = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(now);
+
+      const display = new Intl.DateTimeFormat('ko-KR', {
+        timeZone: 'Asia/Seoul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      })
+        .format(now)
+        .replace(/\s/g, '')
+        .replace(/\.$/, '');
+
+      return { dateISO, display };
+    }, []);
+  }
+  const savePng = async () => {
+    if (!captureRef.current || isCapturing) return;
+    try {
+      flushSync(() => setIsCapturing(true));
+      await (
+        document as unknown as { fonts?: { ready?: Promise<unknown> } }
+      ).fonts?.ready?.catch(() => undefined);
+      await new Promise<void>(resolve => {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve());
+        });
+      });
+
+      const target = captureRef.current!;
+      const dataUrl = await htmlToImage.toPng(target, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#0f1114',
+        filter: node =>
+          !(node instanceof Element && node.classList.contains('noise')),
+      });
+
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = `eyedia-ticket.png`;
+      a.click();
+    } catch (e) {
+      showToast('이미지 저장에 실패했습니다.', 'error');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
   const { dateISO, display } = useTodayKST();
   return (
-    <>
-      <div className="output fixed h-dvh">
+    <div
+      ref={rootRef}
+      className={`h-dvh py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
+    >
+      <div className="output fixed">
         <div className="wrap-colors-1">
           <div className="bg-colors" />
         </div>
@@ -45,6 +87,17 @@ export default function Card() {
         </div>
         <div className="cover" />
       </div>
+
+      <div className="fixed bottom-[calc(env(safe-area-inset-bottom)_+_2rem)] left-1/2 z-30 -translate-x-1/2 print:hidden">
+        <button
+          type="button"
+          onClick={savePng}
+          className="rounded-[10px] bg-brand-mint px-[1.2rem] py-[0.6rem] text-gray-0 shadow-card bt3 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-mint"
+          aria-label="티켓 이미지 저장"
+        >
+          티켓 이미지 저장
+        </button>
+      </div>
       <div className="area">
         <div className="area-wrapper">
           <div className="ticket-mask">
@@ -52,7 +105,7 @@ export default function Card() {
               <div className="ticket-flip-container">
                 <div className="float">
                   <div className="front">
-                    <div className="ticket-body">
+                    <div className="ticket-body" ref={captureRef}>
                       <div className="reflex" />
 
                       <img
@@ -195,6 +248,6 @@ export default function Card() {
           <rect fill="url(#noise-pattern)" height="100%" width="100%" />
         </svg>
       </div>
-    </>
+    </div>
   );
 }

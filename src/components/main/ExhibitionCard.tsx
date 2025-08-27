@@ -86,8 +86,8 @@ export default function ExhibitionCard({
         </div>
       ) : (
         <div className="flex flex-col items-start justify-start gap-[0.4rem]">
-          <div className="text-t5 text-gray-90">{title}</div>
-          <div className="text-ct4 text-gray-50">{location}</div>
+          <div className="text-gray-90 t5">{title}</div>
+          <div className="text-gray-50 ct4">{location}</div>
         </div>
       )}
     </button>
