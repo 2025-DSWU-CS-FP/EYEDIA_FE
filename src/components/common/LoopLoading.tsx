@@ -6,28 +6,33 @@ interface LoopLoadingProps {
 
 export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
   const BAR_COUNT = 10;
+  // 굳이 randomUUID 불필요 — 고정 배열 + 인덱스 키
   const bars = useMemo(
-    () => Array.from({ length: BAR_COUNT }, () => crypto.randomUUID()),
+    () => Array.from({ length: BAR_COUNT }, (_, i) => i),
     [],
   );
   const step = 360 / BAR_COUNT;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
+    <div
+      role="status"
+      aria-label="로딩 중"
+      className="fixed inset-0 z-50 grid place-items-center bg-white/40 backdrop-blur-sm"
+    >
       <div
         className="relative"
         style={{ height: `${size}px`, width: `${size}px` }}
       >
-        {bars.map((id, i) => (
+        {bars.map(i => (
           <div
-            key={id}
+            key={i}
             className="absolute left-1/2 top-1/2 origin-center"
             style={{
               transform: `rotate(${i * step}deg) translate(0, -${size / 3.1}px)`,
             }}
           >
             <div
-              className="h-[1rem] w-[0.22rem] rounded-full bg-neutral-500"
+              className="motion-reduce:animate-none h-[1rem] w-[0.22rem] rounded-full bg-neutral-500"
               style={{
                 animation: `spinner-fade 1.2s linear infinite`,
                 animationDelay: `${(i * 0.1).toFixed(1)}s`,
