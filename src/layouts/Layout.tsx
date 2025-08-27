@@ -26,7 +26,7 @@ export default function Layout({ children }: LayoutProps) {
 
   return (
     <div
-      className={`mx-auto flex h-dvh w-full flex-col bg-gray-5 ${
+      className={`mx-auto flex min-h-screen w-full flex-col bg-gray-5 ${
         !hideUI && 'pb-24'
       }`}
     >
