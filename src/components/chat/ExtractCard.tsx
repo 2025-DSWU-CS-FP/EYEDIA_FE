@@ -47,7 +47,7 @@ export default function ExtractCard({
     try {
       await d.fonts?.ready;
     } catch {
-      /* noop */
+      /*  */
     }
   };
 
@@ -117,10 +117,10 @@ export default function ExtractCard({
       backgroundColor: undefined,
       width,
       height,
-      pixelRatio: 1, // 캔버스 크기로 스케일
+      pixelRatio: 1,
       style,
       cacheBust: true,
-      preferCanvas: true as const, // ✅ Safari에서 foreignObject 대신 canvas 우선
+      preferCanvas: true as const,
       filter: (node: unknown) =>
         !(node instanceof Element && node.classList.contains('capture-ignore')),
       onClone: (_doc: Document, clonedNode: HTMLElement) => {
@@ -128,7 +128,6 @@ export default function ExtractCard({
           const img = n as HTMLImageElement;
           img.crossOrigin = 'anonymous';
           img.loading = 'eager';
-          // img.decoding = 'sync' // 지원 브라우저 한정. 문제되면 주석 유지
           Object.assign(img.style, {
             position: 'absolute',
             inset: '0',
@@ -141,11 +140,8 @@ export default function ExtractCard({
       },
     };
 
-    // 우선 시도
     let blob: Blob | null = null;
     try {
-      // html-to-image는 canvas 크기를 내부에서 정하므로, 스케일은 pixelRatio로
-      // (canvasWidth/Height는 무시될 수 있음)
       blob = await htmlToImage.toBlob(target, {
         ...options,
         pixelRatio: scale,
@@ -218,7 +214,7 @@ export default function ExtractCard({
 
         <div
           ref={cardRef}
-          className="relative mx-auto mt-[5rem] h-[52rem] w-[90%] overflow-hidden rounded-[16px]"
+          className="relative mx-auto my-auto h-[50rem] w-[90%] overflow-hidden rounded-[16px]"
           style={{ isolation: 'isolate' }}
         >
           <img
