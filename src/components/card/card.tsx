@@ -35,8 +35,8 @@ function useTodayKST() {
 export default function Card() {
   const { dateISO, display } = useTodayKST();
   return (
-    <>
-      <div className="output fixed h-dvh">
+    <div className="h-dvh py-[0.5rem]">
+      <div className="output fixed">
         <div className="wrap-colors-1">
           <div className="bg-colors" />
         </div>
@@ -195,6 +195,6 @@ export default function Card() {
           <rect fill="url(#noise-pattern)" height="100%" width="100%" />
         </svg>
       </div>
-    </>
+    </div>
   );
 }

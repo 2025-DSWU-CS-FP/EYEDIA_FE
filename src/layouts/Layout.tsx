@@ -20,12 +20,13 @@ export default function Layout({ children }: LayoutProps) {
   const isLoginRoute = location.pathname.startsWith('/login');
   const isSignupRoute = location.pathname.startsWith('/signup');
   const isMapRoute = location.pathname.startsWith('/map');
+  const isCardRoute = location.pathname.startsWith('/card');
 
-  const hideUI = isChatRoute || isLoginRoute || isSignupRoute;
+  const hideUI = isChatRoute || isLoginRoute || isSignupRoute || isCardRoute;
 
   return (
     <div
-      className={`mx-auto flex min-h-screen w-full flex-col bg-gray-5 ${
+      className={`mx-auto flex h-dvh w-full flex-col bg-gray-5 ${
         !hideUI && 'pb-24'
       }`}
     >

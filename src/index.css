@@ -28,6 +28,9 @@ body {
   box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.2);
   --selection: #3daf9c;
   --selection-foreground: #ffffff;
+  --roller-top: 4rem;
+  --roller-h: 3.6rem;
+  --seam-overlap: 0.8rem;
 }
 
 body {
@@ -55,6 +58,113 @@ select {
   input[type='number']::-webkit-inner-spin-button,
   input[type='number']::-webkit-outer-spin-button {
     @apply appearance-none;
+  }
+  @keyframes gradient-x {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  @property --angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+  @keyframes rotate-angle {
+    to {
+      --angle: 360deg;
+    }
+  }
+  .gradient-rotate {
+    background-image: linear-gradient(var(--angle), var(--tw-gradient-stops));
+    background-size: 200% 200%;
+    animation: rotate-angle 5s linear infinite;
+  }
+
+  @keyframes drama-spin {
+    to {
+      transform: rotate(360deg) scale(1.1);
+    }
+  }
+  .gradient-dramatic {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .gradient-dramatic::before {
+    content: '';
+    position: absolute;
+    inset: 0%;
+    background: conic-gradient(
+      from 180deg at 50% 50%,
+      #b2f5e9 0deg,
+      #97cef3 120deg,
+      #97ffd7 240deg,
+      transparent 360deg
+    );
+
+    filter: blur(24px) saturate(1.25);
+    opacity: 0.45;
+    pointer-events: none;
+    animation: drama-spin 12s cubic-bezier(0.3, 0.7, 0.2, 1) infinite;
+    z-index: -1;
+  }
+
+  @keyframes shine-sweep {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+      opacity: 0;
+    }
+    35% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 0.55;
+    }
+    100% {
+      transform: translateX(120%) skewX(-20deg);
+      opacity: 0;
+    }
+  }
+  .shine {
+    position: relative;
+  }
+  .shine::after {
+    content: '';
+    position: absolute;
+    inset: -20% -40%;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.55) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+    animation: shine-sweep 3.2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-rotate,
+    .gradient-dramatic::before,
+    .shine::after {
+      animation: none;
+    }
+  }
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 3s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-gradient-x {
+      animation: none;
+    }
   }
 }
 
