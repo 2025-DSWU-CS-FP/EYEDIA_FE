@@ -31,7 +31,7 @@ export default function MyGalleryPage() {
         backgroundColorClass="bg-gray-5"
       />
 
-      <section className="relative mx-auto w-full max-w-[43rem] overflow-hidden py-[4rem]">
+      <section className="relative mx-auto w-full max-w-[43rem] overflow-visible py-[4rem]">
         <Swiper
           effect="coverflow"
           grabCursor
@@ -52,13 +52,16 @@ export default function MyGalleryPage() {
         >
           {galleryItems.map(item => (
             <SwiperSlide key={item.id} className="!w-[18rem]">
-              <figure className="w-full overflow-hidden rounded-[8px] bg-white/60 shadow-lg backdrop-blur-md">
+              <figure className="relative w-full overflow-hidden rounded-[8px] shadow-lg backdrop-blur-md">
                 <img
                   src={item.image}
                   alt={item.title}
                   className="h-[24rem] w-full object-cover"
                 />
-                <figcaption className="py-[1rem] text-center text-[1.4rem] font-medium text-gray-90">
+
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[10rem] bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                <figcaption className="absolute inset-x-0 bottom-0 px-[1rem] py-[1rem] text-center text-gray-5 ct4">
                   {item.title}
                 </figcaption>
               </figure>
