@@ -8,27 +8,11 @@ import Logo from '@/assets/images/logo.svg';
 import QR from '@/assets/images/qr.png';
 import { useToast } from '@/contexts/ToastContext';
 
-type WebShareNavigator = Navigator & {
-  share?: (data: {
-    files?: File[];
-    title?: string;
-    text?: string;
-    url?: string;
-  }) => Promise<void>;
-  canShare?: (data: {
-    files?: File[];
-    title?: string;
-    text?: string;
-    url?: string;
-  }) => boolean;
-};
-
 export default function Card() {
   const captureRef = React.useRef<HTMLDivElement | null>(null);
-  const rootRef = React.useRef<HTMLDivElement | null>(null);
   const [isCapturing, setIsCapturing] = React.useState(false);
-  type CSSProps = React.CSSProperties & { '--i'?: number };
 
+  type CSSProps = React.CSSProperties & { '--i'?: number };
   const { showToast } = useToast();
   const idx = (i: number): CSSProps => ({ '--i': i });
 
@@ -69,20 +53,35 @@ export default function Card() {
   const waitImagesReady = async (root: HTMLElement): Promise<void> => {
     const imgs = Array.from(root.querySelectorAll<HTMLImageElement>('img'));
     if (imgs.length === 0) return;
+
     await Promise.all(
       imgs.map(img => {
         if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+
         const maybeDecode = (
           img as HTMLImageElement & { decode?: () => Promise<unknown> }
         ).decode;
-        if (typeof maybeDecode === 'function')
+        if (typeof maybeDecode === 'function') {
           return maybeDecode.call(img).catch(() => undefined);
+        }
+
         return new Promise<void>(resolve => {
           img.addEventListener('load', () => resolve(), { once: true });
           img.addEventListener('error', () => resolve(), { once: true });
         });
       }),
     );
+  };
+
+  const prepImagesForCapture = (root: HTMLElement): void => {
+    root.querySelectorAll('img').forEach(img => {
+      const el = img as HTMLImageElement;
+      el.crossOrigin = 'anonymous';
+      el.loading = 'eager';
+      el.decoding = 'sync';
+      el.style.transform = 'translateZ(0)';
+      if (!el.style.objectFit) el.style.objectFit = 'cover';
+    });
   };
 
   const nextFrame = (): Promise<void> =>
@@ -102,12 +101,14 @@ export default function Card() {
   type HtmlToImageOptions = NonNullable<
     Parameters<typeof htmlToImage.toBlob>[1]
   >;
+
   const captureBlob = async (): Promise<Blob> => {
     const target = captureRef.current;
     if (!target) throw new Error('no target');
 
     flushSync(() => setIsCapturing(true));
     await waitFontsReady();
+    prepImagesForCapture(target); // onClone 대체: 원본 DOM에 미리 반영
     await waitImagesReady(target);
     await twoFrames();
 
@@ -126,54 +127,67 @@ export default function Card() {
       webkitTextSizeAdjust: '100%',
     };
 
+    const filter: NonNullable<HtmlToImageOptions['filter']> = (
+      node: HTMLElement,
+    ) =>
+      !(
+        node.classList?.contains('noise') ||
+        node.classList?.contains('capture-ignore')
+      );
+
     const options: HtmlToImageOptions = {
       backgroundColor: '#0f1114',
       width,
       height,
-      pixelRatio: scale, // 해상도 스케일
+      pixelRatio: scale,
       style,
       cacheBust: true,
-      filter: (node: HTMLElement) =>
-        !(
-          node.classList?.contains('noise') ||
-          node.classList?.contains('capture-ignore')
-        ),
+      filter,
     };
 
-    let blob = await htmlToImage.toBlob(target, options);
+    let blob: Blob | null = null;
+    try {
+      blob = await htmlToImage.toBlob(target, options);
+    } catch {
+      /* fallthrough to PNG */
+    }
+
     if (!blob) {
       const dataUrl = await htmlToImage.toPng(target, options);
       const res = await fetch(dataUrl);
       blob = await res.blob();
     }
-    return blob;
+    return blob!;
   };
+
+  const isInAppWebView = () =>
+    /KAKAOTALK|FBAN|FBAV|Instagram|NAVER|Daum|Line/i.test(navigator.userAgent);
 
   const savePng = async (): Promise<void> => {
     if (!captureRef.current || isCapturing) return;
+
     try {
       const blob = await captureBlob();
       const fileName = 'eyedia-ticket.png';
-      const file = new File([blob], fileName, { type: 'image/png' });
-      const n = navigator as WebShareNavigator;
 
-      if (typeof n.share === 'function' && n.canShare?.({ files: [file] })) {
-        await n.share({ files: [file], title: 'Eyedia Ticket' });
-      } else if (isIOS()) {
+      // iOS / 인앱 웹뷰: a.download 제한이 많으므로 새 탭 열기
+      if (isIOS() || isInAppWebView()) {
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 10000);
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        return;
       }
-    } catch (e) {
+
+      // 일반 브라우저: a.download로 바로 저장
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
       showToast('이미지 저장에 실패했습니다.', 'error');
     } finally {
       setIsCapturing(false);
@@ -184,7 +198,6 @@ export default function Card() {
 
   return (
     <div
-      ref={rootRef}
       className={`max-h-dvh overflow-hidden py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
     >
       <div className="output fixed">
