@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 import Logo from '@/assets/icons/logo.svg?react';
 
 export default function Footer() {
@@ -10,15 +12,29 @@ export default function Footer() {
         </div>
         <p className="text-ct4 text-gray-50">eyedia2025@gmail.com</p>
       </div>
+
       <div className="flex flex-col pb-[3rem]">
-        <div className="flex gap-[0.8rem] text-ct5 font-semibold">
-          <span className="cursor-pointer py-[0.4rem] text-gray-60 hover:text-gray-70">
-            개인정보처리방침
-          </span>
-          <span className="cursor-pointer py-[0.4rem] text-gray-60 hover:text-gray-70">
-            이용약관
-          </span>
-        </div>
+        <nav aria-label="legal" className="mb-[0.6rem]">
+          <ul className="flex gap-[0.8rem] text-ct5 font-semibold">
+            <li>
+              <Link
+                to="/privacy"
+                className="inline-block py-[0.4rem] text-gray-60 hover:text-gray-70 focus:underline focus:outline-none"
+              >
+                개인정보처리방침
+              </Link>
+            </li>
+            <li>
+              <Link
+                to="/terms-of-service"
+                className="inline-block py-[0.4rem] text-gray-60 hover:text-gray-70 focus:underline focus:outline-none"
+              >
+                이용약관
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
         <p className="text-ct4 text-gray-50">
           © 2025 EYEDIA. All rights reserved.
         </p>
