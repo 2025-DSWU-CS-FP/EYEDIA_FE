@@ -53,3 +53,15 @@ export type ExhibitionVisitListItem = {
 export type ExhibitionVisitRecentPage = PageMeta & {
   items: ExhibitionVisitListItem[];
 };
+
+export type PopularExhibitionItem = {
+  exhibitionId: number;
+  exhibitionTitle: string;
+  exhibitionImage: string | null;
+  artCount: number | null;
+  gallery: string | null;
+};
+
+export type PopularExhibitionsPage = PageMeta & {
+  items: PopularExhibitionItem[];
+};

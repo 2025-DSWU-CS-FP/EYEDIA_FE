@@ -5,6 +5,8 @@ import type {
   ExhibitionVisitDetail,
   ExhibitionPopularDetail,
   ExhibitionVisitRecentPage,
+  PopularExhibitionItem,
+  PopularExhibitionsPage,
 } from '@/types/exhibition';
 
 const queryFactory = {
@@ -49,6 +51,32 @@ const queryFactory = {
         '/api/v1/exhibitions/visit/filter-recent',
         { params: { page, limit } },
       );
+      return res.data.result;
+    },
+
+  // 인기 전시 전체 조회(페이징)
+  popularExhibitions:
+    (params: {
+      keyword?: string;
+      page?: number;
+      limit?: number;
+      sort?: 'popular' | 'latest';
+    }) =>
+    async (): Promise<PopularExhibitionsPage> => {
+      const { keyword, page = 0, limit = 12, sort = 'popular' } = params ?? {};
+      const res = await axiosInstance.get('/api/v1/exhibitions/popular', {
+        params: { keyword, page, limit, sort },
+      });
+      return res.data.result;
+    },
+
+  // 인기 전시 TOP N
+  popularExhibitionsTop:
+    (size = 3) =>
+    async (): Promise<PopularExhibitionItem[]> => {
+      const res = await axiosInstance.get('/v1/exhibitions/popular/top', {
+        params: { size },
+      });
       return res.data.result;
     },
 };

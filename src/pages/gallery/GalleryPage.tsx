@@ -10,6 +10,7 @@ import SortSelect from '@/components/gallery/SortSelect';
 import Header from '@/layouts/Header';
 import useExhibitionSuggest from '@/services/queries/useExhibitionSuggest';
 import type { ExhibitionSuggestItem } from '@/types/exhibition';
+import s3ToHttp from '@/utils/url';
 
 const exhibitionsData = [
   {
@@ -48,24 +49,14 @@ const exhibitionsData = [
 
 type GridItem = (typeof exhibitionsData)[number];
 
-/** s3://bucket/key -> https://bucket.s3.ap-northeast-2.amazonaws.com/key */
-const normalizeS3Url = (url?: string): string => {
-  if (!url) return '';
-  if (!url.startsWith('s3://')) return url;
-  const path = url.replace(/^s3:\/\//, '');
-  const [bucket, ...rest] = path.split('/');
-  const key = rest.join('/');
-  return `https://${bucket}.s3.ap-northeast-2.amazonaws.com/${key}`;
-};
-
 const toGridItems = (items?: ExhibitionSuggestItem[]): GridItem[] =>
   (items ?? []).map(i => ({
     id: String(i.exhibitionId),
     title: i.exhibitionTitle,
     location: i.gallery,
-    imageUrl: normalizeS3Url(i.exhibitionImage), // 🔁 여기서 변환
+    imageUrl: s3ToHttp(i.exhibitionImage),
     artworkCount: i.artCount,
-    date: '1970-01-01',
+    date: '2010-01-01',
   }));
 
 export default function GalleryPage() {
