@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
+import { useNavigate } from 'react-router-dom';
+
 import popular1 from '@/assets/images/sample/main-popular1.png';
 import popular2 from '@/assets/images/sample/main-popular2.png';
 import popular3 from '@/assets/images/sample/main-popular3.png';
@@ -63,7 +65,8 @@ export default function GalleryPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('전체');
   const [sort, setSort] = useState<'최신순' | '날짜순'>('최신순');
-
+  const navigate = useNavigate();
+  const handleSelect = (id: number | string) => navigate(`/gallery/${id}`);
   const [bootLoading, setBootLoading] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setBootLoading(false), 300);
@@ -120,7 +123,11 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      <ExhibitionGrid exhibitions={exhibitionsForGrid} isLoading={isLoading} />
+      <ExhibitionGrid
+        onSelect={handleSelect}
+        exhibitions={exhibitionsForGrid}
+        isLoading={isLoading}
+      />
     </main>
   );
 }

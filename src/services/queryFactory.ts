@@ -79,5 +79,18 @@ const queryFactory = {
       });
       return res.data.result;
     },
+
+  // 인기 전시 검색
+  popularExhibitionsSuggest:
+    (q: string, limit = 24) =>
+    async (): Promise<PopularExhibitionItem[]> => {
+      const res = await axiosInstance.get(
+        '/api/v1/exhibitions/popular/suggest',
+        {
+          params: { q, limit },
+        },
+      );
+      return res.data.result;
+    },
 };
 export default queryFactory;

@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
-
 import { ExhibitionCardProps } from '@/types';
 import cn from '@/utils/cn';
 
@@ -10,6 +8,7 @@ interface ExhibitionCardExtendedProps extends ExhibitionCardProps {
   className?: string;
   imageClassName?: string;
   isLoading?: boolean;
+  onClick?: (id: number | string) => void;
 }
 
 export default function ExhibitionCard({
@@ -21,20 +20,15 @@ export default function ExhibitionCard({
   className = '',
   imageClassName = '',
   isLoading,
+  onClick,
 }: ExhibitionCardExtendedProps) {
-  const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);
-
-  const handleClick = () => {
-    navigate(`/gallery/${id}`);
-  };
-
   const showSkeleton = isLoading ?? !imgLoaded;
 
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => onClick?.(id)}
       disabled={showSkeleton}
       aria-busy={showSkeleton}
       aria-live="polite"

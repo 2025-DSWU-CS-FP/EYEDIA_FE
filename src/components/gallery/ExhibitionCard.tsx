@@ -7,7 +7,6 @@ interface ExhibitionCardProps {
   showArrow?: boolean;
   onClick?: () => void;
   isSelected?: boolean;
-  /** 외부에서 로딩 제어(데이터 페칭 중) */
   isLoading?: boolean;
 }
 
@@ -22,7 +21,6 @@ export default function ExhibitionCard({
 }: ExhibitionCardProps) {
   const [imgLoaded, setImgLoaded] = useState(false);
 
-  // 외부 로딩 신호(isLoading)가 우선, 없으면 이미지 로딩 상태로 판단
   const showSkeleton = isLoading ?? !imgLoaded;
   const hasOverlayContent = Boolean(title || showArrow);
 
@@ -35,7 +33,6 @@ export default function ExhibitionCard({
       aria-live="polite"
       className={`group relative aspect-[3/4] overflow-hidden rounded-[10px] transition-transform duration-200 ease-in-out ${showSkeleton ? 'cursor-default' : 'cursor-pointer'} `}
     >
-      {/* 이미지 */}
       <img
         src={imageUrl}
         alt={title ?? '작품 이미지'}
@@ -48,16 +45,12 @@ export default function ExhibitionCard({
         }`}
       />
 
-      {/* 스켈레톤 */}
       {showSkeleton && (
         <div className="absolute inset-0">
           <div className="animate-pulse h-full w-full bg-gray-10" />
-          {/* 텍스트 영역 자리표시자 */}
           {hasOverlayContent && (
             <div className="absolute inset-0 flex h-full flex-col justify-between p-[2rem]">
-              {/* 상단 타이틀 블록 */}
               <div className="h-[2.4rem] w-1/2 rounded-[6px] bg-gray-20" />
-              {/* 하단 서브타이틀/화살표 영역 */}
               <div className="space-y-[0.8rem]">
                 <div className="h-[1.8rem] w-3/4 rounded-[6px] bg-gray-20" />
                 {showArrow && (
@@ -70,7 +63,6 @@ export default function ExhibitionCard({
         </div>
       )}
 
-      {/* 오버레이(제목/부제) */}
       {hasOverlayContent && (
         <div
           className={`absolute inset-0 transition-colors duration-200 ease-in-out ${
