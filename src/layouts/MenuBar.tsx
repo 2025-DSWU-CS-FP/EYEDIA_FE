@@ -7,7 +7,7 @@ export default function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="hidden md:block absolute top-4 right-4 z-50">
+    <div className="absolute right-4 top-4 z-50 hidden md:block">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -20,22 +20,22 @@ export default function HamburgerMenu() {
         <div className="absolute right-0 mt-2 w-48 rounded bg-white/30 shadow-md">
           <ul className="flex flex-col">
             <li>
-              <Link to="/" className="block px-4 py-2 hover:bg-darkGray">
+              <Link to="/" className="hover:bg-darkGray block px-4 py-2">
                 홈
               </Link>
             </li>
             <li>
-              <Link to="/gallery" className="block px-4 py-2 hover:bg-darkGray">
+              <Link to="/gallery" className="hover:bg-darkGray block px-4 py-2">
                 갤러리
               </Link>
             </li>
             <li>
-              <Link to="/map" className="block px-4 py-2 hover:bg-darkGray">
+              <Link to="/map" className="hover:bg-darkGray block px-4 py-2">
                 지도
               </Link>
             </li>
             <li>
-              <Link to="/mypage" className="block px-4 py-2 hover:bg-darkGray">
+              <Link to="/mypage" className="hover:bg-darkGray block px-4 py-2">
                 마이페이지
               </Link>
             </li>

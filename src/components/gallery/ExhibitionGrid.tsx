@@ -11,11 +11,13 @@ interface Exhibition {
 interface ExhibitionGridProps {
   exhibitions: Exhibition[];
   isLoading?: boolean;
+  onSelect?: (id: number | string) => void;
 }
 
 export default function ExhibitionGrid({
   exhibitions,
   isLoading = false,
+  onSelect,
 }: ExhibitionGridProps) {
   return (
     <section
@@ -31,6 +33,7 @@ export default function ExhibitionGrid({
           imageUrl={exh.imageUrl}
           artworkCount={exh.artworkCount}
           isLoading={isLoading}
+          onClick={onSelect}
         />
       ))}
     </section>

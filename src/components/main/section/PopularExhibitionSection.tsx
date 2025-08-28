@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-
 import PopularExhibitionCard from '@/components/main/ExhibitionCard';
 import SectionHeader from '@/components/main/SectionHeader';
 
@@ -13,22 +11,21 @@ interface PopularExhibitionItem {
 interface PopularExhibitionSectionProps {
   exhibitions: PopularExhibitionItem[];
   isLoading?: boolean;
+  onMoreClick?: () => void; // ⬅️ 상위에서 받음
+  onSelect?: (id: number | string) => void; // ⬅️ 상위에서 받음
 }
 
 export default function PopularExhibitionSection({
   exhibitions,
   isLoading = false,
+  onMoreClick,
+  onSelect,
 }: PopularExhibitionSectionProps) {
-  const navigate = useNavigate();
-
   const skeletonKeys = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
   return (
     <section className="flex flex-col gap-[1rem]" aria-busy={isLoading}>
-      <SectionHeader
-        title="지금 인기 전시"
-        onMoreClick={() => navigate('/popular-exhibition')}
-      />
+      <SectionHeader title="지금 인기 전시" onMoreClick={onMoreClick} />
 
       <div
         className="flex gap-[1.2rem] overflow-x-auto pb-[0.8rem]"
@@ -55,6 +52,7 @@ export default function PopularExhibitionSection({
                 imageUrl={exh.imageUrl}
                 imageClassName="min-w-[15rem]"
                 isLoading={false}
+                onClick={onSelect}
               />
             ))}
       </div>

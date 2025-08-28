@@ -9,8 +9,8 @@ interface Props {
 export default function MainView({ children, isEmpty, className }: Props) {
   return (
     <main
-      className={`w-full mx-auto flex flex-col px-4 ${
-        isEmpty ? 'items-center justify-center py-10' : 'pt-6 pb-[8rem]'
+      className={`mx-auto flex w-full flex-col px-4 ${
+        isEmpty ? 'items-center justify-center py-10' : 'pb-[8rem] pt-6'
       } ${className}`}
     >
       {children}

@@ -36,8 +36,8 @@ export default function ArtworkCard({
         </div>
       ) : (
         <figcaption className="flex flex-col items-start justify-start gap-1">
-          <span className="text-t5 text-gray-90">{title}</span>
-          <span className="text-ct4 text-gray-50">{artist}</span>
+          <span className="text-gray-90 t5">{title}</span>
+          <span className="text-gray-50 ct4">{artist}</span>
         </figcaption>
       )}
     </article>

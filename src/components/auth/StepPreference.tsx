@@ -47,15 +47,15 @@ export default function StepPreference({ onComplete }: StepPreferenceProps) {
     <div className="flex min-h-screen flex-col justify-between bg-gray-5 px-[2.5rem] pb-[2.5rem] pt-[3rem]">
       <div className="flex flex-col gap-[3rem]">
         <div className="flex flex-col items-center gap-[1.2rem]">
-          <div className="text-center text-t5 text-brand-blue">취향 고르기</div>
-          <div className="self-stretch text-center text-t2 text-gray-90">
+          <div className="text-center text-brand-blue t5">취향 고르기</div>
+          <div className="self-stretch text-center text-gray-90 t2">
             회원님의 작품 취향을 <br />
             골라주세요!
           </div>
         </div>
         <div className="flex flex-col gap-[3.2rem]">
           <div className="flex flex-col gap-[1.6rem]">
-            <p className="mb-2 text-t5 text-gray-90">시간별</p>
+            <p className="mb-2 text-gray-90 t5">시간별</p>
             <div className="flex flex-wrap gap-[0.8rem]">
               {TIME_PREFS.map(item => (
                 <Chip
@@ -69,7 +69,7 @@ export default function StepPreference({ onComplete }: StepPreferenceProps) {
           </div>
 
           <div className="flex flex-col gap-[1.6rem]">
-            <p className="mb-2 text-t5 text-gray-90">색감</p>
+            <p className="mb-2 text-gray-90 t5">색감</p>
             <div className="flex flex-wrap gap-[0.8rem]">
               {COLOR_PREFS.map(item => (
                 <Chip
@@ -85,7 +85,7 @@ export default function StepPreference({ onComplete }: StepPreferenceProps) {
           </div>
 
           <div className="flex flex-col gap-[1.6rem]">
-            <p className="mb-2 text-t5 text-gray-90">키워드</p>
+            <p className="mb-2 text-gray-90 t5">키워드</p>
             <div className="flex flex-col gap-[1.2rem] overflow-x-auto">
               <div className="flex gap-[0.8rem]">
                 {KEYWORD_PREFS.map(item => (

@@ -35,7 +35,7 @@ export default function ExhibitionInfoCard({
             className="h-[7.2rem] w-[7.2rem] rounded-[8px] object-cover"
           />
           <div className="flex flex-col gap-[0.4rem]">
-            <h2 className="text-t3 font-semibold text-gray-90">{title}</h2>
+            <h2 className="font-semibold text-gray-90 t3">{title}</h2>
             <p className="text-ct3 text-gray-50">{location}</p>
           </div>
         </div>

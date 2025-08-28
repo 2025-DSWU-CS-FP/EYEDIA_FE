@@ -16,7 +16,7 @@ export default function SignupSuccess({ name }: SignupSuccessProps) {
     <div className="flex min-h-screen flex-col items-center justify-around bg-gray-5 px-[2.5rem]">
       <div className="flex flex-col items-center gap-[1.7rem]">
         <img src={successImg} alt="성공 아이콘" className="w-[20rem]" />
-        <span className="text-center text-t3 font-medium text-brand-blue">
+        <span className="text-center font-medium text-brand-blue t3">
           <span className="font-bold text-gray-80">{name}</span>님,
           <br />
           회원가입을 축하합니다!

@@ -30,14 +30,14 @@
   background: radial-gradient(
     circle at center,
     rgba(255, 255, 255, 0.6) 5%,
-    rgba(120, 64, 255, 0.5) 35%,
-    rgba(80, 40, 200, 0.4) 55%,
-    rgba(233, 40, 40, 0.3) 75%,
-    rgba(0, 0, 0, 0.9) 100%
+    rgba(239, 64, 255, 0.5) 35%,
+    rgba(180, 33, 234, 0.4) 55%,
+    rgba(255, 60, 255, 0.3) 75%,
+    rgba(152, 238, 236, 1) 100%
   );
   box-shadow:
     0 0 40px rgba(120, 64, 255, 0.5),
-    0 0 60px rgba(233, 40, 40, 0.4),
+    0 0 60px rgba(233, 40, 182, 0.4),
     inset 0 0 20px rgba(255, 255, 255, 0.2);
   animation: wavy-border-core 2.2s ease-in-out infinite;
   z-index: 3;
@@ -58,7 +58,9 @@
     rgba(233, 40, 40, 0.15),
     rgba(0, 0, 0, 0)
   );
-  animation: wave-pulse 2.5s ease-out infinite, wavy-border 2s ease-in-out infinite;
+  animation:
+    wave-pulse 2.5s ease-out infinite,
+    wavy-border 2s ease-in-out infinite;
   opacity: 0.6;
   pointer-events: none;
   z-index: 1;

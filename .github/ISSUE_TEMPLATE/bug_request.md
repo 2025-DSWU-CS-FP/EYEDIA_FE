@@ -1,11 +1,10 @@
 ---
-name: "Issue: Bug report"
-about: "해당 이슈 템플릿을 활용하여 이슈를 생성해 주세요."
+name: 'Issue: Bug report'
+about: '해당 이슈 템플릿을 활용하여 이슈를 생성해 주세요.'
 title: ''
 labels: ''
 assignees: ''
 ---
-
 
 ## ✨ 어떤 버그인가요?
 

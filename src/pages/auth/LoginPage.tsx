@@ -49,9 +49,18 @@ export default function LoginPage() {
       { id, pw },
       {
         onSuccess: data => {
-          localStorage.setItem('accessToken', data.accessToken);
+          const { accessToken, firstLogin } = (data ?? {}) as {
+            accessToken?: string;
+            firstLogin?: boolean;
+          };
+
+          if (accessToken) {
+            localStorage.setItem('accessToken', accessToken);
+          }
+
           showToast('로그인에 성공했습니다!', 'success');
-          navigate('/');
+
+          navigate(firstLogin ? '/landing' : '/');
         },
         onError: () => {
           showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error');
