@@ -6,6 +6,12 @@ import type {
   LoginResponse,
 } from '@/types';
 
+export type CommonResponse = {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+};
+
 const mutationFactory = {
   signup: async (data: SignupRequest) => {
     const res = await axiosInstance.post('/api/v1/auth/signup', data);
@@ -36,6 +42,21 @@ const mutationFactory = {
       }, 500);
     });
   },
+
+  addBookmark: (exhibitionId: number) => async (): Promise<CommonResponse> => {
+    const res = await axiosInstance.post(
+      `/api/v1/exhibitions/${exhibitionId}/bookmark`,
+    );
+    return res.data;
+  },
+
+  removeBookmark:
+    (exhibitionId: number) => async (): Promise<CommonResponse> => {
+      const res = await axiosInstance.delete(
+        `/api/v1/exhibitions/${exhibitionId}/bookmark`,
+      );
+      return res.data;
+    },
 };
 
 export default mutationFactory;
