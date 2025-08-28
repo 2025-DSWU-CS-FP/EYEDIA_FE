@@ -12,7 +12,7 @@ import {
   keywords,
   tasteArtworks,
 } from '@/mock/mainData';
-import usePopularExhibitions from '@/services/queries/usePopularExhibitions';
+import usePopularExhibitionsTop from '@/services/queries/usePopularExhibitionsTop';
 import s3ToHttp from '@/utils/url';
 
 export default function MainPage() {
@@ -24,26 +24,22 @@ export default function MainPage() {
   });
 
   const {
-    data,
+    data: topPopular,
     isFetching: isPopularLoading,
     isError,
-  } = usePopularExhibitions({ page: 0, limit: 12, sort: 'popular' }, true);
+  } = usePopularExhibitionsTop(3, true);
 
-  const apiPopular = useMemo(
-    () =>
-      (data?.items ?? []).slice(0, 3).map(it => ({
+  const popularExhibitions = useMemo(() => {
+    const mapped =
+      (topPopular ?? []).slice(0, 3).map(it => ({
         id: it.exhibitionId,
         title: it.exhibitionTitle,
         location: it.gallery ?? '',
-        imageUrl: s3ToHttp(it.exhibitionImage),
-      })),
-    [data?.items],
-  );
-
-  const popularExhibitions = useMemo(() => {
-    if (isError || apiPopular.length === 0) return mockPopularExhibitions;
-    return apiPopular;
-  }, [apiPopular, isError]);
+        imageUrl: s3ToHttp(it.exhibitionImage ?? ''),
+      })) ?? [];
+    if (isError || mapped.length === 0) return mockPopularExhibitions;
+    return mapped;
+  }, [topPopular, isError]);
 
   useEffect(() => {
     const t2 = setTimeout(

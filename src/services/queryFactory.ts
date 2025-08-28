@@ -44,15 +44,6 @@ const queryFactory = {
       );
       return res.data.result;
     },
-  exhibitionVisitRecent:
-    (page = 0, limit = 12) =>
-    async (): Promise<ExhibitionVisitRecentPage> => {
-      const res = await axiosInstance.get(
-        '/api/v1/exhibitions/visit/filter-recent',
-        { params: { page, limit } },
-      );
-      return res.data.result;
-    },
 
   // 인기 전시 전체 조회(페이징)
   popularExhibitions:
@@ -74,7 +65,7 @@ const queryFactory = {
   popularExhibitionsTop:
     (size = 3) =>
     async (): Promise<PopularExhibitionItem[]> => {
-      const res = await axiosInstance.get('/v1/exhibitions/popular/top', {
+      const res = await axiosInstance.get('/api/v1/exhibitions/popular/top', {
         params: { size },
       });
       return res.data.result;
@@ -90,6 +81,28 @@ const queryFactory = {
           params: { q, limit },
         },
       );
+      return res.data.result;
+    },
+
+  exhibitionVisitRecent:
+    (params: {
+      keyword?: string;
+      isBookmarked?: boolean;
+      sort?: 'RECENT' | 'DATE';
+      page?: number;
+      limit?: number;
+    }) =>
+    async (): Promise<ExhibitionVisitRecentPage> => {
+      const {
+        keyword,
+        isBookmarked,
+        sort = 'RECENT',
+        page = 0,
+        limit = 12,
+      } = params ?? {};
+      const res = await axiosInstance.get('/api/v1/exhibitions/viewed', {
+        params: { keyword, isBookmarked, sort, page, limit },
+      });
       return res.data.result;
     },
 };

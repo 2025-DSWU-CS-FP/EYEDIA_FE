@@ -10,8 +10,7 @@ import ExhibitionGrid from '@/components/gallery/ExhibitionGrid';
 import FilterButtons from '@/components/gallery/FilterButtons';
 import SortSelect from '@/components/gallery/SortSelect';
 import Header from '@/layouts/Header';
-import useExhibitionSuggest from '@/services/queries/useExhibitionSuggest';
-import type { ExhibitionSuggestItem } from '@/types/exhibition';
+import useExhibitionVisit from '@/services/queries/useExhibitionVisit';
 import s3ToHttp from '@/utils/url';
 
 const exhibitionsData = [
@@ -51,44 +50,65 @@ const exhibitionsData = [
 
 type GridItem = (typeof exhibitionsData)[number];
 
-const toGridItems = (items?: ExhibitionSuggestItem[]): GridItem[] =>
-  (items ?? []).map(i => ({
-    id: String(i.exhibitionId),
-    title: i.exhibitionTitle,
-    location: i.gallery,
-    imageUrl: s3ToHttp(i.exhibitionImage),
-    artworkCount: i.artCount,
-    date: '2010-01-01',
-  }));
+type VisitItem = {
+  exhibitionId: number;
+  exhibitionTitle: string;
+  gallery: string;
+  exhibitionImage: string;
+  artCount: number;
+  visitedAt?: string | null;
+  visitDate?: string | null;
+  createdAt?: string | null;
+  startAt?: string | null;
+};
+
+const toGridFromVisit = (items?: VisitItem[]): GridItem[] =>
+  (items ?? []).map(i => {
+    const rawDate =
+      i.visitedAt ?? i.visitDate ?? i.startAt ?? i.createdAt ?? '2010-01-01';
+    return {
+      id: String(i.exhibitionId),
+      title: i.exhibitionTitle,
+      location: i.gallery,
+      imageUrl: s3ToHttp(i.exhibitionImage ?? ''),
+      artworkCount: i.artCount,
+      date: rawDate,
+    };
+  });
 
 export default function GalleryPage() {
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState('전체');
+  const [filter, setFilter] = useState<'전체' | '즐겨찾기'>('전체');
   const [sort, setSort] = useState<'최신순' | '날짜순'>('최신순');
+
   const navigate = useNavigate();
   const handleSelect = (id: number | string) => navigate(`/gallery/${id}`);
+
   const [bootLoading, setBootLoading] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setBootLoading(false), 300);
     return () => clearTimeout(t);
   }, []);
 
-  const { data: suggest, isFetching } = useExhibitionSuggest(search, 20, true);
+  const q = search.trim();
+  const keyword = q || undefined;
+  const isBookmarked = filter === '즐겨찾기' ? true : undefined;
+  const sortParam: 'RECENT' | 'DATE' = sort === '최신순' ? 'RECENT' : 'DATE';
+
+  const { data: visitPage, isFetching: isVisitFetching } = useExhibitionVisit(
+    { keyword, isBookmarked, sort: sortParam, page: 0, limit: 24 },
+    true,
+  );
 
   const base: GridItem[] = useMemo(() => {
-    const q = search.trim();
-    if (!q) return exhibitionsData;
-    return toGridItems(suggest);
-  }, [search, suggest]);
-
-  const filtered = useMemo(() => {
-    if (filter === '전체') return base;
-    return base;
-  }, [base, filter]);
+    const visitItems = visitPage?.items as VisitItem[] | undefined;
+    const fromVisit = toGridFromVisit(visitItems);
+    return fromVisit.length > 0 ? fromVisit : exhibitionsData;
+  }, [visitPage]);
 
   const exhibitionsForGrid = useMemo(() => {
     const isPlaceholder = (d: string) => d === '2010-01-01';
-    return [...filtered].sort((a, b) => {
+    return [...base].sort((a, b) => {
       const aPh = isPlaceholder(a.date);
       const bPh = isPlaceholder(b.date);
       if (aPh !== bPh) return aPh ? 1 : -1;
@@ -96,9 +116,9 @@ export default function GalleryPage() {
       const db = new Date(b.date).getTime();
       return sort === '최신순' ? db - da : da - db;
     });
-  }, [filtered, sort]);
+  }, [base, sort]);
 
-  const isLoading = bootLoading || (search.trim().length > 0 && isFetching);
+  const isLoading = bootLoading || isVisitFetching;
 
   return (
     <main
@@ -110,6 +130,7 @@ export default function GalleryPage() {
         backgroundColorClass="bg-gray-5"
         showBackButton
       />
+
       <section className="flex flex-col gap-[1.6rem] px-[2.4rem]">
         <SearchBar value={search} onChange={setSearch} />
         <div className="flex items-center gap-2">

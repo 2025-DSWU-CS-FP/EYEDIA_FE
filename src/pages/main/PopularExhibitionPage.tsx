@@ -31,7 +31,7 @@ export default function PopularExhibitionPage() {
         id: String(item.exhibitionId),
         title: item.exhibitionTitle,
         location: item.gallery ?? '',
-        imageUrl: s3ToHttp(item.exhibitionImage),
+        imageUrl: s3ToHttp(item.exhibitionImage ?? ''),
         artworkCount: item.artCount ?? 0,
         date: '1970-01-01',
       })),
