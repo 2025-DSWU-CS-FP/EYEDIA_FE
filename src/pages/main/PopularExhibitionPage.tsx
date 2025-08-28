@@ -1,64 +1,44 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
-import popular1 from '@/assets/images/sample/main-popular1.png';
-import popular2 from '@/assets/images/sample/main-popular2.png';
-import popular3 from '@/assets/images/sample/main-popular3.png';
+import { useNavigate } from 'react-router-dom';
+
 import SearchBar from '@/components/common/SearchBar';
 import ExhibitionGrid from '@/components/gallery/ExhibitionGrid';
 import Header from '@/layouts/Header';
-
-const exhibitionsData = [
-  {
-    id: '1',
-    title: '요시고 사진전',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular1,
-    artworkCount: 9,
-    date: '2024-10-01',
-  },
-  {
-    id: '2',
-    title: '이경준 사진전 부산',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular2,
-    artworkCount: 5,
-    date: '2024-09-20',
-  },
-  {
-    id: '3',
-    title: '요시고 사진전',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular3,
-    artworkCount: 9,
-    date: '2024-09-25',
-  },
-  {
-    id: '4',
-    title: '이경준 사진전 부산',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular2,
-    artworkCount: 5,
-    date: '2024-08-30',
-  },
-];
+import usePopularExhibitions from '@/services/queries/usePopularExhibitions';
+import usePopularExhibitionsSuggest from '@/services/queries/usePopularExhibitionsSuggest';
+import s3ToHttp from '@/utils/url';
 
 export default function PopularExhibitionPage() {
   const [search, setSearch] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const keyword = search.trim() || undefined;
+  const hasKeyword = Boolean(keyword);
+  const navigate = useNavigate();
+  const handleSelect = (id: number | string) => navigate(`/popular/${id}`);
+  const { data: list, isFetching: isListFetching } = usePopularExhibitions(
+    { keyword: undefined, page: 0, limit: 24, sort: 'popular' },
+    !hasKeyword,
+  );
 
-  // TODO: React Query isLoading 사용
-  useEffect(() => {
-    const t = setTimeout(() => setIsLoading(false), 300);
-    return () => clearTimeout(t);
-  }, []);
+  const { data: suggest, isFetching: isSuggestFetching } =
+    usePopularExhibitionsSuggest(keyword, 24, hasKeyword);
 
-  const filtered = useMemo(() => {
-    const q = search.trim();
-    if (!q) return exhibitionsData;
-    return exhibitionsData.filter(
-      e => e.title.includes(q) || e.location.includes(q),
-    );
-  }, [search]);
+  const baseItems = hasKeyword ? suggest : list?.items;
+
+  const exhibitionsForGrid = useMemo(
+    () =>
+      (baseItems ?? []).map(item => ({
+        id: String(item.exhibitionId),
+        title: item.exhibitionTitle,
+        location: item.gallery ?? '',
+        imageUrl: s3ToHttp(item.exhibitionImage ?? ''),
+        artworkCount: item.artCount ?? 0,
+        date: '1970-01-01',
+      })),
+    [baseItems],
+  );
+
+  const isLoading = hasKeyword ? isSuggestFetching : isListFetching;
 
   return (
     <main
@@ -74,7 +54,11 @@ export default function PopularExhibitionPage() {
         <SearchBar value={search} onChange={setSearch} />
       </section>
 
-      <ExhibitionGrid exhibitions={filtered} isLoading={isLoading} />
+      <ExhibitionGrid
+        exhibitions={exhibitionsForGrid}
+        isLoading={isLoading}
+        onSelect={handleSelect}
+      />
     </main>
   );
 }

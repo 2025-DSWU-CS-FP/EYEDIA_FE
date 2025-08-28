@@ -18,6 +18,9 @@ const GazePage = lazy(() => import('@/pages/chat/GazePage'));
 const Artwork = lazy(() => import('@/pages/Artwork'));
 const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
+const PopularDetailPage = lazy(
+  () => import('@/pages/main/popular/PopularDetail'),
+);
 const HelpPage = lazy(() => import('@/pages/chat/HelpPage'));
 const ExhibitionDetailPage = lazy(() => import('@/pages/ExhibitionDetailPage'));
 const RecentViewedPage = lazy(() => import('@/pages/main/RecentViewedPage'));
@@ -31,6 +34,10 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'popular-exhibition',
     element: <PopularExhibitionPage />,
+  },
+  {
+    path: 'popular/:id',
+    element: <PopularDetailPage />,
   },
   {
     path: 'card',
