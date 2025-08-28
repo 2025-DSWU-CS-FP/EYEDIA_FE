@@ -1,8 +1,17 @@
-import { createContext, useContext, useState, useMemo, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  ReactNode,
+  useEffect,
+  useCallback,
+} from 'react';
 
 import { createPortal } from 'react-dom';
 
 import Toast from '@/components/common/Toast';
+import { registerToast } from '@/utils/toastBus';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -29,16 +38,25 @@ export function useToast() {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const showToast = (message: string, type: ToastType = 'success') => {
-    const id = Date.now();
-    setToasts(prev => [...prev, { id, type, message }]);
+  const showToast = useCallback(
+    (message: string, type: ToastType = 'success') => {
+      const id = Date.now();
+      setToasts(prev => [...prev, { id, type, message }]);
 
-    setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, 3000);
-  };
+      setTimeout(() => {
+        setToasts(prev => prev.filter(toast => toast.id !== id));
+      }, 3000);
+    },
+    [],
+  );
 
-  const contextValue = useMemo(() => ({ showToast }), []);
+  const contextValue = useMemo(() => ({ showToast }), [showToast]);
+
+  useEffect(() => {
+    registerToast((msg, type) =>
+      showToast(msg, (type as ToastType) ?? 'error'),
+    );
+  }, [showToast]);
 
   return (
     <ToastContext.Provider value={contextValue}>
