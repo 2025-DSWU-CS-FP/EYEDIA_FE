@@ -52,7 +52,7 @@ export default function PopularExhibitionSection({
                 imageUrl={exh.imageUrl}
                 imageClassName="min-w-[15rem]"
                 isLoading={false}
-                onClick={onSelect} // ⬅️ 그대로 전달
+                onClick={onSelect}
               />
             ))}
       </div>
