@@ -37,6 +37,29 @@ const pickBool = (
   rec: Record<string, unknown> | undefined,
   keys: readonly string[],
 ) => keys.map(k => rec?.[k]).find((v): v is boolean => typeof v === 'boolean');
+type SegmenterCtor = new (
+  locale?: string,
+  options?: { granularity?: 'grapheme' | 'word' | 'sentence' },
+) => { segment(input: string): Iterable<unknown> };
+
+export const countGraphemes = (s: string): number => {
+  if (!s) return 0;
+
+  try {
+    const { Segmenter } = Intl as unknown as { Segmenter?: SegmenterCtor };
+
+    if (typeof Segmenter === 'function') {
+      const seg = new Segmenter('ko', { granularity: 'grapheme' });
+      return Array.from(seg.segment(s)).length;
+    }
+  } catch {
+    /*  */
+  }
+
+  return Array.from(s).length;
+};
+
+const TITLE_COMPACT_THRESHOLD = 42;
 
 export default function GalleryDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -132,7 +155,10 @@ export default function GalleryDetailPage() {
       lastDate: exhibitionInfo.lastDate,
     };
   }, [rec]);
-
+  const compactTitle = useMemo(
+    () => countGraphemes(info.title) > TITLE_COMPACT_THRESHOLD,
+    [info.title],
+  );
   const infoNode = useMemo(() => {
     if (loading) {
       return (
@@ -155,9 +181,18 @@ export default function GalleryDetailPage() {
         lastDate={info.lastDate}
         isBookmarked={bookmarked}
         onBookmarkToggle={handleBookmarkToggle}
+        compactTitle={compactTitle}
       />
     );
-  }, [loading, isError, detail, info, bookmarked, handleBookmarkToggle]);
+  }, [
+    loading,
+    isError,
+    detail,
+    info,
+    compactTitle,
+    bookmarked,
+    handleBookmarkToggle,
+  ]);
 
   return (
     <div className="pb-[4rem]">
