@@ -14,7 +14,7 @@ export default function SearchBar({
   return (
     <div className="flex items-center justify-between rounded-[8px] bg-white px-[2rem] py-[1rem] shadow-sm">
       <input
-        className="flex-1 bg-transparent text-ct3 text-gray-60 outline-none placeholder:text-gray-60"
+        className="flex-1 bg-transparent text-gray-60 outline-none ct3 placeholder:text-gray-60"
         placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}

@@ -131,7 +131,7 @@ export default function ChatMessage({
   return (
     <div
       ref={containerRef}
-      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] text-bd3 ${
+      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
         isFromUser
           ? 'self-end bg-brand-blue text-gray-0'
           : 'bg-gray-0 text-gray-90'

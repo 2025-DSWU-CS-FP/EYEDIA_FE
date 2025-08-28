@@ -76,7 +76,7 @@ export default function SignupPage() {
       <div className="flex flex-1 flex-col justify-between px-[2.5rem] pb-[2.5rem]">
         <div className="flex flex-col gap-[2rem] pt-[3rem]">
           <div className="mb-8 w-full">
-            <h2 className="flex flex-col gap-[0.4rem] text-t3 font-medium text-gray-80">
+            <h2 className="flex flex-col gap-[0.4rem] font-medium text-gray-80 t3">
               <span>Eyedia와 함께</span>
               <span>전시 경험을 높여보세요.</span>
             </h2>
@@ -204,7 +204,7 @@ export default function SignupPage() {
               />
               {genderError && (
                 <p
-                  className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-ct5 text-red-500"
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-red-500 ct5"
                   aria-live="polite"
                 >
                   {genderError}

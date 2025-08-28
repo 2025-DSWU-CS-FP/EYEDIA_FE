@@ -53,7 +53,7 @@ export default function CustomSelect({
       <button
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
-        className="flex w-full items-center justify-between rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-left text-bd2 text-gray-30 focus:border-brand-blue focus:text-gray-80 focus:outline-none"
+        className="flex w-full items-center justify-between rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-left text-gray-30 bd2 focus:border-brand-blue focus:text-gray-80 focus:outline-none"
       >
         {selectedLabel || placeholder}
         <IoChevronDown
@@ -69,7 +69,7 @@ export default function CustomSelect({
               type="button"
               key={option.value}
               onClick={() => handleSelect(option)}
-              className="cursor-pointer px-[1.6rem] py-[1.2rem] text-left text-bd2 text-gray-60 hover:bg-gray-5"
+              className="cursor-pointer px-[1.6rem] py-[1.2rem] text-left text-gray-60 bd2 hover:bg-gray-5"
             >
               {option.label}
             </button>

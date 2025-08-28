@@ -278,7 +278,7 @@ export default function ArtworkPage() {
       {/* 상단 고정 헤더 (확장 시) */}
       {isExpanded && (
         <header className="fixed left-1/2 top-0 z-30 w-full max-w-[430px] -translate-x-1/2 border-b-2 border-gray-10 bg-gray-5 px-4 py-4">
-          <div className="flex justify-between px-5 pb-[1rem] text-[24px] text-t2">
+          <div className="flex justify-between px-5 pb-[1rem] text-[24px] t2">
             <button
               onClick={() => navigate('/chat-gaze')}
               type="button"
@@ -289,7 +289,7 @@ export default function ArtworkPage() {
             </button>
             <button
               type="button"
-              className="text-t2 hover:text-gray-100/80"
+              className="t2 hover:text-gray-100/80"
               aria-label="메뉴"
             >
               <FiMenu />
@@ -297,8 +297,8 @@ export default function ArtworkPage() {
           </div>
           <div className="mx-7 mt-4 flex max-w-[100%] items-end justify-between">
             <div className="flex flex-col gap-[0.3rem]">
-              <h1 className="text-t5">발레 수업</h1>
-              <p className="text-ct5 text-gray-70">에드가 드가</p>
+              <h1 className="t5">발레 수업</h1>
+              <p className="text-gray-70 ct5">에드가 드가</p>
             </div>
             <div className="flex gap-[0.8rem]">
               <RoundedIconButton size="lg" icon={<FiHeart />} />
@@ -319,10 +319,10 @@ export default function ArtworkPage() {
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="text-t1 font-normal">발레 수업</h1>
-                    <p className="text-ct4 text-gray-70">에드가 드가</p>
+                    <h1 className="font-normal t1">발레 수업</h1>
+                    <p className="text-gray-70 ct4">에드가 드가</p>
                   </div>
-                  <p className="text-ct4 text-gray-50">한이음 전시회</p>
+                  <p className="text-gray-50 ct4">한이음 전시회</p>
                 </div>
                 <Divider />
               </div>
@@ -407,7 +407,7 @@ export default function ArtworkPage() {
             )}
           </div>
 
-          <p className="relative z-10 mt-6 text-bd2 text-gray-70">
+          <p className="relative z-10 mt-6 text-gray-70 bd2">
             {getPromptText()}
           </p>
 

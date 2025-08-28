@@ -20,8 +20,8 @@ function HelpPage() {
         />
         <div className="flex w-full max-w-[38rem] flex-col gap-[3.2rem] rounded-[15px] px-[2.4rem]">
           <div className="flex flex-col gap-[1rem] text-center">
-            <span className="text-t4">아이웨어 연결이 되지 않나요?</span>
-            <span className="text-ct1">아래 내용을 확인해보세요.</span>
+            <span className="t4">아이웨어 연결이 되지 않나요?</span>
+            <span className="ct1">아래 내용을 확인해보세요.</span>
           </div>
           <ul className="list-inside list-disc space-y-2 text-left text-[1.4rem]">
             <li>블루투스가 켜져 있는지 확인해주세요.</li>

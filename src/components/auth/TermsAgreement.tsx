@@ -37,7 +37,7 @@ export default function TermsAgreement({
               : 'mr-3 text-3xl text-gray-30'
           }
         />
-        <span className="text-bd2 text-gray-80">서비스 약관 전체 동의</span>
+        <span className="text-gray-80 bd2">서비스 약관 전체 동의</span>
       </button>
 
       <hr className="border-gray-10" />
@@ -55,7 +55,7 @@ export default function TermsAgreement({
                 : 'mr-3 text-3xl text-gray-30'
             }
           />
-          <span className="text-bd2 text-gray-80">
+          <span className="text-gray-80 bd2">
             [필수] 이용약관 및 개인정보 처리방침
           </span>
         </button>
@@ -63,7 +63,7 @@ export default function TermsAgreement({
         <button
           type="button"
           onClick={() => setOpenCookie(true)}
-          className="text-ct4 font-semibold text-brand-blue underline"
+          className="font-semibold text-brand-blue underline ct4"
         >
           자세히
         </button>
@@ -82,9 +82,7 @@ export default function TermsAgreement({
                 : 'mr-3 text-3xl text-gray-30'
             }
           />
-          <span className="text-bd2 text-gray-80">
-            [필수] 만 14세 이상입니다.
-          </span>
+          <span className="text-gray-80 bd2">[필수] 만 14세 이상입니다.</span>
         </button>
       </div>
 

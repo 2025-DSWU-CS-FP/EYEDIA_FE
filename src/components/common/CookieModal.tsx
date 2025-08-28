@@ -32,11 +32,11 @@ export default function CookieModal({ onClose }: CookieModalProps) {
           className="absolute left-1/2 top-0 h-[4.6rem] w-[6.5rem] -translate-x-1/2 -translate-y-1/2"
         />
 
-        <h2 id="cookie-title" className="text-bd1 font-semibold text-gray-90">
+        <h2 id="cookie-title" className="font-semibold text-gray-90 bd1">
           쿠키 사용 안내
         </h2>
 
-        <p className="text-ct4 leading-[1.6] text-gray-70">
+        <p className="leading-[1.6] text-gray-70 ct4">
           EYEDIA는 서비스 기능 제공, 이용 통계 분석 및 맞춤형 콘텐츠 제공을 위해
           쿠키(필수/선택)를 사용합니다. 자세한 내용은{' '}
           <Link
@@ -60,14 +60,14 @@ export default function CookieModal({ onClose }: CookieModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-[8px] px-[1.2rem] py-[0.8rem] text-ct4 font-semibold text-gray-60 hover:bg-gray-5"
+              className="rounded-[8px] px-[1.2rem] py-[0.8rem] font-semibold text-gray-60 ct4 hover:bg-gray-5"
             >
               닫기
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-[8px] bg-brand-blue px-[1.6rem] py-[0.8rem] text-ct4 font-semibold text-white hover:bg-brand-blue/90"
+              className="rounded-[8px] bg-brand-blue px-[1.6rem] py-[0.8rem] font-semibold text-white ct4 hover:bg-brand-blue/90"
             >
               동의하고 계속
             </button>

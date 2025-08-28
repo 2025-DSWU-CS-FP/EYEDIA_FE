@@ -8,14 +8,14 @@ export default function Footer() {
       <div className="flex flex-col gap-[0.8rem]">
         <div className="flex items-center gap-[0.8rem]">
           <Logo className="w-[4.8rem] text-gray-50" />
-          <span className="text-t3 font-bold text-gray-50">EYEDIA</span>
+          <span className="font-bold text-gray-50 t3">EYEDIA</span>
         </div>
-        <p className="text-ct4 text-gray-50">eyedia2025@gmail.com</p>
+        <p className="text-gray-50 ct4">eyedia2025@gmail.com</p>
       </div>
 
       <div className="flex flex-col pb-[3rem]">
         <nav aria-label="legal" className="mb-[0.6rem]">
-          <ul className="flex gap-[0.8rem] text-ct5 font-semibold">
+          <ul className="flex gap-[0.8rem] font-semibold ct5">
             <li>
               <Link
                 to="/privacy"
@@ -35,9 +35,7 @@ export default function Footer() {
           </ul>
         </nav>
 
-        <p className="text-ct4 text-gray-50">
-          © 2025 EYEDIA. All rights reserved.
-        </p>
+        <p className="text-gray-50 ct4">© 2025 EYEDIA. All rights reserved.</p>
       </div>
     </footer>
   );

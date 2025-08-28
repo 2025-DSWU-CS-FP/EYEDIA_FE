@@ -43,7 +43,7 @@ export default function PopularDetailPage() {
     }
     if (showError) {
       return (
-        <p className="text-ct4 text-red-500" role="alert">
+        <p className="text-red-500 ct4" role="alert">
           전시 정보를 불러오지 못했어요.
         </p>
       );

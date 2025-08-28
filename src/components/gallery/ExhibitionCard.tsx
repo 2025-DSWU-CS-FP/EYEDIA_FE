@@ -72,9 +72,9 @@ export default function ExhibitionCard({
           } ${showSkeleton ? 'pointer-events-none opacity-0' : 'opacity-100'} `}
         >
           <div className="flex h-full flex-col justify-between p-[2rem] text-left opacity-0 transition-opacity duration-200 ease-in-out group-hover:opacity-100">
-            <p className="text-ct1 text-gray-0">{title}</p>
+            <p className="text-gray-0 ct1">{title}</p>
             {showArrow && (
-              <p className="text-ct3 font-bold text-gray-0">{subTitle}</p>
+              <p className="font-bold text-gray-0 ct3">{subTitle}</p>
             )}
           </div>
         </div>

@@ -12,7 +12,7 @@ export default function FilterButtons({
   const isAll = filter === '전체';
   const isBookmarked = filter === '즐겨찾기';
 
-  const base = 'rounded-[6px] px-[1.2rem] py-[0.8rem] text-ct3';
+  const base = 'rounded-[6px] px-[1.2rem] py-[0.8rem] ct3';
   const active = 'bg-gray-90 text-white';
   const inactive = 'bg-gray-0 text-gray-60';
 

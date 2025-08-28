@@ -65,8 +65,8 @@ function EmptyState() {
   return (
     <div className="col-span-2 flex flex-col items-center gap-[1.2rem] rounded-[8px] bg-white p-[2rem] text-center shadow-sm">
       <IoMedalOutline className="h-[3.2rem] w-[3.2rem] text-gray-40" />
-      <p className="text-ct2 text-gray-80">아직 해당 뱃지가 없어요</p>
-      <p className="text-ct4 text-gray-60">전시를 감상하거나 수집해 보세요.</p>
+      <p className="text-gray-80 ct2">아직 해당 뱃지가 없어요</p>
+      <p className="text-gray-60 ct4">전시를 감상하거나 수집해 보세요.</p>
     </div>
   );
 }
@@ -114,14 +114,14 @@ export default function MyBadgePage() {
               <IoMedalOutline className="h-[2.4rem] w-[2.4rem] text-brand-mint" />
             </div>
             <div className="flex flex-col">
-              <p className="text-ct3 text-gray-60">획득한 뱃지</p>
-              <p className="text-t3 text-gray-90">
+              <p className="text-gray-60 ct3">획득한 뱃지</p>
+              <p className="text-gray-90 t3">
                 <span className="text-brand-mint">{earnedCount}</span> /{' '}
                 {totalCount}
               </p>
             </div>
           </div>
-          <p className="text-ct3 text-gray-60">
+          <p className="text-gray-60 ct3">
             다음 목표: <span className="text-gray-80">연속 3일</span>
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function MyBadgePage() {
                 onClick={() => setTab(t.key)}
                 aria-pressed={tab === t.key}
                 className={[
-                  'rounded-[6px] px-[1.2rem] py-[0.6rem] text-ct3',
+                  'rounded-[6px] px-[1.2rem] py-[0.6rem] ct3',
                   tab === t.key
                     ? 'bg-gray-90 text-white'
                     : 'bg-gray-10 text-gray-70 hover:bg-gray-20/50',

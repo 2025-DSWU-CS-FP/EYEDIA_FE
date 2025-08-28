@@ -39,15 +39,13 @@ function GazePage() {
         <div className="w-[30.7rem] space-y-[2.2rem]">
           <div className="mx-auto flex flex-col justify-between gap-[0.4rem]">
             {trackingComplete ? (
-              <div className="text-ct2 font-medium text-brand-blue">
+              <div className="font-medium text-brand-blue ct2">
                 시선추적 성공!
               </div>
             ) : (
-              <div className="text-ct2 font-medium text-gray-60">
-                시선추적중...
-              </div>
+              <div className="font-medium text-gray-60 ct2">시선추적중...</div>
             )}
-            <div className="mt-2 whitespace-pre-line text-t3 text-gray-100">
+            <div className="mt-2 whitespace-pre-line text-gray-100 t3">
               {trackingComplete
                 ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
                 : '궁금한 작품을\n2초 이상 응시하세요.'}
@@ -64,10 +62,8 @@ function GazePage() {
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
                 {trackingComplete && (
                   <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
-                    <div className="text-t3 text-white">
-                      {artworkInfo.title}
-                    </div>
-                    <div className="text-ct4 text-white/80">
+                    <div className="text-white t3">{artworkInfo.title}</div>
+                    <div className="text-white/80 ct4">
                       {artworkInfo.artist}
                     </div>
                   </div>
@@ -90,7 +86,7 @@ function GazePage() {
           <Button
             type="button"
             onClick={handleStartConversation}
-            className="mt-[3rem] text-bt2"
+            className="mt-[3rem] bt2"
           >
             대화 시작하기
           </Button>

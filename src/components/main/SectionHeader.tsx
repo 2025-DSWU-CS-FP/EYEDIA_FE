@@ -11,7 +11,7 @@ export default function SectionHeader({
       {showMore && (
         <button
           type="button"
-          className="cursor-pointer text-bd2 text-gray-40"
+          className="cursor-pointer text-gray-40 bd2"
           onClick={onMoreClick}
         >
           더보기

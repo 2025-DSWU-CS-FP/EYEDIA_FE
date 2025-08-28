@@ -42,8 +42,8 @@ export default function PasswordVerification({ onSuccess }: Props) {
           className="w-[12.5rem]"
         />
         <div className="flex flex-col items-center gap-[0.8rem] text-gray-100">
-          <span className="text-t3">비밀번호를 입력해주세요</span>
-          <span className="text-bd2">
+          <span className="t3">비밀번호를 입력해주세요</span>
+          <span className="bd2">
             개인정보 보호를 위해 비밀번호 확인이 필요합니다.
           </span>
         </div>
@@ -55,7 +55,7 @@ export default function PasswordVerification({ onSuccess }: Props) {
           onChange={e => setPassword(e.target.value)}
           errorMessage={error}
         />
-        <Button className="text-bt1" onClick={handleVerify}>
+        <Button className="bt1" onClick={handleVerify}>
           다음
         </Button>
       </div>

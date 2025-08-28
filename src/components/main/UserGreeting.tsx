@@ -10,10 +10,8 @@ export default function UserGreeting({
     <div className="flex flex-col gap-[2rem]">
       <div className="flex w-full items-center justify-between pr-[2.7rem]">
         <div className="inline-flex flex-col items-start justify-center gap-2">
-          <div className="justify-start text-ct1 text-brand-mint">
-            {userName}님
-          </div>
-          <div className="justify-start self-stretch text-t2 text-gray-90">
+          <div className="justify-start text-brand-mint ct1">{userName}님</div>
+          <div className="justify-start self-stretch text-gray-90 t2">
             이번 달 {viewCount}회 감상,
             <br />
             전시의 달인이시네요.
