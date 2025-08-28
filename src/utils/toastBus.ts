@@ -1,4 +1,4 @@
-export type ToastType = 'success' | 'error' | 'info' | 'warning';
+export type ToastType = 'success' | 'error' | 'info';
 type ToastFn = (message: string, type?: ToastType) => void;
 
 let handler: ToastFn | null = null;
