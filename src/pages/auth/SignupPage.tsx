@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import CustomSelect, { SelectOption } from '@/components/auth/CustomSelect';
+import CustomSelect from '@/components/auth/CustomSelect';
 import SignupSuccess from '@/components/auth/SignupSuccess';
 import StepPreference from '@/components/auth/StepPreference';
 import TermsAgreement from '@/components/auth/TermsAgreement';
@@ -8,92 +8,63 @@ import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
+import useSignupForm from '@/hooks/useSignupForm';
 import Header from '@/layouts/Header';
 import useSignup from '@/services/mutations/useSignup';
+import { isGenderStrict } from '@/types';
 
 export default function SignupPage() {
-  const [id, setId] = useState('');
-  const [pw, setPw] = useState('');
-  const [pwConfirm, setPwConfirm] = useState('');
-  const [name, setName] = useState('');
-  const [age, setAge] = useState<number | ''>('');
-  const [gender, setGender] = useState<'' | 'MALE' | 'FEMALE'>('');
+  const {
+    id,
+    pw,
+    pwConfirm,
+    name,
+    age,
+    gender,
+    terms,
+    idError,
+    pwError,
+    pwConfirmError,
+    nameError,
+    ageError,
+    genderError,
+    canSubmit,
+    genderOptions,
+    onChangeId,
+    onChangePw,
+    onChangePwConfirm,
+    onChangeName,
+    onChangeAgeText,
+    onChangeGender,
+    onAllToggle,
+    onToggle,
+  } = useSignupForm();
+
   const [isSignupComplete, setIsSignupComplete] = useState(false);
   const [showPreference, setShowPreference] = useState(false);
-  const [terms, setTerms] = useState({
-    all: false,
-    privacy: false,
-    age: false,
-    marketing: false,
-  });
 
   const { showToast } = useToast();
-
-  const handleAllTerms = () => {
-    const allChecked = !terms.all;
-    setTerms({
-      all: allChecked,
-      privacy: allChecked,
-      age: allChecked,
-      marketing: allChecked,
-    });
-  };
-
-  const handleToggleTerm = (key: keyof typeof terms) => {
-    setTerms(prev => {
-      const newTerms = {
-        ...prev,
-        [key]: !prev[key],
-      };
-
-      if (key !== 'all') {
-        newTerms.all = newTerms.privacy && newTerms.age && newTerms.marketing;
-      }
-
-      return newTerms;
-    });
-  };
-
-  const genderOptions: SelectOption[] = [
-    { label: '여성', value: 'FEMALE' },
-    { label: '남성', value: 'MALE' },
-  ];
-
   const signupMutation = useSignup();
 
-  const handlePwValidation = () => {
-    if (pw && pwConfirm && pw !== pwConfirm) {
-      showToast('비밀번호가 일치하지 않습니다.', 'error');
-    }
-  };
-
   const handleSignup = () => {
-    if (
-      !id ||
-      !pw ||
-      pw !== pwConfirm ||
-      !name ||
-      !age ||
-      !terms.privacy ||
-      !terms.age ||
-      !gender
-    ) {
-      showToast('필수 항목을 모두 입력하고 확인해주세요.', 'error');
-      return;
-    }
+    if (!canSubmit || !isGenderStrict(gender)) return;
     signupMutation.mutate(
       { id, pw, name, age: Number(age), gender },
       {
-        onSuccess: () => {
-          setShowPreference(true);
-        },
-        onError: () => showToast('회원가입 실패', 'error'),
+        onSuccess: () => setShowPreference(true),
+        onError: () =>
+          showToast(
+            '회원가입에 실패했어요. 잠시 후 다시 시도해 주세요.',
+            'error',
+          ),
       },
     );
   };
+
   if (isSignupComplete) return <SignupSuccess name={name} />;
   if (showPreference)
     return <StepPreference onComplete={() => setIsSignupComplete(true)} />;
+
   return (
     <div className="flex min-h-screen flex-col bg-gray-5">
       <Header
@@ -111,63 +82,150 @@ export default function SignupPage() {
             </h2>
           </div>
 
-          <div className="w-full space-y-4">
-            <TextInput
-              placeholder="아이디"
-              value={id}
-              onChange={e => setId(e.target.value)}
-            />
-            <PasswordInput
-              placeholder="비밀번호"
-              value={pw}
-              onChange={e => setPw(e.target.value)}
-              onBlur={handlePwValidation}
-            />
-            <PasswordInput
-              placeholder="비밀번호 확인"
-              value={pwConfirm}
-              onChange={e => setPwConfirm(e.target.value)}
-              onBlur={handlePwValidation}
-            />
-            <TextInput
-              placeholder="이름"
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
-            <TextInput
-              placeholder="나이"
-              type="number"
-              value={age}
-              onChange={e =>
-                setAge(e.target.value ? Number(e.target.value) : '')
-              }
-            />
-            <CustomSelect
-              value={gender}
-              onChange={val => setGender(val as 'MALE' | 'FEMALE')}
-              options={genderOptions}
-              placeholder="성별"
-              className="mt-4"
-            />
-          </div>
+          <form
+            className="w-full space-y-[2.5rem]"
+            onSubmit={e => e.preventDefault()}
+          >
+            <div className="relative">
+              <TextInput
+                placeholder="아이디"
+                value={id}
+                onChange={e => onChangeId(e.target.value)}
+                aria-invalid={!!idError}
+              />
+              {idError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                  aria-live="polite"
+                >
+                  {idError}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <PasswordInput
+                placeholder="비밀번호 (8자 이상)"
+                value={pw}
+                onChange={e => onChangePw(e.target.value)}
+                aria-invalid={!!pwError}
+              />
+              {pwError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                  aria-live="polite"
+                >
+                  {pwError}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <PasswordInput
+                placeholder="비밀번호 확인"
+                value={pwConfirm}
+                onChange={e => onChangePwConfirm(e.target.value)}
+                aria-invalid={!!pwConfirmError}
+              />
+              {pwConfirmError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                  aria-live="polite"
+                >
+                  {pwConfirmError}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <TextInput
+                placeholder="이름"
+                value={name}
+                onChange={e => onChangeName(e.target.value)}
+                aria-invalid={!!nameError}
+              />
+              {nameError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                  aria-live="polite"
+                >
+                  {nameError}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <TextInput
+                placeholder="나이"
+                type="text"
+                inputMode="numeric"
+                pattern="\d*"
+                maxLength={3}
+                value={age === '' ? '' : String(age)}
+                onChange={e => onChangeAgeText(e.target.value)}
+                onKeyDown={e => {
+                  if (e.nativeEvent?.isComposing) return;
+                  const allow = [
+                    'Backspace',
+                    'Delete',
+                    'Tab',
+                    'ArrowLeft',
+                    'ArrowRight',
+                    'Home',
+                    'End',
+                  ];
+                  if (allow.includes(e.key)) return;
+                  if (!/^\d$/.test(e.key)) e.preventDefault();
+                }}
+                onPaste={e => {
+                  const text = e.clipboardData.getData('text');
+                  if (!/^\d+$/.test(text)) e.preventDefault();
+                }}
+                aria-invalid={!!ageError}
+              />
+              {ageError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-red-500 ct4"
+                  aria-live="polite"
+                >
+                  {ageError}
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <CustomSelect
+                value={gender}
+                onChange={val => onChangeGender(val as 'MALE' | 'FEMALE')}
+                options={genderOptions}
+                placeholder="성별"
+                className="mt-4"
+                aria-invalid={!!genderError}
+              />
+              {genderError && (
+                <p
+                  className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-ct5 text-red-500"
+                  aria-live="polite"
+                >
+                  {genderError}
+                </p>
+              )}
+            </div>
+          </form>
         </div>
 
         <div>
           <TermsAgreement
             terms={terms}
-            onAllToggle={handleAllTerms}
-            onToggle={handleToggleTerm}
+            onAllToggle={onAllToggle}
+            onToggle={onToggle}
           />
 
           <div className="mt-8 w-full">
             <Button
               onClick={handleSignup}
-              className={`w-full py-[1.2rem] text-white ${
-                !terms.privacy || !terms.age
-                  ? 'cursor-not-allowed bg-gray-30'
-                  : 'bg-brand-blue hover:bg-brand-blue/80'
-              }`}
-              disabled={!terms.privacy || !terms.age}
+              className={`w-full py-[1.2rem] text-white ${!canSubmit ? 'bg-gray-30' : 'bg-brand-blue hover:bg-brand-blue/80'}`}
+              disabled={!canSubmit}
             >
               회원가입
             </Button>
