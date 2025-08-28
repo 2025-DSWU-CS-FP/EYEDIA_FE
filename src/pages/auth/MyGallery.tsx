@@ -24,20 +24,22 @@ const galleryItems: GalleryItem[] = [
 
 export default function MyGalleryPage() {
   return (
-    <div className="flex w-full flex-col">
+    <main className="flex w-full flex-col">
       <Header
         title="수집한 전시"
         showBackButton
         backgroundColorClass="bg-gray-5"
       />
 
-      <div className="relative flex flex-col items-center justify-center bg-gradient-to-b py-[4rem]">
+      <section className="relative mx-auto w-full max-w-[43rem] overflow-hidden py-[4rem]">
         <Swiper
           effect="coverflow"
           grabCursor
           centeredSlides
           slidesPerView="auto"
           loop
+          loopAdditionalSlides={galleryItems.length}
+          spaceBetween={8}
           coverflowEffect={{
             rotate: 45,
             stretch: 0,
@@ -46,27 +48,24 @@ export default function MyGalleryPage() {
             slideShadows: false,
           }}
           modules={[EffectCoverflow]}
-          className="relative z-10 w-full"
+          className="relative z-10 w-full !overflow-visible px-[3rem]"
         >
           {galleryItems.map(item => (
-            <SwiperSlide
-              key={item.id}
-              className="w-[24rem] p-[4rem] opacity-90 transition-opacity hover:opacity-100"
-            >
-              <div className="flex flex-col items-center overflow-hidden rounded-[8px] bg-white/60 shadow-lg backdrop-blur-md">
+            <SwiperSlide key={item.id} className="!w-[18rem]">
+              <figure className="w-full overflow-hidden rounded-[8px] bg-white/60 shadow-lg backdrop-blur-md">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="h-[32rem] w-full object-cover"
+                  className="h-[24rem] w-full object-cover"
                 />
-                <p className="py-[1rem] text-center text-[1.4rem] font-medium text-gray-90">
+                <figcaption className="py-[1rem] text-center text-[1.4rem] font-medium text-gray-90">
                   {item.title}
-                </p>
-              </div>
+                </figcaption>
+              </figure>
             </SwiperSlide>
           ))}
         </Swiper>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
