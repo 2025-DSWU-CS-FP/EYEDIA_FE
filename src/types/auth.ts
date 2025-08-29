@@ -4,7 +4,10 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  accessToken: string;
+  token: string;
+  firstLogin: boolean;
+  monthlyVisitCount: number;
+  name: string;
 }
 
 export interface SignupRequest {
