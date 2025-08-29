@@ -92,7 +92,7 @@ export default function LoginPage() {
             animationData={logoLottie}
             className="w-[12.5rem]"
           />
-          <span className="text-t2 font-bold text-gray-50">EYEDIA</span>
+          <span className="font-bold text-gray-50 t2">EYEDIA</span>
         </div>
 
         <div className="w-full space-y-[1rem] text-gray-80 placeholder-gray-30">
@@ -101,20 +101,20 @@ export default function LoginPage() {
             value={id}
             onChange={e => setId(e.target.value)}
             errorMessage={idError}
-            className="text-ct3"
+            className="ct3"
           />
           <PasswordInput
             placeholder="비밀번호"
             value={pw}
             onChange={e => setPw(e.target.value)}
             errorMessage={pwError}
-            className="text-ct3"
+            className="ct3"
           />
         </div>
 
         <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
           <Button onClick={handleLogin}>로그인</Button>
-          <div className="flex items-center justify-center space-x-3 text-ct4 text-gray-70">
+          <div className="flex items-center justify-center space-x-3 text-gray-70 ct4">
             <button type="button">아이디 찾기</button>
             <span className="h-3.5 w-px bg-gray-300" />
             <button type="button">비밀번호 찾기</button>

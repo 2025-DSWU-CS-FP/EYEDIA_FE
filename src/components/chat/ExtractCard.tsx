@@ -232,7 +232,7 @@ export default function ExtractCard({
               crossOrigin="anonymous"
               className="h-[3rem] w-[3rem]"
             />
-            <span className="text-t4 font-bold text-gray-0">EYEDIA</span>
+            <span className="font-bold text-gray-0 t4">EYEDIA</span>
           </div>
 
           <div className="absolute bottom-28 left-6 right-6 top-0 flex items-center">

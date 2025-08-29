@@ -70,7 +70,7 @@ export default function KeywordList({
               onSelect?.(kw.id);
             }}
             className={[
-              'flex items-center justify-center gap-2.5 rounded-[4px] px-[1.2rem] py-[0.8rem] text-ct3 transition-colors',
+              'flex items-center justify-center gap-2.5 rounded-[4px] px-[1.2rem] py-[0.8rem] transition-colors ct3',
               isLoading ? '' : 'cursor-pointer',
               isSelected ? 'bg-gray-80 text-gray-0' : 'bg-gray-0 text-gray-60',
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-40',

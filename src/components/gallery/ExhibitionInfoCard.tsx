@@ -27,6 +27,7 @@ export default function ExhibitionInfoCard({
   icon = galleryInfoIcon,
   compactTitle = false,
 }: ExhibitionInfoCardProps) {
+  const displayDate = lastDate.match(/^\d{4}-\d{2}-\d{2}/)?.[0] ?? lastDate;
   return (
     <section className="flex flex-col gap-[1.6rem]">
       <header className="flex items-center justify-between">
@@ -44,7 +45,7 @@ export default function ExhibitionInfoCard({
             >
               {title}
             </h2>
-            <p className="text-ct3 text-gray-50">{location}</p>
+            <p className="text-gray-50 ct3">{location}</p>
           </div>
         </div>
 
@@ -67,12 +68,12 @@ export default function ExhibitionInfoCard({
       <div className="relative w-full">
         <div className="absolute -top-[0.6rem] left-[2rem] z-[1] h-0 w-0 border-x-[0.6rem] border-b-[0.6rem] border-x-transparent border-b-white" />
         <div className="relative z-[0] w-full rounded-[8px] bg-white px-[2rem] py-[1.6rem] shadow-sm">
-          <p className="text-ct2 text-gray-80">
+          <p className="text-gray-80 ct2">
             <span>총 </span>
             <span className="font-bold text-[#3DAF9C]">{totalCount}</span>
             개의 작품을 수집하고,
             <br />
-            <span className="font-bold text-[#769DFF]">{lastDate}</span>에
+            <span className="font-bold text-[#769DFF]">{displayDate}</span>에
             마지막으로 감상했어요.
           </p>
           <div className="absolute right-[1.2rem] top-1/2 h-[3.6rem] w-[3.6rem] -translate-y-1/2 overflow-hidden rounded-[6px]">

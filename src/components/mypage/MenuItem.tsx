@@ -12,8 +12,8 @@ export default function MenuItem({ label, onClick }: MenuItemProps) {
       onClick={onClick}
       className="flex w-full items-center justify-between"
     >
-      <span className="text-t5 font-semibold text-gray-80">{label}</span>
-      <IoChevronForward className="text-t3 text-gray-80" />
+      <span className="font-semibold text-gray-80 t5">{label}</span>
+      <IoChevronForward className="text-gray-80 t3" />
     </button>
   );
 }

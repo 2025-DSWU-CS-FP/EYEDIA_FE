@@ -1,4 +1,8 @@
+import { useState } from 'react';
+
 import { MdCheckCircle, MdDone } from 'react-icons/md';
+
+import CookieModal from '@/components/common/CookieModal';
 
 interface Terms {
   all: boolean;
@@ -6,7 +10,6 @@ interface Terms {
   age: boolean;
   marketing: boolean;
 }
-
 interface TermsAgreementProps {
   terms: Terms;
   onAllToggle: () => void;
@@ -18,75 +21,86 @@ export default function TermsAgreement({
   onAllToggle,
   onToggle,
 }: TermsAgreementProps) {
+  const [openCookie, setOpenCookie] = useState(false);
+
   return (
-    <div className="mt-12 w-full space-y-5 rounded-lg p-6">
-      <div className="flex cursor-pointer items-center">
-        <button
-          type="button"
-          onClick={onAllToggle}
-          className="mr-3 cursor-pointer text-3xl text-gray-30"
-        >
-          <MdCheckCircle
-            className={terms.all ? 'text-brand-blue' : 'text-gray-30'}
-          />
-        </button>
-        <span className="text-bd2 text-gray-80">서비스 약관 전체 동의</span>
-      </div>
+    <section className="mt-12 w-full space-y-5 rounded-[8px] p-6">
+      <button
+        type="button"
+        onClick={onAllToggle}
+        className="flex w-full cursor-pointer items-center text-left"
+      >
+        <MdCheckCircle
+          className={
+            terms.all
+              ? 'mr-3 text-3xl text-brand-blue'
+              : 'mr-3 text-3xl text-gray-30'
+          }
+        />
+        <span className="text-gray-80 bd2">서비스 약관 전체 동의</span>
+      </button>
 
       <hr className="border-gray-10" />
 
       <div className="flex items-center justify-between">
-        <div className="flex cursor-pointer items-center">
-          <button
-            type="button"
-            onClick={() => onToggle('privacy')}
-            className="mr-3 cursor-pointer text-3xl text-gray-30"
-          >
-            <MdDone
-              className={terms.privacy ? 'text-brand-blue' : 'text-gray-30'}
-            />
-          </button>
-          <span className="text-bd2 text-gray-80">
+        <button
+          type="button"
+          onClick={() => onToggle('privacy')}
+          className="flex cursor-pointer items-center"
+        >
+          <MdDone
+            className={
+              terms.privacy
+                ? 'mr-3 text-3xl text-brand-blue'
+                : 'mr-3 text-3xl text-gray-30'
+            }
+          />
+          <span className="text-gray-80 bd2">
             [필수] 이용약관 및 개인정보 처리방침
           </span>
-        </div>
-        <span className="text-ct4 text-brand-blue underline">자세히</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setOpenCookie(true)}
+          className="font-semibold text-brand-blue underline ct4"
+        >
+          자세히
+        </button>
       </div>
 
       <div className="flex items-center">
-        <div className="flex cursor-pointer items-center">
-          <button
-            type="button"
-            onClick={() => onToggle('age')}
-            className="mr-3 cursor-pointer text-3xl text-gray-30"
-          >
-            <MdDone
-              className={terms.age ? 'text-brand-blue' : 'text-gray-30'}
-            />
-          </button>
-          <span className="text-bd2 text-gray-80">
-            [필수] 만 14세 이상입니다.
-          </span>
-        </div>
+        <button
+          type="button"
+          onClick={() => onToggle('age')}
+          className="flex cursor-pointer items-center"
+        >
+          <MdDone
+            className={
+              terms.age
+                ? 'mr-3 text-3xl text-brand-blue'
+                : 'mr-3 text-3xl text-gray-30'
+            }
+          />
+          <span className="text-gray-80 bd2">[필수] 만 14세 이상입니다.</span>
+        </button>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div className="flex cursor-pointer items-center">
-          <button
-            type="button"
-            onClick={() => onToggle('marketing')}
-            className="mr-3 cursor-pointer text-3xl text-gray-30"
-          >
-            <MdDone
-              className={terms.marketing ? 'text-brand-blue' : 'text-gray-30'}
-            />
-          </button>
-          <span className="text-bd2 text-gray-80">
-            [선택] 마케팅 정보 수집 및 수신 동의
-          </span>
+      {openCookie && (
+        <div className="fixed inset-0 z-[999]">
+          <div
+            className="fixed inset-0 mx-auto w-full max-w-[43rem] bg-black/20"
+            onClick={() => setOpenCookie(false)}
+            aria-hidden="true"
+          />
+
+          <div className="absolute inset-0">
+            <div className="mx-auto flex h-full w-full max-w-[43rem] items-center justify-center px-[2rem]">
+              <CookieModal onClose={() => setOpenCookie(false)} />
+            </div>
+          </div>
         </div>
-        <span className="text-ct4 text-brand-blue underline">자세히</span>
-      </div>
-    </div>
+      )}
+    </section>
   );
 }

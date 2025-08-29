@@ -21,14 +21,14 @@ export default function ConfirmModal({
           <button
             type="button"
             onClick={onCancel}
-            className="h-[4.8rem] flex-1 rounded-[0.8rem] border border-gray-30 bg-white text-bd2 font-medium text-gray-80 hover:bg-gray-40/80"
+            className="h-[4.8rem] flex-1 rounded-[0.8rem] border border-gray-30 bg-white font-medium text-gray-80 bd2 hover:bg-gray-40/80"
           >
             {cancelText}
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="h-[4.8rem] flex-1 rounded-[0.8rem] bg-brand-blue text-bd2 font-medium text-white hover:bg-brand-blue/80"
+            className="h-[4.8rem] flex-1 rounded-[0.8rem] bg-brand-blue font-medium text-white bd2 hover:bg-brand-blue/80"
           >
             {confirmText}
           </button>

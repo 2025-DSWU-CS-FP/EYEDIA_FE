@@ -29,7 +29,7 @@ export default function PasswordInput({
         onChange={onChange}
         name={name}
         disabled={disabled}
-        className="w-full rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-ct3 text-gray-80 placeholder-gray-30 focus:outline-none focus:ring-2 focus:ring-brand-blue-light"
+        className="w-full rounded-[6px] bg-white px-[1.6rem] py-[1.2rem] text-gray-80 placeholder-gray-30 ct3 focus:outline-none focus:ring-2 focus:ring-brand-blue-light"
       />
       <button
         type="button"

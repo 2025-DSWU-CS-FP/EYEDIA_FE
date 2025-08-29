@@ -52,7 +52,7 @@ export default function GalleryCardDetail({ data }: Props) {
             <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem] text-gray-0">
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-[0.2rem] text-left">
-                  <p className="text-bd2">{data.location}</p>
+                  <p className="bd2">{data.location}</p>
                   <p className="font-bold t2">{data.subTitle}</p>
                 </div>
                 <MoreIcon className="w-[2.4rem]" />

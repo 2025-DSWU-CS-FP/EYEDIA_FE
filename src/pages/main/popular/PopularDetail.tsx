@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-import Ticket from '@/assets/images/ticket.png';
+import InviteShareBanner from '@/components/common/InviteShareBanner';
 import PopularInfoCard from '@/components/main/PopularInfoCard';
 import Header from '@/layouts/Header';
 import usePopularExhibitionDetail from '@/services/queries/usePopularExhibitionDetail';
@@ -43,7 +43,7 @@ export default function PopularDetailPage() {
     }
     if (showError) {
       return (
-        <p className="text-ct4 text-red-500" role="alert">
+        <p className="text-red-500 ct4" role="alert">
           전시 정보를 불러오지 못했어요.
         </p>
       );
@@ -95,19 +95,11 @@ export default function PopularDetailPage() {
         <section aria-live="polite">{imageNode}</section>
 
         <section className="px-[2rem]">
-          <Link
+          <InviteShareBanner
             to="/card"
-            className="gradient-rotate gradient-dramatic shine relative mx-[0rem] flex h-[9.6rem] items-center justify-between gap-[1.3rem] rounded-[10px] bg-gradient-to-r from-cyan-200 via-blue-300 to-indigo-300 px-[2.4rem]"
-            aria-label="Eyedia 공유하기"
-          >
-            <div className="flex flex-col justify-start gap-[0.4rem] text-left">
-              <p className="whitespace-nowrap text-gray-800 bt3">
-                친구와 함께 전시를 관람하고 싶다면?
-              </p>
-              <p className="text-black t3">Eyedia 공유하기 →</p>
-            </div>
-            <img className="max-w-[8rem]" src={Ticket} alt="티켓이미지" />
-          </Link>
+            title="친구와 함께 전시를 관람하고 싶다면?"
+            cta="Eyedia 공유하기 →"
+          />
         </section>
       </main>
     </div>

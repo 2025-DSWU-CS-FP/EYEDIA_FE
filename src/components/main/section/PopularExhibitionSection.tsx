@@ -58,9 +58,7 @@ export default function PopularExhibitionSection({
       </div>
 
       {!isLoading && exhibitions.length === 0 && (
-        <p className="px-[0.4rem] text-ct4 text-gray-50">
-          표시할 전시가 없어요.
-        </p>
+        <p className="px-[0.4rem] text-gray-50 ct4">표시할 전시가 없어요.</p>
       )}
     </section>
   );

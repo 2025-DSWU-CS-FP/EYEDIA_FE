@@ -47,7 +47,7 @@ export default function SortSelect({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label="정렬 옵션 선택"
-        className="flex items-center gap-[0.4rem] rounded-[6px] bg-gray-0 px-[1.2rem] py-[0.8rem] text-ct3 text-gray-60"
+        className="flex items-center gap-[0.4rem] rounded-[6px] bg-gray-0 px-[1.2rem] py-[0.8rem] text-gray-60 ct3"
       >
         {sort}
         <IoChevronDown className="text-gray-60" />
@@ -65,7 +65,7 @@ export default function SortSelect({
               <button
                 type="button"
                 key={option}
-                className={`w-full cursor-pointer px-[1.2rem] py-[0.8rem] text-left text-ct3 text-gray-60 hover:bg-gray-5 ${
+                className={`w-full cursor-pointer px-[1.2rem] py-[0.8rem] text-left text-gray-60 ct3 hover:bg-gray-5 ${
                   isFirst ? 'rounded-t-[5px]' : ''
                 } ${isLast ? 'rounded-b-[5px]' : ''}`}
                 onClick={() => handleSelect(option)}

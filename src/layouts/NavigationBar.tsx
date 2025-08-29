@@ -44,7 +44,7 @@ export default function NavigationBar() {
               {menu.icon}
             </span>
             <span
-              className={`text-ct4 ${
+              className={`ct4 ${
                 isActive ? 'text-[#424242]' : 'text-[#B0B8BF]'
               }`}
             >

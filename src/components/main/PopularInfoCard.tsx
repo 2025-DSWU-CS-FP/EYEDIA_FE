@@ -24,7 +24,7 @@ export default function PopularInfoCard({
           />
           <div className="flex flex-col gap-[0.4rem]">
             <h2 className="font-semibold text-gray-90 t3">{title}</h2>
-            <p className="text-ct3 text-gray-50">{location}</p>
+            <p className="text-gray-50 ct3">{location}</p>
           </div>
         </div>
       </header>
@@ -32,7 +32,7 @@ export default function PopularInfoCard({
       <div className="relative w-full">
         <div className="absolute -top-[0.6rem] left-[2rem] z-[1] h-0 w-0 border-x-[0.6rem] border-b-[0.6rem] border-x-transparent border-b-white" />
         <div className="relative z-[0] w-full rounded-[8px] bg-white px-[2rem] py-[1.6rem] shadow-sm">
-          <p className="text-ct2 text-gray-80">
+          <p className="text-gray-80 ct2">
             <span className="text-brand-mint">인기 전시</span>
             에 방문하여
             <br />

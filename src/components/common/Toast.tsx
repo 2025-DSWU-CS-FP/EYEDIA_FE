@@ -39,7 +39,7 @@ export default function Toast({ type, message }: ToastProps) {
       >
         {icon}
       </div>
-      <span className="text-ct3 font-medium text-white">{message}</span>
+      <span className="font-medium text-white ct3">{message}</span>
     </div>
   );
 }

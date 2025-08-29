@@ -167,7 +167,7 @@ export default function GalleryDetailPage() {
     }
     if (isError && !detail) {
       return (
-        <div className="rounded-[12px] bg-red-50 p-[1.2rem] text-ct4 text-red-500">
+        <div className="rounded-[12px] bg-red-50 p-[1.2rem] text-red-500 ct4">
           전시 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
         </div>
       );

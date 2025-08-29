@@ -10,7 +10,7 @@ function PrivacyPolicy() {
       />
       <div className="px-[2.4rem] py-[4rem] text-left">
         <h1 className="mb-[2rem] text-[2rem] font-bold">개인정보 처리방침</h1>
-        <p className="whitespace-pre-line text-[1.4rem] leading-[180%] text-gray-70">
+        <p className="whitespace-pre-line text-[1.4rem] font-medium leading-[180%] text-gray-70">
           {`
 Eyedia는 이용자의 개인정보를 소중히 여기며, 관련 법령에 따라 아래와 같이 처리하고 있습니다.
 

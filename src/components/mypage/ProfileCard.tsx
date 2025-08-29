@@ -22,13 +22,13 @@ export default function ProfileCard({
       <div className="flex items-center gap-[2.4rem]">
         <Logo className="w-[4rem] text-gray-50" />
         <div className="flex flex-col">
-          <span className="text-t3 font-semibold text-gray-80">{name}</span>
-          <span className="text-ct4 font-medium text-gray-60">
+          <span className="font-semibold text-gray-80 t3">{name}</span>
+          <span className="font-medium text-gray-60 ct4">
             현재 수집한 전시 {exhibitionCount}개
           </span>
         </div>
       </div>
-      <IoChevronForward className="text-t3 text-gray-80" />
+      <IoChevronForward className="text-gray-80 t3" />
     </button>
   );
 }

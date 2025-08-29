@@ -30,7 +30,7 @@ export default function Header({
         <div className="w-6" />
       )}
       <h1
-        className={`flex-1 text-center text-t5 font-semibold ${
+        className={`flex-1 text-center font-semibold t5 ${
           title ? 'text-gray-100' : 'invisible'
         }`}
       >

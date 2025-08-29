@@ -32,7 +32,7 @@ export default function BadgeCard({ badge }: Props) {
         className={[
           'pointer-events-none',
           'absolute right-[1rem] top-[1rem]',
-          'rounded-[6px] px-[0.5rem] py-[0.3rem] text-ct6 font-semibold',
+          'rounded-[6px] px-[0.5rem] py-[0.3rem] font-semibold ct6',
           statusChip.className,
         ].join(' ')}
       >
@@ -53,8 +53,8 @@ export default function BadgeCard({ badge }: Props) {
             )}
           </div>
           <div className="flex flex-col gap-[0.4rem]">
-            <h3 className="text-ct3 text-gray-90">{title}</h3>
-            <p className="text-ct5 text-gray-60">{description}</p>
+            <h3 className="text-gray-90 ct3">{title}</h3>
+            <p className="text-gray-60 ct5">{description}</p>
           </div>
         </div>
       </div>

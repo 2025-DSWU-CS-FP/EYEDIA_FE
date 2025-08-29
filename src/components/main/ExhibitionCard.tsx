@@ -63,7 +63,7 @@ export default function ExhibitionCard({
         )}
 
         {!showSkeleton && artworkCount !== undefined && (
-          <span className="absolute bottom-[0.8rem] right-[0.8rem] rounded-[4px] bg-gray-0 px-[0.8rem] py-[0.4rem] text-ct4 text-gray-90">
+          <span className="absolute bottom-[0.8rem] right-[0.8rem] rounded-[4px] bg-gray-0 px-[0.8rem] py-[0.4rem] text-gray-90 ct4">
             {artworkCount}개 작품
           </span>
         )}
