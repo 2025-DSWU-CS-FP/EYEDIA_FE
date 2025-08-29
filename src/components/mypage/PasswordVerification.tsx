@@ -55,7 +55,7 @@ export default function PasswordVerification({ onSuccess }: Props) {
           onChange={e => setPassword(e.target.value)}
           errorMessage={error}
         />
-        <Button className="bt1" onClick={handleVerify}>
+        <Button className="bg-brand-blue bt1" onClick={handleVerify}>
           다음
         </Button>
       </div>

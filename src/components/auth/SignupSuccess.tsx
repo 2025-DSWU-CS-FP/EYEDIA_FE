@@ -23,7 +23,9 @@ export default function SignupSuccess({ name }: SignupSuccessProps) {
         </span>
       </div>
       <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
-        <Button onClick={() => navigate('/login')}>로그인하러 가기</Button>
+        <Button className="bg-brand-blue" onClick={() => navigate('/login')}>
+          로그인하러 가기
+        </Button>
       </div>
       <Player
         autoplay

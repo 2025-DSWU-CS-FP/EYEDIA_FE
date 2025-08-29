@@ -113,7 +113,9 @@ export default function LoginPage() {
         </div>
 
         <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
-          <Button onClick={handleLogin}>로그인</Button>
+          <Button className="bg-brand-blue" onClick={handleLogin}>
+            로그인
+          </Button>
           <div className="flex items-center justify-center space-x-3 text-gray-70 ct4">
             <button type="button">아이디 찾기</button>
             <span className="h-3.5 w-px bg-gray-300" />

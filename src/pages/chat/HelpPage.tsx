@@ -29,7 +29,7 @@ function HelpPage() {
             <li>블루투스 접근이 허용되어 있는지 확인하세요.</li>
             <li>그래도 안 된다면 기기를 재시작해보세요.</li>
           </ul>
-          <Button onClick={() => navigate(-1)} className="w-full">
+          <Button className="w-full bg-brand-blue" onClick={() => navigate(-1)}>
             돌아가기
           </Button>
         </div>
