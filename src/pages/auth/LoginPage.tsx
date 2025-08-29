@@ -49,17 +49,18 @@ export default function LoginPage() {
       { id, pw },
       {
         onSuccess: data => {
-          const { accessToken, firstLogin } = (data ?? {}) as {
-            accessToken?: string;
-            firstLogin?: boolean;
-          };
+          const {
+            token: accessToken,
+            firstLogin,
+            name,
+            monthlyVisitCount,
+          } = data;
 
-          if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
-          }
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('name', name);
+          localStorage.setItem('monthlyVisitCount', String(monthlyVisitCount));
 
           showToast('로그인에 성공했습니다!', 'success');
-
           navigate(firstLogin ? '/landing' : '/');
         },
         onError: () => {
