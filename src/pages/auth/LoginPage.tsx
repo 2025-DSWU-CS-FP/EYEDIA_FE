@@ -49,17 +49,18 @@ export default function LoginPage() {
       { id, pw },
       {
         onSuccess: data => {
-          const { accessToken, firstLogin } = (data ?? {}) as {
-            accessToken?: string;
-            firstLogin?: boolean;
-          };
+          const {
+            token: accessToken,
+            firstLogin,
+            name,
+            monthlyVisitCount,
+          } = data;
 
-          if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
-          }
+          localStorage.setItem('accessToken', accessToken);
+          localStorage.setItem('name', name);
+          localStorage.setItem('monthlyVisitCount', String(monthlyVisitCount));
 
           showToast('로그인에 성공했습니다!', 'success');
-
           navigate(firstLogin ? '/landing' : '/');
         },
         onError: () => {
@@ -113,7 +114,9 @@ export default function LoginPage() {
         </div>
 
         <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
-          <Button onClick={handleLogin}>로그인</Button>
+          <Button className="bg-brand-blue" onClick={handleLogin}>
+            로그인
+          </Button>
           <div className="flex items-center justify-center space-x-3 text-gray-70 ct4">
             <button type="button">아이디 찾기</button>
             <span className="h-3.5 w-px bg-gray-300" />

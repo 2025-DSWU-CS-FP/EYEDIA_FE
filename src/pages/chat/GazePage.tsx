@@ -82,11 +82,11 @@ function GazePage() {
         </div>
       </div>
       {trackingComplete && (
-        <div className="sticky w-full px-[2rem] pb-[2rem]">
+        <div className="sticky w-full px-[3rem] pb-[2rem]">
           <Button
             type="button"
             onClick={handleStartConversation}
-            className="mt-[3rem] bt2"
+            className="mt-[3rem] bg-brand-blue bt2"
           >
             대화 시작하기
           </Button>

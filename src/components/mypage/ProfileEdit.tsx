@@ -38,7 +38,7 @@ export default function ProfileEdit() {
             </div>
             <div className="flex-[1]">
               <Button
-                className="w-full"
+                className="w-full bg-brand-blue"
                 onClick={() => {
                   if (isEditingNickname) {
                     showToast('닉네임이 수정되었습니다.', 'success');
@@ -65,7 +65,7 @@ export default function ProfileEdit() {
             </div>
             <div className="flex-[1]">
               <Button
-                className="w-full"
+                className="w-full bg-brand-blue"
                 onClick={() => {
                   if (isEditingUserId) {
                     showToast('아이디가 수정되었습니다.', 'info');
@@ -96,6 +96,7 @@ export default function ProfileEdit() {
                   onChange={e => setConfirmPw(e.target.value)}
                 />
                 <Button
+                  className="bg-brand-blue"
                   onClick={() => {
                     setIsEditingPassword(false);
                     showToast('비밀번호가 수정되었습니다.', 'error');
@@ -107,7 +108,7 @@ export default function ProfileEdit() {
             ) : (
               <Button
                 id="change-password"
-                className="w-full"
+                className="w-full bg-brand-blue"
                 onClick={() => setIsEditingPassword(true)}
               >
                 비밀번호 변경하기

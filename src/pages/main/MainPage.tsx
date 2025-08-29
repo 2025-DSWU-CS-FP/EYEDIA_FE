@@ -17,11 +17,29 @@ import s3ToHttp from '@/utils/url';
 
 export default function MainPage() {
   const navigate = useNavigate();
+
   const [loading, setLoading] = useState({
     popular: false,
     recent: true,
     taste: true,
   });
+
+  const [userName, setUserName] = useState('');
+  const [viewCount, setViewCount] = useState(0);
+
+  useEffect(() => {
+    try {
+      const nameRaw = (localStorage.getItem('name') ?? '').trim();
+      setUserName(nameRaw || '사용자');
+
+      const raw = localStorage.getItem('monthlyVisitCount');
+      const n = raw !== null ? Number(raw) : NaN;
+      setViewCount(Number.isFinite(n) && n >= 0 ? n : 0);
+    } catch {
+      setUserName('사용자');
+      setViewCount(0);
+    }
+  }, []);
 
   const {
     data: topPopular,
@@ -60,7 +78,7 @@ export default function MainPage() {
   return (
     <main className="flex min-h-screen w-full justify-center">
       <div className="flex w-full max-w-[43rem] flex-col gap-10 py-[3rem] pl-[2.7rem]">
-        <UserGreeting userName="김아트" viewCount={12} />
+        <UserGreeting userName={userName} viewCount={viewCount} />
         <section className="flex flex-col gap-[4rem]">
           <PopularExhibitionSection
             exhibitions={popularExhibitions}
