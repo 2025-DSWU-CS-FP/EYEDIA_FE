@@ -198,7 +198,9 @@ export default function Card() {
 
   return (
     <div
-      className={`max-h-dvh overflow-hidden py-[0.5rem] ${isCapturing ? 'capture-still' : ''}`}
+      className={`relative h-dvh w-full overflow-hidden ${
+        isCapturing ? 'capture-still' : ''
+      }`}
     >
       <div className="output fixed">
         <div className="wrap-colors-1">
@@ -228,7 +230,7 @@ export default function Card() {
               <div className="ticket-flip-container">
                 <div className="float">
                   <div className="front">
-                    {/* ⬇️ 캡처 대상 */}
+                    {/* 캡처 대상 */}
                     <div className="ticket-body" ref={captureRef}>
                       <div className="reflex" />
 
