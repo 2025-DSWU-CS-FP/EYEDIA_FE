@@ -97,7 +97,7 @@ export default function LandingPage() {
         </AnimatePresence>
       </div>
 
-      <Button onClick={handleNext} className="mt-auto">
+      <Button onClick={handleNext} className="mt-auto bg-brand-blue">
         {slides[step].buttonText}
       </Button>
     </motion.div>
