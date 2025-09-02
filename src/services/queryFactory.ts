@@ -1,5 +1,4 @@
 import axiosInstance from '@/services/axiosInstance';
-import type { ChatMessage } from '@/types';
 import type {
   ExhibitionSuggestItem,
   ExhibitionVisitDetail,
@@ -7,7 +6,10 @@ import type {
   ExhibitionVisitRecentPage,
   PopularExhibitionItem,
   PopularExhibitionsPage,
-} from '@/types/exhibition';
+  ChatMessage,
+  BadgeStatus,
+  MyBadgesResult,
+} from '@/types';
 
 const queryFactory = {
   chatMessages: (chatRoomId: number) => async (): Promise<ChatMessage[]> => {
@@ -105,5 +107,13 @@ const queryFactory = {
       });
       return res.data.result;
     },
+
+  // 뱃지 조회
+  myBadges: (status?: BadgeStatus) => async (): Promise<MyBadgesResult> => {
+    const res = await axiosInstance.get('/api/vi/badges', {
+      params: { status },
+    });
+    return res.data.result as MyBadgesResult;
+  },
 };
 export default queryFactory;

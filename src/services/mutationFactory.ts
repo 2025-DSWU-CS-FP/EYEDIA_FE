@@ -6,6 +6,7 @@ import type {
   LoginResponse,
   VerifyPasswordResult,
   VerifyPasswordResponse,
+  BadgeEventRequest,
 } from '@/types';
 
 export type CommonResponse = {
@@ -55,6 +56,14 @@ const mutationFactory = {
       );
       return res.data;
     },
+
+  // 뱃지 생성
+  createBadgeEvent: async (
+    data: BadgeEventRequest,
+  ): Promise<CommonResponse> => {
+    const res = await axiosInstance.post('/api/vi/badges/events', data);
+    return res.data as CommonResponse;
+  },
 };
 
 export default mutationFactory;

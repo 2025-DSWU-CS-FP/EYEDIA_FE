@@ -4,19 +4,13 @@ import { IoMedalOutline } from 'react-icons/io5';
 
 import BadgeCard from '@/components/mypage/BadgeCard';
 import Header from '@/layouts/Header';
+import useMyBadges from '@/services/queries/useMyBadges';
+import type { UIBadge, UIBadgeStatus } from '@/types';
+import mapMyBadgesToUI from '@/types/badgeMapper';
 
-type BadgeStatus = 'earned' | 'in_progress' | 'locked';
-interface Badge {
-  id: string;
-  title: string;
-  description: string;
-  iconUrl?: string;
-  status: BadgeStatus;
-  progress?: number;
-  earnedAt?: string;
-}
+type TabKey = 'all' | UIBadgeStatus;
 
-const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
+const TABS: { key: TabKey; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'earned', label: '획득' },
   { key: 'in_progress', label: '진행중' },
@@ -24,42 +18,6 @@ const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
 ];
 
 const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
-
-const MOCK_BADGES: Badge[] = [
-  {
-    id: 'b1',
-    title: '첫 수집',
-    description: '첫 전시를 수집했어요',
-    status: 'earned',
-    earnedAt: '2025-08-10',
-  },
-  {
-    id: 'b2',
-    title: '연속 3일',
-    description: '3일 연속 감상',
-    status: 'in_progress',
-    progress: 66,
-  },
-  {
-    id: 'b3',
-    title: '10개 수집',
-    description: '전시 10개 수집',
-    status: 'locked',
-  },
-  {
-    id: 'b4',
-    title: '첫 감상',
-    description: '첫 작품 감상',
-    status: 'earned',
-    earnedAt: '2025-08-08',
-  },
-  {
-    id: 'b5',
-    title: '주말 큐레이터',
-    description: '주말 2회 이상 방문',
-    status: 'locked',
-  },
-];
 
 function EmptyState() {
   return (
@@ -74,9 +32,9 @@ function EmptyState() {
 function SkeletonGrid() {
   return (
     <>
-      {SKELETON_KEYS.map(key => (
+      {SKELETON_KEYS.map(k => (
         <div
-          key={key}
+          key={k}
           className="animate-pulse h-[10rem] rounded-[8px] bg-gray-5"
         />
       ))}
@@ -85,19 +43,30 @@ function SkeletonGrid() {
 }
 
 export default function MyBadgePage() {
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('all');
+  const [tab, setTab] = useState<TabKey>('all');
 
-  // const { data = [], isLoading } = useQuery<Badge[]>({ queryKey: ['badges'], queryFn: fetchBadges });
-  const data = MOCK_BADGES;
-  const isLoading = false;
+  type ApiStatus = 'ACHIEVED' | 'IN_PROGRESS' | 'LOCKED';
 
-  const earnedCount = data.filter(b => b.status === 'earned').length;
-  const totalCount = data.length;
+  const TAB_TO_API = {
+    all: undefined,
+    earned: 'ACHIEVED',
+    in_progress: 'IN_PROGRESS',
+    locked: 'LOCKED',
+  } as const satisfies Record<TabKey, ApiStatus | undefined>;
 
-  const filtered = useMemo(() => {
-    if (tab === 'all') return data;
-    return data.filter(b => b.status === tab);
-  }, [data, tab]);
+  const apiStatus: ApiStatus | undefined = TAB_TO_API[tab];
+
+  const { data, isFetching, isError } = useMyBadges(apiStatus);
+
+  const uiBadges: UIBadge[] = useMemo(
+    () => (data ? mapMyBadgesToUI(data) : []),
+    [data],
+  );
+  const earnedCount = data?.acquired ?? 0;
+  const totalCount = data?.total ?? 0;
+  const nextTargetTitle = data?.nextTarget?.title ?? '다음 목표 없음';
+
+  const filtered = useMemo(() => uiBadges, [uiBadges]);
 
   return (
     <main className="flex w-full flex-col">
@@ -122,7 +91,7 @@ export default function MyBadgePage() {
             </div>
           </div>
           <p className="text-gray-60 ct3">
-            다음 목표: <span className="text-gray-80">연속 3일</span>
+            다음 목표: <span className="text-gray-80">{nextTargetTitle}</span>
           </p>
         </div>
       </section>
@@ -151,13 +120,17 @@ export default function MyBadgePage() {
       </nav>
 
       <section className="mt-[1.6rem] grid grid-cols-2 gap-[0.8rem] px-[2.4rem] pb-[4rem]">
-        {isLoading && <SkeletonGrid />}
-
-        {!isLoading && filtered.length === 0 && <EmptyState />}
-
-        {!isLoading &&
+        {isFetching && <SkeletonGrid />}
+        {!isFetching && !isError && filtered.length === 0 && <EmptyState />}
+        {!isFetching &&
+          !isError &&
           filtered.length > 0 &&
-          filtered.map(badge => <BadgeCard key={badge.id} badge={badge} />)}
+          filtered.map(b => <BadgeCard key={b.id} badge={b} />)}
+        {!isFetching && isError && (
+          <div className="col-span-2 rounded-[8px] bg-white p-[1.6rem] text-center text-red-500 shadow-sm ct3">
+            뱃지를 불러오지 못했어요.
+          </div>
+        )}
       </section>
     </main>
   );
