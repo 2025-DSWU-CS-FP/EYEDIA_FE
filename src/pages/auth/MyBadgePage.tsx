@@ -6,9 +6,10 @@ import BadgeCard from '@/components/mypage/BadgeCard';
 import Header from '@/layouts/Header';
 import useMyBadges from '@/services/queries/useMyBadges';
 import type { UIBadge, UIBadgeStatus } from '@/types';
-import mapMyBadgesToUI from '@/types/badgeMapper';
+import mapMyBadgesToUI, { formatBadgeTitleFromItem } from '@/types/badgeMapper';
 
 type TabKey = 'all' | UIBadgeStatus;
+type ApiStatus = 'ACHIEVED' | 'IN_PROGRESS' | 'LOCKED';
 
 const TABS: { key: TabKey; label: string }[] = [
   { key: 'all', label: '전체' },
@@ -16,6 +17,13 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'in_progress', label: '진행중' },
   { key: 'locked', label: '잠김' },
 ];
+
+const TAB_TO_API = {
+  all: undefined,
+  earned: 'ACHIEVED',
+  in_progress: 'IN_PROGRESS',
+  locked: 'LOCKED',
+} as const;
 
 const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
@@ -45,28 +53,39 @@ function SkeletonGrid() {
 export default function MyBadgePage() {
   const [tab, setTab] = useState<TabKey>('all');
 
-  type ApiStatus = 'ACHIEVED' | 'IN_PROGRESS' | 'LOCKED';
+  const apiStatus = useMemo<ApiStatus | undefined>(
+    () => TAB_TO_API[tab],
+    [tab],
+  );
 
-  const TAB_TO_API = {
-    all: undefined,
-    earned: 'ACHIEVED',
-    in_progress: 'IN_PROGRESS',
-    locked: 'LOCKED',
-  } as const satisfies Record<TabKey, ApiStatus | undefined>;
+  // ① 전체 데이터(상단 카드 고정용)
+  const {
+    data: allData,
+    isFetching: loadingAll,
+    isError: errorAll,
+  } = useMyBadges();
 
-  const apiStatus: ApiStatus | undefined = TAB_TO_API[tab];
+  // ② 탭 전용 데이터(목록용) — all이면 호출 막기
+  const {
+    data: tabData,
+    isFetching: loadingTab,
+    isError: errorTab,
+  } = useMyBadges(apiStatus, { enabled: tab !== 'all' });
 
-  const { data, isFetching, isError } = useMyBadges(apiStatus);
+  // 목록에 쓸 데이터 선택
+  const listData = tab === 'all' ? allData : tabData;
+  const isLoading = tab === 'all' ? loadingAll : loadingTab;
+  const isError = tab === 'all' ? errorAll : errorTab;
 
   const uiBadges: UIBadge[] = useMemo(
-    () => (data ? mapMyBadgesToUI(data) : []),
-    [data],
+    () => (listData ? mapMyBadgesToUI(listData) : []),
+    [listData],
   );
-  const earnedCount = data?.acquired ?? 0;
-  const totalCount = data?.total ?? 0;
-  const nextTargetTitle = data?.nextTarget?.title ?? '다음 목표 없음';
 
-  const filtered = useMemo(() => uiBadges, [uiBadges]);
+  // 상단 카드는 "항상 전체 데이터" 기준
+  const earnedCount = allData?.acquired ?? 0;
+  const totalCount = allData?.total ?? 0;
+  const nextTargetTitle = formatBadgeTitleFromItem(allData?.nextTarget);
 
   return (
     <main className="flex w-full flex-col">
@@ -120,13 +139,13 @@ export default function MyBadgePage() {
       </nav>
 
       <section className="mt-[1.6rem] grid grid-cols-2 gap-[0.8rem] px-[2.4rem] pb-[4rem]">
-        {isFetching && <SkeletonGrid />}
-        {!isFetching && !isError && filtered.length === 0 && <EmptyState />}
-        {!isFetching &&
+        {isLoading && <SkeletonGrid />}
+        {!isLoading && !isError && uiBadges.length === 0 && <EmptyState />}
+        {!isLoading &&
           !isError &&
-          filtered.length > 0 &&
-          filtered.map(b => <BadgeCard key={b.id} badge={b} />)}
-        {!isFetching && isError && (
+          uiBadges.length > 0 &&
+          uiBadges.map(b => <BadgeCard key={b.id} badge={b} />)}
+        {!isLoading && isError && (
           <div className="col-span-2 rounded-[8px] bg-white p-[1.6rem] text-center text-red-500 shadow-sm ct3">
             뱃지를 불러오지 못했어요.
           </div>
