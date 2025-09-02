@@ -129,7 +129,7 @@ const queryFactory = {
     (params: { page?: number; limit?: number; sort?: 'recent' } = {}) =>
     async (): Promise<RecentViewedPage> => {
       const { page = 0, limit = 10, sort = 'recent' } = params;
-      const res = await axiosInstance.get('/api/v1/artworks/viewed', {
+      const res = await axiosInstance.get('/api/v1/exhibitions/viewed', {
         params: { page, limit, sort },
       });
       return res.data as RecentViewedPage;

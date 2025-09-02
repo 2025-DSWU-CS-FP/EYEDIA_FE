@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
 import { FiHeart, FiShare, FiMenu } from 'react-icons/fi';
 import { IoChevronBack } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
+
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
 import '@/styles/typing.css';
@@ -17,6 +19,8 @@ import ChatMessage from '@/components/chat/ChatMessage';
 import ExtractCard from '@/components/chat/ExtractCard';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import Divider from '@/components/mypage/Divider';
+import { useToast } from '@/contexts/ToastContext';
+import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
 
 type MsgType = 'TEXT' | 'IMAGE';
@@ -76,6 +80,18 @@ function ImageMessage({
   );
 }
 
+const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
+const exhibitionName = '한이음 전시회';
+const paintingId = 4; // 현재 세션의 작품 ID
+
+const dateKST = () =>
+  new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+
 export default function ArtworkPage() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRecognized, setIsRecognized] = useState(false);
@@ -88,7 +104,6 @@ export default function ArtworkPage() {
   const [streaming, setStreaming] = useState(false);
   const [streamed, setStreamed] = useState('');
 
-  // 수동 음성 인식일 때만 "말씀하세요 :)" 문구 표시
   const [showSpeakHint, setShowSpeakHint] = useState(false);
 
   const voiceStepRef = useRef(0);
@@ -99,6 +114,9 @@ export default function ArtworkPage() {
 
   const { data: chatMessages } = useChatMessages(4);
   const navigate = useNavigate();
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+  const { mutate: saveScrap, isPending: saving } = useSaveScrap();
 
   // 타이머 정리
   useEffect(() => {
@@ -113,7 +131,7 @@ export default function ArtworkPage() {
 
   const handleFocusInput = () => {
     setShowChatInput(true);
-    setTimeout(() => inputRef.current?.focus(), 100);
+    window.setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   useEffect(() => {
@@ -217,7 +235,7 @@ export default function ArtworkPage() {
     if (shouldRun) {
       rafId = requestAnimationFrame(() => {
         preTid = window.setTimeout(() => {
-          setIsRecognized(true); // 자동 인식 애니메이션
+          setIsRecognized(true);
           listenTid = window.setTimeout(() => {
             setIsRecognized(false);
 
@@ -263,9 +281,36 @@ export default function ArtworkPage() {
 
   const voiceDisabled = isRecognized || typing || streaming;
 
+  const handleSaveExcerpt = () => {
+    const quote = selectionText.trim();
+    if (!quote) {
+      showToast('저장할 발췌 문구가 없어요.', 'error');
+      return;
+    }
+    saveScrap(
+      {
+        paintingId,
+        date: dateKST(),
+        excerpt: quote,
+        location: exhibitionName,
+        artist: artworkInfo.artist,
+      },
+      {
+        onSuccess: res => {
+          showToast(res.message || '발췌를 저장했어요.', 'success');
+          setShowExtractCard(false);
+          // 연관 목록 최신화
+          queryClient.invalidateQueries({ queryKey: ['recentViewedArtworks'] });
+          queryClient.invalidateQueries({ queryKey: ['scrapsByExhibition'] });
+        },
+        onError: () =>
+          showToast('저장에 실패했어요. 다시 시도해 주세요.', 'error'),
+      },
+    );
+  };
+
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
-      {/* hero 이미지 */}
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
         <img
           src={Sample}
@@ -275,7 +320,6 @@ export default function ArtworkPage() {
         />
       </div>
 
-      {/* 상단 고정 헤더 (확장 시) */}
       {isExpanded && (
         <header className="fixed left-1/2 top-0 z-30 w-full max-w-[430px] -translate-x-1/2 border-b-2 border-gray-10 bg-gray-5 px-4 py-4">
           <div className="flex justify-between px-5 pb-[1rem] text-[24px] t2">
@@ -297,8 +341,8 @@ export default function ArtworkPage() {
           </div>
           <div className="mx-7 mt-4 flex max-w-[100%] items-end justify-between">
             <div className="flex flex-col gap-[0.3rem]">
-              <h1 className="t5">발레 수업</h1>
-              <p className="text-gray-70 ct5">에드가 드가</p>
+              <h1 className="t5">{artworkInfo.title}</h1>
+              <p className="text-gray-70 ct5">{artworkInfo.artist}</p>
             </div>
             <div className="flex gap-[0.8rem]">
               <RoundedIconButton size="lg" icon={<FiHeart />} />
@@ -319,17 +363,16 @@ export default function ArtworkPage() {
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t1">발레 수업</h1>
-                    <p className="text-gray-70 ct4">에드가 드가</p>
+                    <h1 className="font-normal t1">{artworkInfo.title}</h1>
+                    <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
                   </div>
-                  <p className="text-gray-50 ct4">한이음 전시회</p>
+                  <p className="text-gray-50 ct4">{exhibitionName}</p>
                 </div>
                 <Divider />
               </div>
             </>
           )}
 
-          {/* 채팅 목록 */}
           <div
             ref={listRef}
             className="mt-4 flex h-full flex-col gap-[1.2rem] overflow-y-auto px-[1.8rem]"
@@ -375,18 +418,14 @@ export default function ArtworkPage() {
               />
             )}
 
-            {/* ✅ 리스트 끝 앵커 */}
             <div ref={endRef} />
           </div>
         </main>
       </ArtworkBottomSheet>
 
-      {/* 하단 인터랙션 */}
       {!showChatInput && (
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[10px]">
-          {/* 오버레이는 클릭 차단하지 않도록 none */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
-          {/* 버튼 래퍼만 auto */}
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
             {isRecognized ? (
               <>
@@ -440,10 +479,11 @@ export default function ArtworkPage() {
           <ExtractCard
             imageUrl={Sample}
             quote={selectionText}
-            title="발레 수업"
-            artist="에드가 드가"
-            onSave={() => alert('이미지 저장')}
-            onShare={() => alert('공유')}
+            title={artworkInfo.title}
+            artist={artworkInfo.artist}
+            onSave={handleSaveExcerpt}
+            onShare={() => showToast('공유 기능은 준비 중이에요.', 'info')}
+            aria-busy={saving}
           />
         </div>
       )}
