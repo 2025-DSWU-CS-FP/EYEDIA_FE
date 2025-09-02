@@ -5,17 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
 import Header from '@/layouts/Header';
-// import useConfirmPainting from '@/services/mutations/useConfirmPainting';
+import useCreateBadgeEvent from '@/services/mutations/useCreateBadgeEvent';
 
-const artworkInfo = {
-  title: '발레 수업',
-  artist: '에드가 드가',
-};
+const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
 
-function GazePage() {
+export default function GazePage() {
   const navigate = useNavigate();
-  // const { mutate } = useConfirmPainting();
   const [trackingComplete, setTrackingComplete] = useState(false);
+  const { mutate: createBadgeEvent, isPending } = useCreateBadgeEvent();
 
   useEffect(() => {
     const timer = setTimeout(() => setTrackingComplete(true), 3000);
@@ -23,12 +20,12 @@ function GazePage() {
   }, []);
 
   const handleStartConversation = () => {
-    // mutate(4, {
-    //   onSuccess: () => {
-    //     navigate('/chat-artwork');
-    //   },
-    //   onError: () => {},
-    // });
+    createBadgeEvent({
+      eventUid: `visit-${crypto.randomUUID()}`,
+      type: 'EXHIBITION_COLLECTED',
+      occurredAt: new Date().toISOString(),
+      payload: { exhibitionId: 1, timezone: 'Asia/Seoul' },
+    });
     navigate('/chat-artwork');
   };
 
@@ -51,6 +48,7 @@ function GazePage() {
                 : '궁금한 작품을\n2초 이상 응시하세요.'}
             </div>
           </div>
+
           <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
             {trackingComplete ? (
               <div className="relative h-full w-full">
@@ -60,14 +58,10 @@ function GazePage() {
                   className="h-full w-full rounded-2xl object-cover"
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
-                {trackingComplete && (
-                  <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
-                    <div className="text-white t3">{artworkInfo.title}</div>
-                    <div className="text-white/80 ct4">
-                      {artworkInfo.artist}
-                    </div>
-                  </div>
-                )}
+                <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
+                  <div className="text-white t3">{artworkInfo.title}</div>
+                  <div className="text-white/80 ct4">{artworkInfo.artist}</div>
+                </div>
               </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-gradient-to-br from-slate-200 to-blue-100">
@@ -81,12 +75,15 @@ function GazePage() {
           </div>
         </div>
       </div>
+
       {trackingComplete && (
         <div className="sticky w-full px-[3rem] pb-[2rem]">
           <Button
             type="button"
             onClick={handleStartConversation}
             className="mt-[3rem] bg-brand-blue bt2"
+            disabled={isPending}
+            aria-busy={isPending}
           >
             대화 시작하기
           </Button>
@@ -95,5 +92,3 @@ function GazePage() {
     </>
   );
 }
-
-export default GazePage;
