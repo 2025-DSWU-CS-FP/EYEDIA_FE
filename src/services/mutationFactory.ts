@@ -7,6 +7,8 @@ import type {
   VerifyPasswordResult,
   VerifyPasswordResponse,
   BadgeEventRequest,
+  SaveScrapRequest,
+  SaveScrapResponse,
 } from '@/types';
 
 export type CommonResponse = {
@@ -63,6 +65,13 @@ const mutationFactory = {
   ): Promise<CommonResponse> => {
     const res = await axiosInstance.post('/api/vi/badges/events', data);
     return res.data as CommonResponse;
+  },
+  saveScrap: async (data: SaveScrapRequest): Promise<SaveScrapResponse> => {
+    const res = await axiosInstance.post('/api/v1/scraps/save', data);
+    const raw = res.data;
+    if (typeof raw === 'string') return { message: raw };
+    if (raw && typeof raw.message === 'string') return { message: raw.message };
+    return { message: '저장되었습니다.' };
   },
 };
 

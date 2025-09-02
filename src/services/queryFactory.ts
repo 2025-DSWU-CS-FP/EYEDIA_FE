@@ -9,6 +9,8 @@ import type {
   ChatMessage,
   BadgeStatus,
   MyBadgesResult,
+  ScrapItem,
+  RecentViewedPage,
 } from '@/types';
 
 const queryFactory = {
@@ -115,5 +117,22 @@ const queryFactory = {
     });
     return res.data.result as MyBadgesResult;
   },
+  scrapsByExhibition:
+    (userId: number, location: string) => async (): Promise<ScrapItem[]> => {
+      const res = await axiosInstance.get(`/api/v1/scraps/list/${userId}`, {
+        params: { location },
+      });
+      return res.data as ScrapItem[];
+    },
+
+  recentViewedArtworks:
+    (params: { page?: number; limit?: number; sort?: 'recent' } = {}) =>
+    async (): Promise<RecentViewedPage> => {
+      const { page = 0, limit = 10, sort = 'recent' } = params;
+      const res = await axiosInstance.get('/api/v1/artworks/viewed', {
+        params: { page, limit, sort },
+      });
+      return res.data as RecentViewedPage;
+    },
 };
 export default queryFactory;

@@ -18,3 +18,6 @@ export * from './user';
 /* 뱃지 */
 export * from './badge';
 export * from './badge-ui';
+
+/* 발췌 */
+export * from './scrap';
