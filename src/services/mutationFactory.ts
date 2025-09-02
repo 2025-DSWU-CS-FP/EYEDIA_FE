@@ -4,6 +4,8 @@ import type {
   SignupRequest,
   LoginRequest,
   LoginResponse,
+  VerifyPasswordResult,
+  VerifyPasswordResponse,
 } from '@/types';
 
 export type CommonResponse = {
@@ -31,16 +33,12 @@ const mutationFactory = {
     );
     return res.data;
   },
-  verifyPassword: async (password: string): Promise<{ message: string }> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (password === '1234') {
-          resolve({ message: '인증 성공' });
-        } else {
-          reject(new Error('비밀번호가 일치하지 않습니다.'));
-        }
-      }, 500);
-    });
+  verifyPassword: async (password: string): Promise<VerifyPasswordResult> => {
+    const res = await axiosInstance.post<VerifyPasswordResponse>(
+      '/api/v1/users/verify-password',
+      { password },
+    );
+    return res.data.result;
   },
 
   addBookmark: (exhibitionId: number) => async (): Promise<CommonResponse> => {
