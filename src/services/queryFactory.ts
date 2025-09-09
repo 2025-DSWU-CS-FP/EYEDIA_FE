@@ -1,5 +1,4 @@
 import axiosInstance from '@/services/axiosInstance';
-import type { ChatMessage } from '@/types';
 import type {
   ExhibitionSuggestItem,
   ExhibitionVisitDetail,
@@ -7,7 +6,12 @@ import type {
   ExhibitionVisitRecentPage,
   PopularExhibitionItem,
   PopularExhibitionsPage,
-} from '@/types/exhibition';
+  ChatMessage,
+  BadgeStatus,
+  MyBadgesResult,
+  ScrapItem,
+  RecentViewedPage,
+} from '@/types';
 
 const queryFactory = {
   chatMessages: (chatRoomId: number) => async (): Promise<ChatMessage[]> => {
@@ -104,6 +108,31 @@ const queryFactory = {
         params: { keyword, isBookmarked, sort, page, limit },
       });
       return res.data.result;
+    },
+
+  // 뱃지 조회
+  myBadges: (status?: BadgeStatus) => async (): Promise<MyBadgesResult> => {
+    const res = await axiosInstance.get('/api/vi/badges', {
+      params: { status },
+    });
+    return res.data.result as MyBadgesResult;
+  },
+  scrapsByExhibition:
+    (userId: number, location: string) => async (): Promise<ScrapItem[]> => {
+      const res = await axiosInstance.get(`/api/v1/scraps/list/${userId}`, {
+        params: { location },
+      });
+      return res.data as ScrapItem[];
+    },
+
+  recentViewedArtworks:
+    (params: { page?: number; limit?: number; sort?: 'recent' } = {}) =>
+    async (): Promise<RecentViewedPage> => {
+      const { page = 0, limit = 10, sort = 'recent' } = params;
+      const res = await axiosInstance.get('/api/v1/exhibitions/viewed', {
+        params: { page, limit, sort },
+      });
+      return res.data as RecentViewedPage;
     },
 };
 export default queryFactory;

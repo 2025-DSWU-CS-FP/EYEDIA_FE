@@ -8,7 +8,6 @@ import TasteArtworkSection from '@/components/main/section/TasteArtworkSection';
 import UserGreeting from '@/components/main/UserGreeting';
 import {
   popularExhibitions as mockPopularExhibitions,
-  recentArtworks,
   keywords,
   tasteArtworks,
 } from '@/mock/mainData';
@@ -20,7 +19,6 @@ export default function MainPage() {
 
   const [loading, setLoading] = useState({
     popular: false,
-    recent: true,
     taste: true,
   });
 
@@ -60,15 +58,8 @@ export default function MainPage() {
   }, [topPopular, isError]);
 
   useEffect(() => {
-    const t2 = setTimeout(
-      () => setLoading(s => ({ ...s, recent: false })),
-      300,
-    );
-    const t3 = setTimeout(() => setLoading(s => ({ ...s, taste: false })), 300);
-    return () => {
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
+    const t = setTimeout(() => setLoading(s => ({ ...s, taste: false })), 300);
+    return () => clearTimeout(t);
   }, []);
 
   const handlePopularMore = () => navigate('/popular-exhibition');
@@ -86,10 +77,7 @@ export default function MainPage() {
             onMoreClick={handlePopularMore}
             onSelect={handlePopularSelect}
           />
-          <RecentArtworkSection
-            artworks={recentArtworks}
-            isLoading={loading.recent}
-          />
+          <RecentArtworkSection />
           <TasteArtworkSection
             keywords={keywords}
             artworks={tasteArtworks}

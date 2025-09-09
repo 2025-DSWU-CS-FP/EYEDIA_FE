@@ -5,20 +5,28 @@ import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
 
-export default function ProfileEdit() {
+interface ProfileEditProps {
+  initialNickname: string;
+  initialUserId: string;
+}
+
+export default function ProfileEdit({
+  initialNickname,
+  initialUserId,
+}: ProfileEditProps) {
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingUserId, setIsEditingUserId] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
 
   const { showToast } = useToast();
 
-  const [nickname, setNickname] = useState('기존 닉네임');
-  const [userId, setUserId] = useState('eyedia');
+  const [nickname, setNickname] = useState(initialNickname);
+  const [userId, setUserId] = useState(initialUserId);
   const [password, setPassword] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
 
   return (
-    <div className="flex flex-col gap-[2.4rem] px-[2.4rem] py-[4rem]">
+    <section className="flex flex-col gap-[2.4rem] px-[2.4rem] py-[4rem]">
       <h2 className="flex flex-col gap-[0.4rem] text-gray-80 t3">
         <span>Eyedia에서 새롭게 사용할</span>
         <span>정보를 입력해 주세요.</span>
@@ -34,15 +42,15 @@ export default function ProfileEdit() {
                 value={nickname}
                 onChange={e => setNickname(e.target.value)}
                 placeholder="새 닉네임 입력"
+                disabled={!isEditingNickname}
               />
             </div>
             <div className="flex-[1]">
               <Button
                 className="w-full bg-brand-blue"
                 onClick={() => {
-                  if (isEditingNickname) {
+                  if (isEditingNickname)
                     showToast('닉네임이 수정되었습니다.', 'success');
-                  }
                   setIsEditingNickname(prev => !prev);
                 }}
               >
@@ -61,15 +69,15 @@ export default function ProfileEdit() {
                 value={userId}
                 onChange={e => setUserId(e.target.value)}
                 placeholder="새 아이디 입력"
+                disabled={!isEditingUserId}
               />
             </div>
             <div className="flex-[1]">
               <Button
                 className="w-full bg-brand-blue"
                 onClick={() => {
-                  if (isEditingUserId) {
-                    showToast('아이디가 수정되었습니다.', 'info');
-                  }
+                  if (isEditingUserId)
+                    showToast('아이디가 수정되었습니다.', 'success');
                   setIsEditingUserId(prev => !prev);
                 }}
               >
@@ -99,7 +107,7 @@ export default function ProfileEdit() {
                   className="bg-brand-blue"
                   onClick={() => {
                     setIsEditingPassword(false);
-                    showToast('비밀번호가 수정되었습니다.', 'error');
+                    showToast('비밀번호가 수정되었습니다.', 'success');
                   }}
                 >
                   완료
@@ -117,6 +125,6 @@ export default function ProfileEdit() {
           </div>
         </section>
       </div>
-    </div>
+    </section>
   );
 }

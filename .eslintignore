@@ -2,3 +2,4 @@ postcss.config.js
 commitlint.config.js
 vite.config.ts
 tailwind.config.ts
+public/sw.js

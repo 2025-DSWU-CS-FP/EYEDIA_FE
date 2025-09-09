@@ -4,62 +4,28 @@ import { IoMedalOutline } from 'react-icons/io5';
 
 import BadgeCard from '@/components/mypage/BadgeCard';
 import Header from '@/layouts/Header';
+import useMyBadges from '@/services/queries/useMyBadges';
+import type { UIBadge, UIBadgeStatus } from '@/types';
+import mapMyBadgesToUI, { formatBadgeTitleFromItem } from '@/types/badgeMapper';
 
-type BadgeStatus = 'earned' | 'in_progress' | 'locked';
-interface Badge {
-  id: string;
-  title: string;
-  description: string;
-  iconUrl?: string;
-  status: BadgeStatus;
-  progress?: number;
-  earnedAt?: string;
-}
+type TabKey = 'all' | UIBadgeStatus;
+type ApiStatus = 'ACHIEVED' | 'IN_PROGRESS' | 'LOCKED';
 
-const TABS: { key: 'all' | BadgeStatus; label: string }[] = [
+const TABS: { key: TabKey; label: string }[] = [
   { key: 'all', label: '전체' },
   { key: 'earned', label: '획득' },
   { key: 'in_progress', label: '진행중' },
   { key: 'locked', label: '잠김' },
 ];
 
-const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
+const TAB_TO_API = {
+  all: undefined,
+  earned: 'ACHIEVED',
+  in_progress: 'IN_PROGRESS',
+  locked: 'LOCKED',
+} as const;
 
-const MOCK_BADGES: Badge[] = [
-  {
-    id: 'b1',
-    title: '첫 수집',
-    description: '첫 전시를 수집했어요',
-    status: 'earned',
-    earnedAt: '2025-08-10',
-  },
-  {
-    id: 'b2',
-    title: '연속 3일',
-    description: '3일 연속 감상',
-    status: 'in_progress',
-    progress: 66,
-  },
-  {
-    id: 'b3',
-    title: '10개 수집',
-    description: '전시 10개 수집',
-    status: 'locked',
-  },
-  {
-    id: 'b4',
-    title: '첫 감상',
-    description: '첫 작품 감상',
-    status: 'earned',
-    earnedAt: '2025-08-08',
-  },
-  {
-    id: 'b5',
-    title: '주말 큐레이터',
-    description: '주말 2회 이상 방문',
-    status: 'locked',
-  },
-];
+const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5', 'sk-6'];
 
 function EmptyState() {
   return (
@@ -74,9 +40,9 @@ function EmptyState() {
 function SkeletonGrid() {
   return (
     <>
-      {SKELETON_KEYS.map(key => (
+      {SKELETON_KEYS.map(k => (
         <div
-          key={key}
+          key={k}
           className="animate-pulse h-[10rem] rounded-[8px] bg-gray-5"
         />
       ))}
@@ -85,19 +51,41 @@ function SkeletonGrid() {
 }
 
 export default function MyBadgePage() {
-  const [tab, setTab] = useState<(typeof TABS)[number]['key']>('all');
+  const [tab, setTab] = useState<TabKey>('all');
 
-  // const { data = [], isLoading } = useQuery<Badge[]>({ queryKey: ['badges'], queryFn: fetchBadges });
-  const data = MOCK_BADGES;
-  const isLoading = false;
+  const apiStatus = useMemo<ApiStatus | undefined>(
+    () => TAB_TO_API[tab],
+    [tab],
+  );
 
-  const earnedCount = data.filter(b => b.status === 'earned').length;
-  const totalCount = data.length;
+  // ① 전체 데이터(상단 카드 고정용)
+  const {
+    data: allData,
+    isFetching: loadingAll,
+    isError: errorAll,
+  } = useMyBadges();
 
-  const filtered = useMemo(() => {
-    if (tab === 'all') return data;
-    return data.filter(b => b.status === tab);
-  }, [data, tab]);
+  // ② 탭 전용 데이터(목록용) — all이면 호출 막기
+  const {
+    data: tabData,
+    isFetching: loadingTab,
+    isError: errorTab,
+  } = useMyBadges(apiStatus, { enabled: tab !== 'all' });
+
+  // 목록에 쓸 데이터 선택
+  const listData = tab === 'all' ? allData : tabData;
+  const isLoading = tab === 'all' ? loadingAll : loadingTab;
+  const isError = tab === 'all' ? errorAll : errorTab;
+
+  const uiBadges: UIBadge[] = useMemo(
+    () => (listData ? mapMyBadgesToUI(listData) : []),
+    [listData],
+  );
+
+  // 상단 카드는 "항상 전체 데이터" 기준
+  const earnedCount = allData?.acquired ?? 0;
+  const totalCount = allData?.total ?? 0;
+  const nextTargetTitle = formatBadgeTitleFromItem(allData?.nextTarget);
 
   return (
     <main className="flex w-full flex-col">
@@ -122,7 +110,7 @@ export default function MyBadgePage() {
             </div>
           </div>
           <p className="text-gray-60 ct3">
-            다음 목표: <span className="text-gray-80">연속 3일</span>
+            다음 목표: <span className="text-gray-80">{nextTargetTitle}</span>
           </p>
         </div>
       </section>
@@ -152,12 +140,16 @@ export default function MyBadgePage() {
 
       <section className="mt-[1.6rem] grid grid-cols-2 gap-[0.8rem] px-[2.4rem] pb-[4rem]">
         {isLoading && <SkeletonGrid />}
-
-        {!isLoading && filtered.length === 0 && <EmptyState />}
-
+        {!isLoading && !isError && uiBadges.length === 0 && <EmptyState />}
         {!isLoading &&
-          filtered.length > 0 &&
-          filtered.map(badge => <BadgeCard key={badge.id} badge={badge} />)}
+          !isError &&
+          uiBadges.length > 0 &&
+          uiBadges.map(b => <BadgeCard key={b.id} badge={b} />)}
+        {!isLoading && isError && (
+          <div className="col-span-2 rounded-[8px] bg-white p-[1.6rem] text-center text-red-500 shadow-sm ct3">
+            뱃지를 불러오지 못했어요.
+          </div>
+        )}
       </section>
     </main>
   );

@@ -1,9 +1,9 @@
 import { IoLockClosed, IoCheckmarkCircle, IoRibbon } from 'react-icons/io5';
 
-import type { Badge } from '@/types';
+import type { UIBadge } from '@/types/badge-ui';
 
 interface Props {
-  badge: Badge;
+  badge: UIBadge;
 }
 
 export default function BadgeCard({ badge }: Props) {

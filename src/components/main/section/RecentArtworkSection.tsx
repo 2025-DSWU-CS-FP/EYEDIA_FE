@@ -1,23 +1,72 @@
+import { useMemo } from 'react';
+
 import { useNavigate } from 'react-router-dom';
 
 import Empty from '@/components/common/Empty';
 import ArtworkCard from '@/components/main/ArtworkCard';
 import RecentArtwork from '@/components/main/RecentArtwork';
 import SectionHeader from '@/components/main/SectionHeader';
-import { RecentArtworkSectionProps } from '@/types';
+import useRecentViewedArtworks from '@/services/queries/useRecentViewedArtworks';
+import type { RecentArtworkSectionProps } from '@/types';
+import { ensureImage } from '@/utils/image';
 
-interface Props extends RecentArtworkSectionProps {
+type Props = {
+  artworks?: RecentArtworkSectionProps['artworks'];
   isLoading?: boolean;
-}
+};
+
+type Item = NonNullable<RecentArtworkSectionProps['artworks']>[number];
 
 export default function RecentArtworkSection({
   artworks,
-  isLoading = false,
+  isLoading: loadingProp = false,
 }: Props) {
   const navigate = useNavigate();
 
+  const useApi = artworks === undefined;
+  const { data, isFetching, isError } = useRecentViewedArtworks(
+    { limit: 10 },
+    { enabled: useApi },
+  );
+
+  const apiItems = useMemo(
+    () =>
+      (data?.content ?? []).map(it => ({
+        id: String(it.id),
+        title: it.title ?? '제목 미상',
+        artist: it.artist ?? '작가 미상',
+        imageUrl: ensureImage(it.imageUrl),
+        viewDate: it.date,
+        conversationCount: 0,
+        aiMessage: it.excerpt,
+      })),
+    [data],
+  );
+
+  const list: Item[] = useApi ? apiItems : artworks!;
+  const isLoading = useApi ? isFetching : loadingProp;
+  const isEmpty = !isLoading && list.length === 0;
+
   const skeletonKeys = ['sk-ra-1', 'sk-ra-2', 'sk-ra-3', 'sk-ra-4', 'sk-ra-5'];
-  const isEmpty = !isLoading && artworks.length === 0;
+
+  const renderItem = (art: Item) =>
+    art.aiMessage ? (
+      <RecentArtwork
+        key={art.id}
+        title={art.title}
+        imageUrl={ensureImage(art.imageUrl)}
+        viewDate={art.viewDate}
+        conversationCount={art.conversationCount ?? 0}
+        aiMessage={art.aiMessage}
+      />
+    ) : (
+      <ArtworkCard
+        key={art.id}
+        title={art.title}
+        artist={art.artist ?? '작가 미상'}
+        imageUrl={ensureImage(art.imageUrl)}
+      />
+    );
 
   return (
     <section className="flex flex-col gap-[1rem]" aria-busy={isLoading}>
@@ -51,25 +100,13 @@ export default function RecentArtworkSection({
                   <span className="sr-only">최근 감상 작품을 불러오는 중…</span>
                 </div>
               ))
-            : artworks.map(art =>
-                art.aiMessage ? (
-                  <RecentArtwork
-                    key={art.id}
-                    title={art.title}
-                    imageUrl={art.imageUrl}
-                    viewDate={art.viewDate}
-                    conversationCount={art.conversationCount}
-                    aiMessage={art.aiMessage}
-                  />
-                ) : (
-                  <ArtworkCard
-                    key={art.id}
-                    title={art.title}
-                    artist={art.artist}
-                    imageUrl={art.imageUrl}
-                  />
-                ),
-              )}
+            : list.map(renderItem)}
+        </div>
+      )}
+
+      {useApi && isError && (
+        <div className="px-[0.4rem] text-center text-red-500 ct3">
+          목록을 불러오지 못했어요.
         </div>
       )}
     </section>
