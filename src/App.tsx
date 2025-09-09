@@ -9,12 +9,13 @@ import { ToastProvider } from '@/contexts/ToastContext';
 import MainView from '@/layouts/MainView';
 import loginRoutes from '@/route/loginRoutes';
 import mainRoutes from '@/route/mainRoutes';
+import registerServiceWorker from '@/utils/pwa';
 
 const Layout = lazy(() => import('@/layouts/Layout'));
 const NotFound = lazy(() => import('@/pages/error/NotFound'));
 const ErrorPage = lazy(() => import('@/pages/error/ErrorPage'));
 const LandingPage = lazy(() => import('@/pages/landing/LandingPage'));
-
+registerServiceWorker();
 const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
