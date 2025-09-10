@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 
+import { useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import Button from '@/components/common/Button';
@@ -8,6 +9,8 @@ import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
 import useUpdateLoginId from '@/services/mutations/useUpdateLoginId';
 import useUpdateNickname from '@/services/mutations/useUpdateNickname';
+
+const ME_QUERY_KEY = ['users', 'me'] as const;
 
 interface ProfileEditProps {
   initialNickname: string;
@@ -27,24 +30,31 @@ export default function ProfileEdit({
   initialNickname,
   initialUserId,
 }: ProfileEditProps) {
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingUserId, setIsEditingUserId] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-
-  const { showToast } = useToast();
 
   const [nickname, setNickname] = useState(initialNickname);
   const [userId, setUserId] = useState(initialUserId);
   const [password, setPassword] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
 
+  const [savedNickname, setSavedNickname] = useState(initialNickname);
+  const [savedUserId, setSavedUserId] = useState(initialUserId);
+
+  useEffect(() => setSavedNickname(initialNickname), [initialNickname]);
+  useEffect(() => setSavedUserId(initialUserId), [initialUserId]);
+
   const nicknameChanged = useMemo(
-    () => nickname.trim() !== initialNickname.trim(),
-    [nickname, initialNickname],
+    () => nickname.trim() !== savedNickname.trim(),
+    [nickname, savedNickname],
   );
   const loginIdChanged = useMemo(
-    () => userId.trim() !== initialUserId.trim(),
-    [userId, initialUserId],
+    () => userId.trim() !== savedUserId.trim(),
+    [userId, savedUserId],
   );
 
   const { mutateAsync: updateNickname, isPending: updatingNickname } =
@@ -79,28 +89,34 @@ export default function ProfileEdit({
       setIsEditingNickname(false);
       return;
     }
+    const next = nickname.trim();
     try {
-      await updateNickname({ nickname: nickname.trim() });
+      await updateNickname({ nickname: next });
+      setSavedNickname(next);
       setIsEditingNickname(false);
       showToast('닉네임이 수정되었습니다.', 'success');
+      queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
     } catch (e) {
       showToast(getErrorMessage(e, 'nickname'), 'error');
     }
-  }, [nicknameChanged, updateNickname, nickname, showToast]);
+  }, [nicknameChanged, nickname, updateNickname, showToast, queryClient]);
 
   const finishLoginId = useCallback(async () => {
     if (!loginIdChanged) {
       setIsEditingUserId(false);
       return;
     }
+    const next = userId.trim();
     try {
-      await updateLoginId({ loginId: userId.trim() });
+      await updateLoginId({ loginId: next });
+      setSavedUserId(next);
       setIsEditingUserId(false);
       showToast('아이디가 수정되었습니다.', 'success');
+      queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
     } catch (e) {
       showToast(getErrorMessage(e, 'loginId'), 'error');
     }
-  }, [loginIdChanged, updateLoginId, userId, showToast]);
+  }, [loginIdChanged, userId, updateLoginId, showToast, queryClient]);
 
   const completePassword = useCallback(() => {
     closePasswordEdit();
@@ -132,7 +148,9 @@ export default function ProfileEdit({
                 <Button
                   className="w-full bg-brand-blue"
                   onClick={finishNickname}
-                  disabled={!nickname.trim() || updatingNickname}
+                  disabled={
+                    !nickname.trim() || updatingNickname || !nicknameChanged
+                  }
                 >
                   {updatingNickname ? '저장중…' : '완료'}
                 </Button>
@@ -165,7 +183,9 @@ export default function ProfileEdit({
                 <Button
                   className="w-full bg-brand-blue"
                   onClick={finishLoginId}
-                  disabled={!userId.trim() || updatingLoginId}
+                  disabled={
+                    !userId.trim() || updatingLoginId || !loginIdChanged
+                  }
                 >
                   {updatingLoginId ? '저장중…' : '완료'}
                 </Button>
