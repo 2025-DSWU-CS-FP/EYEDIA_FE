@@ -1,29 +1,127 @@
-import { useState } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
+import useUpdateLoginId from '@/services/mutations/useUpdateLoginId';
+import useUpdateNickname from '@/services/mutations/useUpdateNickname';
+
+const ME_QUERY_KEY = ['users', 'me'] as const;
 
 interface ProfileEditProps {
   initialNickname: string;
   initialUserId: string;
 }
 
+function getErrorMessage(e: unknown, field: 'nickname' | 'loginId'): string {
+  const ax = e as AxiosError<{
+    message?: string;
+    result?: Record<string, string>;
+  }>;
+  const res = ax?.response?.data;
+  return res?.result?.[field] || res?.message || '요청을 처리하지 못했습니다.';
+}
+
 export default function ProfileEdit({
   initialNickname,
   initialUserId,
 }: ProfileEditProps) {
+  const { showToast } = useToast();
+  const queryClient = useQueryClient();
+
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingUserId, setIsEditingUserId] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-
-  const { showToast } = useToast();
 
   const [nickname, setNickname] = useState(initialNickname);
   const [userId, setUserId] = useState(initialUserId);
   const [password, setPassword] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
+
+  const [savedNickname, setSavedNickname] = useState(initialNickname);
+  const [savedUserId, setSavedUserId] = useState(initialUserId);
+
+  useEffect(() => setSavedNickname(initialNickname), [initialNickname]);
+  useEffect(() => setSavedUserId(initialUserId), [initialUserId]);
+
+  const nicknameChanged = useMemo(
+    () => nickname.trim() !== savedNickname.trim(),
+    [nickname, savedNickname],
+  );
+  const loginIdChanged = useMemo(
+    () => userId.trim() !== savedUserId.trim(),
+    [userId, savedUserId],
+  );
+
+  const { mutateAsync: updateNickname, isPending: updatingNickname } =
+    useUpdateNickname();
+  const { mutateAsync: updateLoginId, isPending: updatingLoginId } =
+    useUpdateLoginId();
+
+  const onNicknameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value),
+    [],
+  );
+  const onUserIdChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setUserId(e.target.value),
+    [],
+  );
+  const onPasswordChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value),
+    [],
+  );
+  const onConfirmPwChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setConfirmPw(e.target.value),
+    [],
+  );
+
+  const startEditNickname = useCallback(() => setIsEditingNickname(true), []);
+  const startEditLoginId = useCallback(() => setIsEditingUserId(true), []);
+  const openPasswordEdit = useCallback(() => setIsEditingPassword(true), []);
+  const closePasswordEdit = useCallback(() => setIsEditingPassword(false), []);
+
+  const finishNickname = useCallback(async () => {
+    if (!nicknameChanged) {
+      setIsEditingNickname(false);
+      return;
+    }
+    const next = nickname.trim();
+    try {
+      await updateNickname({ nickname: next });
+      setSavedNickname(next);
+      setIsEditingNickname(false);
+      showToast('닉네임이 수정되었습니다.', 'success');
+      queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
+    } catch (e) {
+      showToast(getErrorMessage(e, 'nickname'), 'error');
+    }
+  }, [nicknameChanged, nickname, updateNickname, showToast, queryClient]);
+
+  const finishLoginId = useCallback(async () => {
+    if (!loginIdChanged) {
+      setIsEditingUserId(false);
+      return;
+    }
+    const next = userId.trim();
+    try {
+      await updateLoginId({ loginId: next });
+      setSavedUserId(next);
+      setIsEditingUserId(false);
+      showToast('아이디가 수정되었습니다.', 'success');
+      queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY });
+    } catch (e) {
+      showToast(getErrorMessage(e, 'loginId'), 'error');
+    }
+  }, [loginIdChanged, userId, updateLoginId, showToast, queryClient]);
+
+  const completePassword = useCallback(() => {
+    closePasswordEdit();
+    showToast('비밀번호가 수정되었습니다.', 'success');
+  }, [closePasswordEdit, showToast]);
 
   return (
     <section className="flex flex-col gap-[2.4rem] px-[2.4rem] py-[4rem]">
@@ -40,22 +138,30 @@ export default function ProfileEdit({
               <TextInput
                 id="nickname"
                 value={nickname}
-                onChange={e => setNickname(e.target.value)}
+                onChange={onNicknameChange}
                 placeholder="새 닉네임 입력"
-                disabled={!isEditingNickname}
+                disabled={!isEditingNickname || updatingNickname}
               />
             </div>
             <div className="flex-[1]">
-              <Button
-                className="w-full bg-brand-blue"
-                onClick={() => {
-                  if (isEditingNickname)
-                    showToast('닉네임이 수정되었습니다.', 'success');
-                  setIsEditingNickname(prev => !prev);
-                }}
-              >
-                {isEditingNickname ? '완료' : '변경하기'}
-              </Button>
+              {isEditingNickname ? (
+                <Button
+                  className="w-full bg-brand-blue"
+                  onClick={finishNickname}
+                  disabled={
+                    !nickname.trim() || updatingNickname || !nicknameChanged
+                  }
+                >
+                  {updatingNickname ? '저장중…' : '완료'}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full bg-brand-blue"
+                  onClick={startEditNickname}
+                >
+                  변경하기
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -67,22 +173,30 @@ export default function ProfileEdit({
               <TextInput
                 id="user-id"
                 value={userId}
-                onChange={e => setUserId(e.target.value)}
+                onChange={onUserIdChange}
                 placeholder="새 아이디 입력"
-                disabled={!isEditingUserId}
+                disabled={!isEditingUserId || updatingLoginId}
               />
             </div>
             <div className="flex-[1]">
-              <Button
-                className="w-full bg-brand-blue"
-                onClick={() => {
-                  if (isEditingUserId)
-                    showToast('아이디가 수정되었습니다.', 'success');
-                  setIsEditingUserId(prev => !prev);
-                }}
-              >
-                {isEditingUserId ? '완료' : '변경하기'}
-              </Button>
+              {isEditingUserId ? (
+                <Button
+                  className="w-full bg-brand-blue"
+                  onClick={finishLoginId}
+                  disabled={
+                    !userId.trim() || updatingLoginId || !loginIdChanged
+                  }
+                >
+                  {updatingLoginId ? '저장중…' : '완료'}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full bg-brand-blue"
+                  onClick={startEditLoginId}
+                >
+                  변경하기
+                </Button>
+              )}
             </div>
           </div>
         </section>
@@ -96,20 +210,14 @@ export default function ProfileEdit({
                   id="password"
                   placeholder="새 비밀번호"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={onPasswordChange}
                 />
                 <PasswordInput
                   placeholder="새 비밀번호 확인"
                   value={confirmPw}
-                  onChange={e => setConfirmPw(e.target.value)}
+                  onChange={onConfirmPwChange}
                 />
-                <Button
-                  className="bg-brand-blue"
-                  onClick={() => {
-                    setIsEditingPassword(false);
-                    showToast('비밀번호가 수정되었습니다.', 'success');
-                  }}
-                >
+                <Button className="bg-brand-blue" onClick={completePassword}>
                   완료
                 </Button>
               </div>
@@ -117,7 +225,7 @@ export default function ProfileEdit({
               <Button
                 id="change-password"
                 className="w-full bg-brand-blue"
-                onClick={() => setIsEditingPassword(true)}
+                onClick={openPasswordEdit}
               >
                 비밀번호 변경하기
               </Button>
