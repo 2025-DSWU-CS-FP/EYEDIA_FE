@@ -16,7 +16,7 @@ type ApiBaseResponse = { isSuccess: boolean; code: string; message: string };
 async function request(
   payload: UpdateNicknamePayload,
 ): Promise<ApiBaseResponse> {
-  const res = await client.post<ApiBaseResponse>(
+  const res = await client.patch<ApiBaseResponse>(
     '/api/v1/users/me/nickname',
     payload,
   );
