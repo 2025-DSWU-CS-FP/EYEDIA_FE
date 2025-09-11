@@ -3,31 +3,32 @@ import type { AxiosError } from 'axios';
 
 import client from '@/services/axiosInstance';
 
-type UpdateNicknamePayload = { nickname: string };
+type UpdatePasswordPayload = { password: string; confirmPassword: string };
+
 type ApiErrorBody = {
   isSuccess?: boolean;
   code?: string;
   message?: string;
-  result?: { nickname?: string; loginId?: string };
+  result?: { updatePassWordRequest?: string };
 };
 
 type ApiBaseResponse = { isSuccess: boolean; code: string; message: string };
 
 async function request(
-  payload: UpdateNicknamePayload,
+  payload: UpdatePasswordPayload,
 ): Promise<ApiBaseResponse> {
   const res = await client.patch<ApiBaseResponse>(
-    '/api/v1/users/me/nickname',
+    '/api/v1/users/me/pw',
     payload,
   );
   return res.data;
 }
 
-export default function useUpdateNickname() {
+export default function useUpdatePassword() {
   return useMutation<
     ApiBaseResponse,
     AxiosError<ApiErrorBody>,
-    UpdateNicknamePayload
+    UpdatePasswordPayload
   >({
     mutationFn: request,
   });

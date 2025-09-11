@@ -112,7 +112,7 @@ const queryFactory = {
 
   // 뱃지 조회
   myBadges: (status?: BadgeStatus) => async (): Promise<MyBadgesResult> => {
-    const res = await axiosInstance.get('/api/vi/badges', {
+    const res = await axiosInstance.get('/api/v1/badges', {
       params: { status },
     });
     return res.data.result as MyBadgesResult;
