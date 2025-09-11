@@ -9,6 +9,7 @@ import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
 import useUpdateLoginId from '@/services/mutations/useUpdateLoginId';
 import useUpdateNickname from '@/services/mutations/useUpdateNickname';
+import useUpdatePassword from '@/services/mutations/useUpdatePassword';
 
 const ME_QUERY_KEY = ['users', 'me'] as const;
 
@@ -26,6 +27,19 @@ function getErrorMessage(e: unknown, field: 'nickname' | 'loginId'): string {
   return res?.result?.[field] || res?.message || '요청을 처리하지 못했습니다.';
 }
 
+function getPasswordErrorMessage(e: unknown): string {
+  const ax = e as AxiosError<{
+    message?: string;
+    result?: { updatePassWordRequest?: string };
+  }>;
+  const res = ax?.response?.data;
+  return (
+    res?.result?.updatePassWordRequest ||
+    res?.message ||
+    '요청을 처리하지 못했습니다.'
+  );
+}
+
 export default function ProfileEdit({
   initialNickname,
   initialUserId,
@@ -36,12 +50,10 @@ export default function ProfileEdit({
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [isEditingUserId, setIsEditingUserId] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
-
   const [nickname, setNickname] = useState(initialNickname);
   const [userId, setUserId] = useState(initialUserId);
   const [password, setPassword] = useState('');
   const [confirmPw, setConfirmPw] = useState('');
-
   const [savedNickname, setSavedNickname] = useState(initialNickname);
   const [savedUserId, setSavedUserId] = useState(initialUserId);
 
@@ -61,6 +73,8 @@ export default function ProfileEdit({
     useUpdateNickname();
   const { mutateAsync: updateLoginId, isPending: updatingLoginId } =
     useUpdateLoginId();
+  const { mutateAsync: updatePassword, isPending: updatingPassword } =
+    useUpdatePassword();
 
   const onNicknameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setNickname(e.target.value),
@@ -118,10 +132,27 @@ export default function ProfileEdit({
     }
   }, [loginIdChanged, userId, updateLoginId, showToast, queryClient]);
 
-  const completePassword = useCallback(() => {
-    closePasswordEdit();
-    showToast('비밀번호가 수정되었습니다.', 'success');
-  }, [closePasswordEdit, showToast]);
+  const completePassword = useCallback(async () => {
+    const p = password.trim();
+    const c = confirmPw.trim();
+    if (!p || !c) {
+      showToast('비밀번호를 입력해 주세요.', 'error');
+      return;
+    }
+    if (p !== c) {
+      showToast('비밀번호가 일치하지 않습니다.', 'error');
+      return;
+    }
+    try {
+      await updatePassword({ password: p, confirmPassword: c });
+      setPassword('');
+      setConfirmPw('');
+      closePasswordEdit();
+      showToast('비밀번호가 수정되었습니다.', 'success');
+    } catch (e) {
+      showToast(getPasswordErrorMessage(e), 'error');
+    }
+  }, [password, confirmPw, updatePassword, closePasswordEdit, showToast]);
 
   return (
     <section className="flex flex-col gap-[2.4rem] px-[2.4rem] py-[4rem]">
@@ -217,8 +248,17 @@ export default function ProfileEdit({
                   value={confirmPw}
                   onChange={onConfirmPwChange}
                 />
-                <Button className="bg-brand-blue" onClick={completePassword}>
-                  완료
+                <Button
+                  className="bg-brand-blue"
+                  onClick={completePassword}
+                  disabled={
+                    !password.trim() ||
+                    !confirmPw.trim() ||
+                    password !== confirmPw ||
+                    updatingPassword
+                  }
+                >
+                  {updatingPassword ? '저장중…' : '완료'}
                 </Button>
               </div>
             ) : (
