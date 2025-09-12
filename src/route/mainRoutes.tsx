@@ -15,7 +15,7 @@ const MyGalleryPage = lazy(() => import('@/pages/auth/MyGallery'));
 const EditProfilePage = lazy(() => import('@/pages/auth/EditProfile'));
 const Onboarding = lazy(() => import('@/pages/chat/Onboarding'));
 const GazePage = lazy(() => import('@/pages/chat/GazePage'));
-const Artwork = lazy(() => import('@/pages/Artwork'));
+const Artwork = lazy(() => import('@/pages/chat/Artwork'));
 const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
 const PopularDetailPage = lazy(
