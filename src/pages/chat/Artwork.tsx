@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
@@ -63,10 +63,6 @@ export default function ArtworkPage() {
 
   const [localMessages, setLocalMessages] = useState<LocalMsg[]>([]);
   const [typing, setTyping] = useState(false);
-  const [streaming, setStreaming] = useState(false);
-  const [streamed, setStreamed] = useState('');
-
-  const [showSpeakHint, setShowSpeakHint] = useState(false);
 
   const voiceStepRef = useRef(0);
   const timers = useRef<number[]>([]);
@@ -103,22 +99,16 @@ export default function ArtworkPage() {
     };
   }, []);
 
-  const handleFocusInput = () => {
-    setShowChatInput(true);
-    window.setTimeout(() => inputRef.current?.focus(), 100);
-  };
-
-  // 리스트 자동 스크롤
   useEffect(() => {
     const doScroll = () => {
       endRef.current?.scrollIntoView({
-        behavior: streaming ? 'auto' : 'smooth',
+        behavior: 'smooth',
         block: 'end',
         inline: 'nearest',
       });
     };
     requestAnimationFrame(doScroll);
-  }, [chatMessages, wsMessages, localMessages, typing, streaming, streamed]);
+  }, [chatMessages, wsMessages, localMessages, typing]);
 
   const initial = (chatMessages ?? []).map(m => ({
     id: nanoid(),
@@ -139,18 +129,14 @@ export default function ArtworkPage() {
     type: 'TEXT' as const,
   }));
 
-  const allMessages = [
-    ...initial,
-    ...wsList.map(m => ({
-      id: m.id,
-      content: m.content,
-      sender: (m.sender === 'SYSTEM' ? 'BOT' : m.sender) as 'USER' | 'BOT',
-      type: 'TEXT' as const,
-    })),
-    ...localMessages,
-  ];
+  const promptText = useMemo(() => {
+    if (!connected) return '연결을 확인하는 중이에요.';
+    if (isRecognized) return '말씀하세요 :)';
+    if (typing) return '답변을 생성하는 중이에요…';
+    return '버튼을 누르고 작품에 대해 물어보세요.';
+  }, [connected, isRecognized, typing]);
 
-  const voiceDisabled = isRecognized || typing || streaming || !connected;
+  const voiceDisabled = isRecognized || typing || !connected;
 
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
@@ -180,14 +166,12 @@ export default function ArtworkPage() {
   };
 
   const startVoiceDemo = () => {
-    if (isRecognized || typing || streaming) return;
+    if (isRecognized || typing) return;
 
-    setShowSpeakHint(true);
     setIsRecognized(true);
 
     const t = window.setTimeout(() => {
       setIsRecognized(false);
-      setShowSpeakHint(false);
 
       if (voiceStepRef.current === 0) {
         setLocalMessages(prev => [
@@ -338,18 +322,6 @@ export default function ArtworkPage() {
               </div>
             )}
 
-            {streaming && streamed && (
-              <ChatMessage
-                key="streaming"
-                text={streamed}
-                isFromUser={false}
-                onExtract={quote => {
-                  setSelectionText(quote);
-                  setShowExtractCard(true);
-                }}
-              />
-            )}
-
             <div ref={endRef} />
           </div>
         </main>
@@ -378,13 +350,7 @@ export default function ArtworkPage() {
             )}
           </div>
 
-          <p className="relative z-10 mt-6 text-gray-70 bd2">
-            {connected
-              ? isRecognized
-                ? '말씀하세요 :)'
-                : '버튼을 누르고 작품에 대해 물어보세요.'
-              : '연결을 확인하는 중이에요.'}
-          </p>
+          <p className="relative z-10 mt-6 text-gray-70 bd2">{promptText}</p>
 
           <div className="pointer-events-auto relative z-10 mt-4 flex w-full justify-end">
             <input ref={inputRef} type="text" className="sr-only" />

@@ -34,7 +34,6 @@ export default function GazePage() {
       occurredAt: new Date().toISOString(),
       payload: { exhibitionId: 1, timezone: 'Asia/Seoul' },
     });
-    // 대화 페이지로 선택된 작품 ID 전달
     navigate('/chat-artwork', { state: { paintingId } });
   };
 
@@ -53,7 +52,7 @@ export default function GazePage() {
             )}
             <div className="mt-2 whitespace-pre-line text-gray-100 t3">
               {trackingComplete
-                ? `지금 보고 있는 작품(#${paintingId})으로\n대화를 시작해볼까요?`
+                ? `지금 보고 있는 작품으로\n대화를 시작해볼까요?`
                 : '궁금한 작품을\n2초 이상 응시하세요.'}
             </div>
           </div>
