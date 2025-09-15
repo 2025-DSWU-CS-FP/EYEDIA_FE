@@ -8,7 +8,6 @@ import { useLocation } from 'react-router-dom';
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
 import '@/styles/typing.css';
-
 import keyboardIcon from '@/assets/icons/keyboard.svg';
 import Sample from '@/assets/images/chat/image1.jpg';
 import Sample2 from '@/assets/images/chat/image2.png';
@@ -18,6 +17,7 @@ import ChatMessage from '@/components/chat/ChatMessage';
 import ExtractCard from '@/components/chat/ExtractCard';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import Divider from '@/components/mypage/Divider';
+import { PROMPT_MESSAGES } from '@/constants/promptMessages';
 import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
@@ -130,10 +130,10 @@ export default function ArtworkPage() {
   }));
 
   const promptText = useMemo(() => {
-    if (!connected) return '연결을 확인하는 중이에요.';
-    if (isRecognized) return '말씀하세요 :)';
-    if (typing) return '답변을 생성하는 중이에요…';
-    return '버튼을 누르고 작품에 대해 물어보세요.';
+    if (!connected) return PROMPT_MESSAGES.checkingConnection;
+    if (isRecognized) return PROMPT_MESSAGES.speaking;
+    if (typing) return PROMPT_MESSAGES.generating;
+    return PROMPT_MESSAGES.ask;
   }, [connected, isRecognized, typing]);
 
   const voiceDisabled = isRecognized || typing || !connected;
