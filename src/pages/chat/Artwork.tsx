@@ -23,6 +23,7 @@ import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
+import { askArtworkLLM } from '@/services/ws/chat';
 import type { IncomingChat } from '@/types/chat';
 import getAuthToken from '@/utils/getToken';
 
@@ -70,10 +71,8 @@ export default function ArtworkPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // 서버 저장된 히스토리(옵션)
   const { data: chatMessages } = useChatMessages(paintingId);
 
-  // STOMP 채널 연결
   const token = getAuthToken();
   const {
     connected,
@@ -164,6 +163,35 @@ export default function ArtworkPage() {
       },
     );
   };
+  useEffect(() => {
+    // 이미 완료된 작품은 스킵
+    const g = window as unknown as { __ASK_DONE__?: Record<number, true> };
+    if (g.__ASK_DONE__?.[paintingId]) return;
+
+    const ac = new AbortController();
+    let mounted = true;
+
+    (async () => {
+      try {
+        const question = '노신사에 대해 더 설명해줘';
+        await askArtworkLLM({ artId: paintingId, text: question }, ac.signal);
+        if (!mounted) return; // StrictMode 1회차 클린업이면 패스
+        g.__ASK_DONE__ ??= {};
+        g.__ASK_DONE__[paintingId] = true; // ✅ 정상 경로에서만 가드 세움
+      } catch (e) {
+        // 사용자가/StrictMode가 끊은 경우는 조용히 무시
+        if (e instanceof DOMException && e.name === 'AbortError') return;
+        showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
+      }
+    })();
+
+    return () => {
+      mounted = false;
+      ac.abort();
+    };
+    // showToast는 의존성에서 빼는 게 안전(변하지 않도록 컨텍스트에서 useCallback으로 안정화 권장)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paintingId]);
 
   const startVoiceDemo = () => {
     if (isRecognized || typing) return;
