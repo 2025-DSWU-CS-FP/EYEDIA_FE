@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
@@ -20,21 +20,18 @@ import Divider from '@/components/mypage/Divider';
 import { PROMPT_MESSAGES } from '@/constants/promptMessages';
 import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
+import useAbortControllerRef from '@/hooks/useAbortControllerRef';
+import useAutoScrollToEnd from '@/hooks/useAutoScrollToEnd';
+import useTimers from '@/hooks/useTimers';
+import useTypewriter from '@/hooks/useTypewriter';
 import Header from '@/layouts/Header';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { IncomingChat } from '@/types/chat';
+import type { LocalMsg } from '@/types/chatLocal';
+import dateKST from '@/utils/dateKST';
 import getAuthToken from '@/utils/getToken';
-
-type MsgType = 'TEXT' | 'IMAGE';
-type LocalMsg = {
-  id: string;
-  sender: 'USER' | 'BOT';
-  type: MsgType;
-  content?: string;
-  imageUrl?: string;
-};
 
 type LocationState = { paintingId?: number };
 
@@ -42,16 +39,7 @@ const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
 const exhibitionName = '한이음 전시회';
 const DEFAULT_PAINTING_ID = 200001;
 
-const dateKST = () =>
-  new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Seoul',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(new Date());
-
 export default function ArtworkPage() {
-  const askCtrlRef = useRef<AbortController | null>(null);
   const { state } = useLocation();
   const paintingId =
     ((state as LocationState | null)?.paintingId as number | undefined) ??
@@ -67,7 +55,6 @@ export default function ArtworkPage() {
   const [typing, setTyping] = useState(false);
 
   const voiceStepRef = useRef(0);
-  const timers = useRef<number[]>([]);
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,27 +71,11 @@ export default function ArtworkPage() {
   const queryClient = useQueryClient();
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
 
-  useEffect(() => {
-    return () => {
-      timers.current.forEach(t => {
-        window.clearTimeout(t);
-        window.clearInterval(t);
-      });
-      timers.current = [];
-      askCtrlRef.current?.abort('unmount');
-    };
-  }, []);
+  const { add } = useTimers();
+  const ac = useAbortControllerRef();
+  const { start: startTypewriter } = useTypewriter(add);
 
-  useEffect(() => {
-    const doScroll = () => {
-      endRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'end',
-        inline: 'nearest',
-      });
-    };
-    requestAnimationFrame(doScroll);
-  }, [chatMessages, wsMessages, localMessages, typing]);
+  useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
 
   const initial = useMemo(
     () =>
@@ -165,22 +136,6 @@ export default function ArtworkPage() {
     );
   };
 
-  const startTypewriter = (msgId: string, fullText: string, speedMs = 16) => {
-    let i = 0;
-    const tick = () => {
-      i += 1;
-      setLocalMessages(prev =>
-        prev.map(m =>
-          m.id === msgId ? { ...m, content: fullText.slice(0, i) } : m,
-        ),
-      );
-      if (i >= fullText.length) return;
-      const t = window.setTimeout(tick, speedMs);
-      timers.current.push(t);
-    };
-    tick();
-  };
-
   const submitAsk = async (raw: string) => {
     const text = raw.trim();
     if (!text) return;
@@ -192,19 +147,23 @@ export default function ArtworkPage() {
 
     setTyping(true);
     try {
-      askCtrlRef.current?.abort('new ask');
-      const ac = new AbortController();
-      askCtrlRef.current = ac;
-
-      const res = await askArtworkLLM({ artId: paintingId, text }, ac.signal);
-
+      const { signal: abortSignal } = ac.renew();
+      const res = await askArtworkLLM({ artId: paintingId, text }, abortSignal);
       setTyping(false);
       const botId = nanoid();
       setLocalMessages(prev => [
         ...prev,
         { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
       ]);
-      startTypewriter(botId, res.answer);
+      startTypewriter(
+        botId,
+        res.answer,
+        partial =>
+          setLocalMessages(prev =>
+            prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
+          ),
+        16,
+      );
     } catch (e) {
       setTyping(false);
       if (!(e instanceof DOMException && e.name === 'AbortError')) {
@@ -215,23 +174,22 @@ export default function ArtworkPage() {
 
   const startVoiceDemo = () => {
     if (isRecognized || typing) return;
-
     setIsRecognized(true);
+    add(
+      window.setTimeout(() => {
+        setIsRecognized(false);
 
-    const t = window.setTimeout(() => {
-      setIsRecognized(false);
-
-      if (voiceStepRef.current === 0) {
-        setLocalMessages(prev => [
-          ...prev,
-          { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: Sample2 },
-        ]);
-        voiceStepRef.current = 1;
-      } else {
-        setShowChatInput(true);
-      }
-    }, 3000);
-    timers.current.push(t);
+        if (voiceStepRef.current === 0) {
+          setLocalMessages(prev => [
+            ...prev,
+            { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: Sample2 },
+          ]);
+          voiceStepRef.current = 1;
+        } else {
+          setShowChatInput(true);
+        }
+      }, 3000),
+    );
   };
 
   return (
@@ -272,10 +230,7 @@ export default function ArtworkPage() {
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t1">
-                      {artworkInfo.title}{' '}
-                      <span className="text-gray-70 ct5">#{paintingId}</span>
-                    </h1>
+                    <h1 className="font-normal t1">{artworkInfo.title} </h1>
                     <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
                   </div>
                   <p className="text-gray-50 ct4">{exhibitionName}</p>
@@ -298,33 +253,22 @@ export default function ArtworkPage() {
               )}
 
             {[...initial, ...wsList, ...localMessages].map(m =>
-              (m as LocalMsg).type === 'IMAGE' ? (
+              m.type === 'IMAGE' ? (
                 <figure
-                  key={(m as LocalMsg).id}
+                  key={m.id}
                   className="max-w-[75%] self-end overflow-hidden rounded-[20px] bg-gray-10"
                 >
                   <img
-                    src={(m as LocalMsg).imageUrl!}
+                    src={m.imageUrl!}
                     alt="선택한 부분 이미지"
                     className="block h-auto w-full object-cover"
                   />
                 </figure>
               ) : (
                 <ChatMessage
-                  key={
-                    'id' in m ? (m as { id: string }).id : (m as LocalMsg).id
-                  }
-                  text={
-                    'content' in m
-                      ? (m as { content: string }).content
-                      : (m as LocalMsg).content!
-                  }
-                  isFromUser={
-                    'sender' in m
-                      ? (m as { sender: 'USER' | 'BOT' | 'SYSTEM' }).sender ===
-                        'USER'
-                      : (m as LocalMsg).sender === 'USER'
-                  }
+                  key={m.id}
+                  text={m.content!}
+                  isFromUser={m.sender === 'USER'}
                   onExtract={quote => {
                     setSelectionText(quote);
                     setShowExtractCard(true);
@@ -376,7 +320,7 @@ export default function ArtworkPage() {
 
           <p className="relative z-10 mt-6 text-gray-70 bd2">{promptText}</p>
 
-          <div className="pointer-events-auto relative right-4 z-10 mx-auto flex w-full max-w-[430px] justify-end">
+          <div className="pointer-events-auto relative z-10 mx-auto mt-4 flex w-full max-w-[430px] justify-end">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
