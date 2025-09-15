@@ -9,22 +9,38 @@ import ringImage from '@/assets/images/chat/eyewear-ring.svg';
 import BottomLink from '@/components/chat/BottomLink';
 import EyewearImage from '@/components/chat/EyewearImage';
 import OnboardingText from '@/components/chat/OnboardingText';
+import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
-
 import '@/styles/eyewear-transition.css';
+import getAuthToken from '@/utils/getToken';
 
-function OnboardingPage() {
+const TARGET_PAINTING_ID = 200001;
+
+export default function OnboardingPage() {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
 
+  // 온보딩 단계에서는 방 입장용 paintingId를 미리 정해 연결
+  const token = getAuthToken();
+  const { connected, send } = useStompChat({
+    paintingId: TARGET_PAINTING_ID,
+    token,
+  });
+
+  // 연결 상태를 UI에 반영
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsConnected(true), 3000);
-    return () => window.clearTimeout(timer);
-  }, []);
+    if (connected) setIsConnected(true);
+  }, [connected]);
 
   useEffect(() => {
     const timer = isConnected
-      ? window.setTimeout(() => navigate('/chat-gaze'), 3000)
+      ? window.setTimeout(
+          () =>
+            navigate('/chat-gaze', {
+              state: { paintingId: TARGET_PAINTING_ID },
+            }),
+          3000,
+        )
       : null;
 
     return () => {
@@ -66,13 +82,25 @@ function OnboardingPage() {
       </div>
 
       {!isConnected && (
-        <BottomLink
-          text="연결에 문제가 있나요?"
-          onClick={() => navigate('/help')}
-        />
+        <div className="flex w-full flex-col items-center gap-[1rem] pb-[2rem]">
+          <BottomLink
+            text="연결에 문제가 있나요?"
+            onClick={() => navigate('/help')}
+          />
+          {/* 임시 연결 버튼: STOMP 연결 후 테스트 메시지를 발행 */}
+          <button
+            type="button"
+            className="rounded-[24px] bg-gray-10 px-[1.6rem] py-[0.8rem] text-gray-100 bd2"
+            onClick={() => {
+              // 연결은 useStompChat가 이미 시도하고 있음. 임시로 메시지를 보내 서버 라우팅 확인
+              // 공개 채널: /app/chat.sendMessage 로 { paintingId, content } 발행
+              send('onboarding: 연결 테스트');
+            }}
+          >
+            임시 연결 시작
+          </button>
+        </div>
       )}
     </div>
   );
 }
-
-export default OnboardingPage;
