@@ -23,7 +23,6 @@ import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
-import { askArtworkLLM } from '@/services/ws/chat';
 import type { IncomingChat } from '@/types/chat';
 import getAuthToken from '@/utils/getToken';
 
@@ -41,6 +40,7 @@ type LocationState = { paintingId?: number };
 const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
 const exhibitionName = '한이음 전시회';
 const DEFAULT_PAINTING_ID = 200001;
+const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 const dateKST = () =>
   new Intl.DateTimeFormat('en-CA', {
@@ -51,6 +51,8 @@ const dateKST = () =>
   }).format(new Date());
 
 export default function ArtworkPage() {
+  const askCtrlRef = useRef<AbortController | null>(null);
+
   const { state } = useLocation();
   const paintingId =
     ((state as LocationState | null)?.paintingId as number | undefined) ??
@@ -74,11 +76,7 @@ export default function ArtworkPage() {
   const { data: chatMessages } = useChatMessages(paintingId);
 
   const token = getAuthToken();
-  const {
-    connected,
-    messages: wsMessages,
-    send,
-  } = useStompChat({
+  const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
   });
@@ -95,6 +93,7 @@ export default function ArtworkPage() {
         window.clearInterval(t);
       });
       timers.current = [];
+      askCtrlRef.current?.abort('unmount');
     };
   }, []);
 
@@ -109,12 +108,16 @@ export default function ArtworkPage() {
     requestAnimationFrame(doScroll);
   }, [chatMessages, wsMessages, localMessages, typing]);
 
-  const initial = (chatMessages ?? []).map(m => ({
-    id: nanoid(),
-    content: m.content,
-    sender: m.sender as 'USER' | 'BOT',
-    type: 'TEXT' as const,
-  }));
+  const initial = useMemo(
+    () =>
+      (chatMessages ?? []).map(m => ({
+        id: nanoid(),
+        content: m.content,
+        sender: m.sender as 'USER' | 'BOT',
+        type: 'TEXT' as const,
+      })),
+    [chatMessages],
+  );
 
   const wsList: Array<{
     id: string;
@@ -135,7 +138,7 @@ export default function ArtworkPage() {
     return '버튼을 누르고 작품에 대해 물어보세요.';
   }, [connected, isRecognized, typing]);
 
-  const voiceDisabled = isRecognized || typing || !connected;
+  const voiceDisabled = isRecognized || typing;
 
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
@@ -163,35 +166,65 @@ export default function ArtworkPage() {
       },
     );
   };
-  useEffect(() => {
-    // 이미 완료된 작품은 스킵
-    const g = window as unknown as { __ASK_DONE__?: Record<number, true> };
-    if (g.__ASK_DONE__?.[paintingId]) return;
 
-    const ac = new AbortController();
-    let mounted = true;
+  async function postAskHTTP(
+    artId: number,
+    text: string,
+    signal?: AbortSignal,
+  ) {
+    const res = await fetch(`${API_BASE}/api/v1/chats/ask`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        accept: 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ artId, text }),
+      signal,
+      cache: 'no-store',
+      keepalive: true,
+      mode: 'cors',
+      credentials: 'include',
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`ask failed: ${res.status} ${body}`);
+    }
+    return (await res.json()) as {
+      artId: number;
+      answer: string;
+      model?: string;
+    };
+  }
 
-    (async () => {
-      try {
-        const question = '노신사에 대해 더 설명해줘';
-        await askArtworkLLM({ artId: paintingId, text: question }, ac.signal);
-        if (!mounted) return; // StrictMode 1회차 클린업이면 패스
-        g.__ASK_DONE__ ??= {};
-        g.__ASK_DONE__[paintingId] = true; // ✅ 정상 경로에서만 가드 세움
-      } catch (e) {
-        // 사용자가/StrictMode가 끊은 경우는 조용히 무시
-        if (e instanceof DOMException && e.name === 'AbortError') return;
+  const submitAsk = async (raw: string) => {
+    const text = raw.trim();
+    if (!text) return;
+
+    setLocalMessages(prev => [
+      ...prev,
+      { id: nanoid(), sender: 'USER', type: 'TEXT', content: text },
+    ]);
+
+    setTyping(true);
+    try {
+      askCtrlRef.current?.abort('new ask');
+      const ac = new AbortController();
+      askCtrlRef.current = ac;
+
+      const res = await postAskHTTP(paintingId, text, ac.signal);
+      setLocalMessages(prev => [
+        ...prev,
+        { id: nanoid(), sender: 'BOT', type: 'TEXT', content: res.answer },
+      ]);
+    } catch (e) {
+      if (!(e instanceof DOMException && e.name === 'AbortError')) {
         showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
       }
-    })();
-
-    return () => {
-      mounted = false;
-      ac.abort();
-    };
-    // showToast는 의존성에서 빼는 게 안전(변하지 않도록 컨텍스트에서 useCallback으로 안정화 권장)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paintingId]);
+    } finally {
+      setTyping(false);
+    }
+  };
 
   const startVoiceDemo = () => {
     if (isRecognized || typing) return;
@@ -208,14 +241,7 @@ export default function ArtworkPage() {
         ]);
         voiceStepRef.current = 1;
       } else {
-        const say = '이 부분을 설명해줘';
-        setLocalMessages(prev => [
-          ...prev,
-          { id: nanoid(), sender: 'USER', type: 'TEXT', content: say },
-        ]);
-        setTyping(true);
-        send(say);
-        window.setTimeout(() => setTyping(false), 300);
+        setShowChatInput(true);
       }
     }, 3000);
     timers.current.push(t);
@@ -317,7 +343,9 @@ export default function ArtworkPage() {
                 </figure>
               ) : (
                 <ChatMessage
-                  key={'id' in m ? (m as { id: string }).id : nanoid()}
+                  key={
+                    'id' in m ? (m as { id: string }).id : (m as LocalMsg).id
+                  }
                   text={
                     'content' in m
                       ? (m as { content: string }).content
@@ -356,7 +384,7 @@ export default function ArtworkPage() {
       </ArtworkBottomSheet>
 
       {!showChatInput && (
-        <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[10px]">
+        <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
             {isRecognized ? (
@@ -400,19 +428,7 @@ export default function ArtworkPage() {
 
       {showChatInput && (
         <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[430px] -translate-x-1/2">
-          <ChatInputBar
-            onSend={txt => {
-              const text = txt.trim();
-              if (!text) return;
-              setTyping(true);
-              send(text);
-              setLocalMessages(prev => [
-                ...prev,
-                { id: nanoid(), content: text, sender: 'USER', type: 'TEXT' },
-              ]);
-              window.setTimeout(() => setTyping(false), 300);
-            }}
-          />
+          <ChatInputBar onSend={submitAsk} />
         </div>
       )}
 
