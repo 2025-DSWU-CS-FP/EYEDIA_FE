@@ -2,9 +2,8 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
-import { FiHeart, FiShare, FiMenu } from 'react-icons/fi';
-import { IoChevronBack } from 'react-icons/io5';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { FiHeart, FiShare } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
@@ -21,8 +20,10 @@ import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import Divider from '@/components/mypage/Divider';
 import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
+import Header from '@/layouts/Header';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
+import { askArtworkLLM } from '@/services/ws/chat';
 import type { IncomingChat } from '@/types/chat';
 import getAuthToken from '@/utils/getToken';
 
@@ -40,7 +41,6 @@ type LocationState = { paintingId?: number };
 const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
 const exhibitionName = '한이음 전시회';
 const DEFAULT_PAINTING_ID = 200001;
-const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 const dateKST = () =>
   new Intl.DateTimeFormat('en-CA', {
@@ -52,7 +52,6 @@ const dateKST = () =>
 
 export default function ArtworkPage() {
   const askCtrlRef = useRef<AbortController | null>(null);
-
   const { state } = useLocation();
   const paintingId =
     ((state as LocationState | null)?.paintingId as number | undefined) ??
@@ -81,7 +80,6 @@ export default function ArtworkPage() {
     token,
   });
 
-  const navigate = useNavigate();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
@@ -138,7 +136,7 @@ export default function ArtworkPage() {
     return '버튼을 누르고 작품에 대해 물어보세요.';
   }, [connected, isRecognized, typing]);
 
-  const voiceDisabled = isRecognized || typing;
+  const voiceDisabled = isRecognized || typing || !connected;
 
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
@@ -167,35 +165,21 @@ export default function ArtworkPage() {
     );
   };
 
-  async function postAskHTTP(
-    artId: number,
-    text: string,
-    signal?: AbortSignal,
-  ) {
-    const res = await fetch(`${API_BASE}/api/v1/chats/ask`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify({ artId, text }),
-      signal,
-      cache: 'no-store',
-      keepalive: true,
-      mode: 'cors',
-      credentials: 'include',
-    });
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      throw new Error(`ask failed: ${res.status} ${body}`);
-    }
-    return (await res.json()) as {
-      artId: number;
-      answer: string;
-      model?: string;
+  const startTypewriter = (msgId: string, fullText: string, speedMs = 16) => {
+    let i = 0;
+    const tick = () => {
+      i += 1;
+      setLocalMessages(prev =>
+        prev.map(m =>
+          m.id === msgId ? { ...m, content: fullText.slice(0, i) } : m,
+        ),
+      );
+      if (i >= fullText.length) return;
+      const t = window.setTimeout(tick, speedMs);
+      timers.current.push(t);
     };
-  }
+    tick();
+  };
 
   const submitAsk = async (raw: string) => {
     const text = raw.trim();
@@ -212,17 +196,20 @@ export default function ArtworkPage() {
       const ac = new AbortController();
       askCtrlRef.current = ac;
 
-      const res = await postAskHTTP(paintingId, text, ac.signal);
+      const res = await askArtworkLLM({ artId: paintingId, text }, ac.signal);
+
+      setTyping(false);
+      const botId = nanoid();
       setLocalMessages(prev => [
         ...prev,
-        { id: nanoid(), sender: 'BOT', type: 'TEXT', content: res.answer },
+        { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
       ]);
+      startTypewriter(botId, res.answer);
     } catch (e) {
+      setTyping(false);
       if (!(e instanceof DOMException && e.name === 'AbortError')) {
         showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
       }
-    } finally {
-      setTyping(false);
     }
   };
 
@@ -259,30 +246,11 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="fixed left-1/2 top-0 z-30 w-full max-w-[430px] -translate-x-1/2 border-b-2 border-gray-10 bg-gray-5 px-4 py-4">
-          <div className="flex justify-between px-5 pb-[1rem] t2">
-            <button
-              onClick={() => navigate('/chat-gaze', { state: { paintingId } })}
-              type="button"
-              className="hover:text-gray-100/80"
-              aria-label="뒤로 가기"
-            >
-              <IoChevronBack />
-            </button>
-            <button
-              type="button"
-              className="t2 hover:text-gray-100/80"
-              aria-label="메뉴"
-            >
-              <FiMenu />
-            </button>
-          </div>
-          <div className="mx-7 mt-4 flex max-w-[100%] items-end justify-between">
+        <header className="absolute z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
+          <Header showBackButton backgroundColorClass="bg-gray-5" />
+          <div className="flex max-w-[100%] items-end justify-between px-[2.3rem]">
             <div className="flex flex-col gap-[0.3rem]">
-              <h1 className="t5">
-                {artworkInfo.title}{' '}
-                <span className="text-gray-70 ct5">#{paintingId}</span>
-              </h1>
+              <h1 className="t3">{artworkInfo.title}</h1>
               <p className="text-gray-70 ct5">{artworkInfo.artist}</p>
             </div>
             <div className="flex gap-[0.8rem]">
@@ -319,7 +287,7 @@ export default function ArtworkPage() {
 
           <div
             ref={listRef}
-            className="mt-4 flex h-full flex-col gap-[1.2rem] overflow-y-auto px-[1.8rem]"
+            className="flex h-full flex-col gap-[1.2rem] overflow-y-auto px-[1.8rem] pt-8"
           >
             {(!chatMessages || chatMessages.length === 0) &&
               localMessages.length === 0 &&
@@ -408,12 +376,12 @@ export default function ArtworkPage() {
 
           <p className="relative z-10 mt-6 text-gray-70 bd2">{promptText}</p>
 
-          <div className="pointer-events-auto relative z-10 mt-4 flex w-full justify-end">
+          <div className="pointer-events-auto relative right-4 z-10 mx-auto flex w-full max-w-[430px] justify-end">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
               onClick={() => setShowChatInput(true)}
-              className="flex items-center justify-center rounded-[40px] bg-gray-10 px-[1.3rem] py-[0.6rem]"
+              className="flex items-center justify-center rounded-[40px] bg-gray-10 px-[1.3rem] py-[0.6rem] hover:bg-gray-20/80 active:bg-gray-20"
               aria-label="키보드 입력으로 질문하기"
             >
               <img
