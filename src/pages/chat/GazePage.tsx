@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
 import Header from '@/layouts/Header';
 import useCreateBadgeEvent from '@/services/mutations/useCreateBadgeEvent';
 
+type LocationState = { paintingId?: number };
+
 const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
+const DEFAULT_PAINTING_ID = 200001;
 
 export default function GazePage() {
   const navigate = useNavigate();
+  const { state } = useLocation();
+  const paintingId =
+    ((state as LocationState | null)?.paintingId as number | undefined) ??
+    DEFAULT_PAINTING_ID;
+
   const [trackingComplete, setTrackingComplete] = useState(false);
   const { mutate: createBadgeEvent, isPending } = useCreateBadgeEvent();
 
@@ -26,7 +34,7 @@ export default function GazePage() {
       occurredAt: new Date().toISOString(),
       payload: { exhibitionId: 1, timezone: 'Asia/Seoul' },
     });
-    navigate('/chat-artwork');
+    navigate('/chat-artwork', { state: { paintingId } });
   };
 
   return (
@@ -44,7 +52,7 @@ export default function GazePage() {
             )}
             <div className="mt-2 whitespace-pre-line text-gray-100 t3">
               {trackingComplete
-                ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
+                ? `지금 보고 있는 작품으로\n대화를 시작해볼까요?`
                 : '궁금한 작품을\n2초 이상 응시하세요.'}
             </div>
           </div>
@@ -61,6 +69,7 @@ export default function GazePage() {
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-white t3">{artworkInfo.title}</div>
                   <div className="text-white/80 ct4">{artworkInfo.artist}</div>
+                  <div className="text-white/70 ct5">ID: {paintingId}</div>
                 </div>
               </div>
             ) : (
