@@ -76,6 +76,12 @@ const MAP_LABEL_TO_CODE: Record<string, ExhibitionCategoryCode> = {
   무서운: 'SCARY',
 };
 
+const DEFAULT_CODES: ExhibitionCategoryCode[] = [
+  'CONTEMPORARY',
+  'WARM',
+  'HEALING',
+];
+
 export default function StepPreference({ onComplete }: StepPreferenceProps) {
   const [selectedTime, setSelectedTime] = useState<TimePref | null>(null);
   const [selectedColors, setSelectedColors] = useState<ColorPref[]>([]);
@@ -90,22 +96,25 @@ export default function StepPreference({ onComplete }: StepPreferenceProps) {
     else setList([...list, value]);
   };
 
-  const isComplete =
-    selectedTime && selectedColors.length > 0 && selectedKeywords.length > 0;
-
   const handleComplete = () => {
-    if (!isComplete) return;
+    const hasSelection =
+      !!selectedTime ||
+      selectedColors.length > 0 ||
+      selectedKeywords.length > 0;
+
+    if (!hasSelection) {
+      onComplete?.(DEFAULT_CODES);
+      return;
+    }
 
     const mergedLabels: string[] = [
-      selectedTime as string,
+      ...(selectedTime ? [selectedTime] : []),
       ...selectedColors,
       ...selectedKeywords,
     ];
-
     const codes: ExhibitionCategoryCode[] = mergedLabels.map(
       label => MAP_LABEL_TO_CODE[label],
     );
-
     onComplete?.(codes);
   };
 
@@ -193,7 +202,7 @@ export default function StepPreference({ onComplete }: StepPreferenceProps) {
       <Button
         className="w-full bg-brand-blue text-white disabled:cursor-not-allowed disabled:bg-gray-30"
         onClick={handleComplete}
-        disabled={!isComplete}
+        disabled={false}
       >
         완료
       </Button>

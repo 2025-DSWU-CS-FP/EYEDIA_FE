@@ -6,21 +6,13 @@ import PopularExhibitionSection from '@/components/main/section/PopularExhibitio
 import RecentArtworkSection from '@/components/main/section/RecentArtworkSection';
 import TasteArtworkSection from '@/components/main/section/TasteArtworkSection';
 import UserGreeting from '@/components/main/UserGreeting';
-import {
-  popularExhibitions as mockPopularExhibitions,
-  keywords,
-  tasteArtworks,
-} from '@/mock/mainData';
 import usePopularExhibitionsTop from '@/services/queries/usePopularExhibitionsTop';
+import useRecommendExhibitions from '@/services/queries/useRecommendExhibitions';
+import useTasteKeywords from '@/services/queries/useTasteKeywords';
 import s3ToHttp from '@/utils/url';
 
 export default function MainPage() {
   const navigate = useNavigate();
-
-  const [loading, setLoading] = useState({
-    popular: false,
-    taste: true,
-  });
 
   const [userName, setUserName] = useState('');
   const [viewCount, setViewCount] = useState(0);
@@ -29,7 +21,6 @@ export default function MainPage() {
     try {
       const nameRaw = (localStorage.getItem('name') ?? '').trim();
       setUserName(nameRaw || '사용자');
-
       const raw = localStorage.getItem('monthlyVisitCount');
       const n = raw !== null ? Number(raw) : NaN;
       setViewCount(Number.isFinite(n) && n >= 0 ? n : 0);
@@ -42,7 +33,7 @@ export default function MainPage() {
   const {
     data: topPopular,
     isFetching: isPopularLoading,
-    isError,
+    isError: isPopularError,
   } = usePopularExhibitionsTop(3, true);
 
   const popularExhibitions = useMemo(() => {
@@ -53,14 +44,33 @@ export default function MainPage() {
         location: it.gallery ?? '',
         imageUrl: s3ToHttp(it.exhibitionImage ?? ''),
       })) ?? [];
-    if (isError || mapped.length === 0) return mockPopularExhibitions;
+    if (isPopularError || mapped.length === 0) return [];
     return mapped;
-  }, [topPopular, isError]);
+  }, [topPopular, isPopularError]);
 
+  const { data: tasteKeywords = [], isFetching: isKwLoading } =
+    useTasteKeywords();
+
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
   useEffect(() => {
-    const t = setTimeout(() => setLoading(s => ({ ...s, taste: false })), 300);
-    return () => clearTimeout(t);
-  }, []);
+    if (!selectedKeyword && tasteKeywords.length > 0) {
+      setSelectedKeyword(tasteKeywords[0].id);
+    }
+  }, [tasteKeywords, selectedKeyword]);
+
+  const { data: recExhibitions = [], isFetching: isRecLoading } =
+    useRecommendExhibitions(selectedKeyword);
+
+  const tasteArtworks = useMemo(
+    () =>
+      recExhibitions.map(e => ({
+        id: e.id,
+        title: e.title,
+        artist: e.artist,
+        thumbnailUrl: e.thumbnailUrl,
+      })),
+    [recExhibitions],
+  );
 
   const handlePopularMore = () => navigate('/popular-exhibition');
   const handlePopularSelect = (id: number | string) =>
@@ -77,11 +87,16 @@ export default function MainPage() {
             onMoreClick={handlePopularMore}
             onSelect={handlePopularSelect}
           />
+
           <RecentArtworkSection />
+
           <TasteArtworkSection
-            keywords={keywords}
+            keywords={tasteKeywords.map(k => ({
+              ...k,
+              isSelected: k.id === selectedKeyword,
+            }))}
             artworks={tasteArtworks}
-            isLoading={loading.taste}
+            isLoading={isKwLoading || isRecLoading}
           />
         </section>
       </div>

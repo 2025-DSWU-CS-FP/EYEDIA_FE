@@ -1,6 +1,8 @@
 import ArtworkCard from '@/components/main/ArtworkCard';
 import KeywordList from '@/components/main/KeywordList';
-import { TasteArtworkSectionProps } from '@/types';
+import type { TasteArtworkSectionProps } from '@/types';
+
+const PLACEHOLDER = '/assets/images/placeholder-artwork.png';
 
 export default function TasteArtworkSection({
   keywords,
@@ -33,14 +35,21 @@ export default function TasteArtworkSection({
             ? artworkSkeletonKeys.map(key => (
                 <ArtworkCard key={key} isLoading />
               ))
-            : artworks.map(art => (
-                <ArtworkCard
-                  key={art.id}
-                  title={art.title}
-                  artist={art.artist}
-                  imageUrl={art.imageUrl}
-                />
-              ))}
+            : artworks.map(art => {
+                const src =
+                  ('thumbnailUrl' in art && art.thumbnailUrl) ||
+                  ('imageUrl' in art && art.imageUrl) ||
+                  PLACEHOLDER;
+
+                return (
+                  <ArtworkCard
+                    key={art.id}
+                    title={art.title}
+                    artist={art.artist}
+                    imageUrl={src}
+                  />
+                );
+              })}
         </div>
 
         {!isLoading && artworks.length === 0 && (
