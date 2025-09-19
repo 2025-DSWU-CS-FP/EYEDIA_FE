@@ -15,7 +15,6 @@ type TasteArtworkBase = {
   artist: string;
 };
 
-// 둘 중 하나만 필수로 허용
 export type TasteArtwork =
   | (TasteArtworkBase & { thumbnailUrl: string; imageUrl?: string })
   | (TasteArtworkBase & { imageUrl: string; thumbnailUrl?: string });
@@ -24,17 +23,16 @@ export interface TasteArtworkSectionProps {
   keywords: Keyword[];
   artworks: TasteArtwork[];
   isLoading?: boolean;
+  onKeywordSelect?: (id: string) => void;
 }
 export type ArtworkCardProps =
   | {
-      // 스켈레톤 모드
       isLoading: true;
       title?: string;
       artist?: string;
       imageUrl?: string;
     }
   | {
-      // 실데이터 모드
       isLoading?: false;
       title: string;
       artist: string;

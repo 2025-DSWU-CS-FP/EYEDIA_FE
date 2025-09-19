@@ -97,6 +97,7 @@ export default function MainPage() {
             }))}
             artworks={tasteArtworks}
             isLoading={isKwLoading || isRecLoading}
+            onKeywordSelect={(id: string) => setSelectedKeyword(id)}
           />
         </section>
       </div>
