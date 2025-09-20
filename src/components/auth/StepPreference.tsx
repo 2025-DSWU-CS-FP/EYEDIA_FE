@@ -2,29 +2,11 @@ import { useState } from 'react';
 
 import Chip from '@/components/auth/Chip';
 import Button from '@/components/common/Button';
+import type { ExhibitionCategoryCode } from '@/types/recommendation';
 
 interface StepPreferenceProps {
   onComplete?: (keywords: ExhibitionCategoryCode[]) => void;
 }
-
-export type ExhibitionCategoryCode =
-  | 'ANCIENT'
-  | 'RENAISSANCE'
-  | 'MODERN'
-  | 'CONTEMPORARY'
-  | 'WARM'
-  | 'COOL'
-  | 'MONOTONE'
-  | 'PASTEL'
-  | 'HEALING'
-  | 'HUMOROUS'
-  | 'EMOTIONAL'
-  | 'CALM'
-  | 'PASSIONATE'
-  | 'INTERACTIVE'
-  | 'OBSERVATIONAL'
-  | 'REPETITIVE'
-  | 'SCARY';
 
 const TIME_PREFS = [
   '고대/고전',

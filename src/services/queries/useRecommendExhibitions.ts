@@ -41,7 +41,12 @@ async function fetchExhibitionsByKeyword(
 export default function useRecommendExhibitions(keyword: string | null) {
   return useQuery({
     queryKey: ['taste', 'exhibitions', keyword],
-    queryFn: () => fetchExhibitionsByKeyword(keyword as string),
+    queryFn: () => {
+      if (!keyword) {
+        throw new Error('keyword is required');
+      }
+      return fetchExhibitionsByKeyword(keyword);
+    },
     enabled: Boolean(keyword),
   });
 }
