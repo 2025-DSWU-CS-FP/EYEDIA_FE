@@ -2,7 +2,14 @@ import ArtworkCard from '@/components/main/ArtworkCard';
 import KeywordList from '@/components/main/KeywordList';
 import type { TasteArtworkSectionProps } from '@/types';
 
-const PLACEHOLDER = '/assets/images/placeholder-artwork.png';
+const FALLBACK_SVG = `data:image/svg+xml;utf8,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 520">
+    <rect width="100%" height="100%" fill="#F2F3F5"/>
+    <rect x="24" y="24" width="352" height="352" rx="12" fill="#E5E7EB"/>
+    <circle cx="84" cy="428" r="24" fill="#E5E7EB"/>
+    <rect x="120" y="412" width="196" height="32" rx="6" fill="#E5E7EB"/>
+  </svg>`,
+)}`;
 
 const KO_LABEL_MAP: Record<string, string> = {
   ANCIENT: '고대/고전',
@@ -43,6 +50,17 @@ export default function TasteArtworkSection({
     ? normalized
     : normalized.map((k, i) => (i === 0 ? { ...k, isSelected: true } : k));
 
+  const items =
+    !isLoading && artworks.length === 0
+      ? artworkSkeletonKeys.map(k => ({
+          id: `ph-${k}`,
+          title: ' ',
+          artist: ' ',
+          // 반드시 존재하는 데이터 URI
+          thumbnailUrl: FALLBACK_SVG,
+        }))
+      : artworks;
+
   return (
     <section className="flex flex-col gap-[1.6rem]" aria-busy={isLoading}>
       <div className="flex flex-col gap-[0.4rem]">
@@ -68,11 +86,11 @@ export default function TasteArtworkSection({
             ? artworkSkeletonKeys.map(key => (
                 <ArtworkCard key={key} isLoading />
               ))
-            : artworks.map(art => {
+            : items.map(art => {
                 const src =
                   ('thumbnailUrl' in art && art.thumbnailUrl) ||
                   ('imageUrl' in art && art.imageUrl) ||
-                  PLACEHOLDER;
+                  FALLBACK_SVG;
 
                 return (
                   <ArtworkCard
@@ -84,10 +102,6 @@ export default function TasteArtworkSection({
                 );
               })}
         </div>
-
-        {!isLoading && artworks.length === 0 && (
-          <p className="px-[0.4rem] text-gray-50 ct4">표시할 작품이 없어요.</p>
-        )}
       </div>
     </section>
   );

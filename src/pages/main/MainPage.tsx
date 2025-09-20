@@ -67,7 +67,7 @@ export default function MainPage() {
         id: e.id,
         title: e.title,
         artist: e.artist,
-        thumbnailUrl: e.thumbnailUrl,
+        thumbnailUrl: s3ToHttp(e.thumbnailUrl ?? e.imageUrl ?? ''),
       })),
     [recExhibitions],
   );

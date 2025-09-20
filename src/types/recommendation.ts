@@ -33,4 +33,5 @@ export interface ExhibitionRecItem {
   artist: string;
   location: string;
   thumbnailUrl: string;
+  imageUrl?: string;
 }
