@@ -31,7 +31,7 @@ export default function MyGalleryPage() {
         backgroundColorClass="bg-gray-5"
       />
 
-      <section className="relative mx-auto w-full max-w-[43rem] overflow-visible py-[4rem]">
+      <section className="relative mx-auto w-full max-w-[43rem] overflow-hidden py-[4rem]">
         <Swiper
           effect="coverflow"
           grabCursor
