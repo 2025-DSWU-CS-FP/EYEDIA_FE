@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
@@ -50,7 +50,6 @@ export default function ArtworkPage() {
   const [showChatInput, setShowChatInput] = useState(false);
   const [selectionText, setSelectionText] = useState('');
   const [showExtractCard, setShowExtractCard] = useState(false);
-
   const [localMessages, setLocalMessages] = useState<LocalMsg[]>([]);
   const [typing, setTyping] = useState(false);
 
@@ -58,6 +57,7 @@ export default function ArtworkPage() {
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const didAutoAskRef = useRef(false);
 
   const { data: chatMessages } = useChatMessages(paintingId);
 
@@ -136,41 +136,50 @@ export default function ArtworkPage() {
     );
   };
 
-  const submitAsk = async (raw: string) => {
-    const text = raw.trim();
-    if (!text) return;
+  const submitAsk = useCallback(
+    async (raw: string, opts?: { showUserBubble?: boolean }) => {
+      const text = raw.trim();
+      if (!text) return;
 
-    setLocalMessages(prev => [
-      ...prev,
-      { id: nanoid(), sender: 'USER', type: 'TEXT', content: text },
-    ]);
-
-    setTyping(true);
-    try {
-      const { signal: abortSignal } = ac.renew();
-      const res = await askArtworkLLM({ artId: paintingId, text }, abortSignal);
-      setTyping(false);
-      const botId = nanoid();
-      setLocalMessages(prev => [
-        ...prev,
-        { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
-      ]);
-      startTypewriter(
-        botId,
-        res.answer,
-        partial =>
-          setLocalMessages(prev =>
-            prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
-          ),
-        16,
-      );
-    } catch (e) {
-      setTyping(false);
-      if (!(e instanceof DOMException && e.name === 'AbortError')) {
-        showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
+      const showUserBubble = opts?.showUserBubble ?? true;
+      if (showUserBubble) {
+        setLocalMessages(prev => [
+          ...prev,
+          { id: nanoid(), sender: 'USER', type: 'TEXT', content: text },
+        ]);
       }
-    }
-  };
+
+      setTyping(true);
+      try {
+        const { signal: abortSignal } = ac.renew();
+        const res = await askArtworkLLM(
+          { artId: paintingId, text },
+          abortSignal,
+        );
+        setTyping(false);
+        const botId = nanoid();
+        setLocalMessages(prev => [
+          ...prev,
+          { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
+        ]);
+        startTypewriter(
+          botId,
+          res.answer,
+          partial =>
+            setLocalMessages(prev =>
+              prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
+            ),
+          16,
+        );
+      } catch (e) {
+        setTyping(false);
+        if (!(e instanceof DOMException && e.name === 'AbortError')) {
+          showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
+        }
+      }
+    },
+    [ac, paintingId, showToast, startTypewriter],
+  );
 
   const startVoiceDemo = () => {
     if (isRecognized || typing) return;
@@ -178,7 +187,6 @@ export default function ArtworkPage() {
     add(
       window.setTimeout(() => {
         setIsRecognized(false);
-
         if (voiceStepRef.current === 0) {
           setLocalMessages(prev => [
             ...prev,
@@ -191,6 +199,18 @@ export default function ArtworkPage() {
       }, 3000),
     );
   };
+
+  useEffect(() => {
+    if (!connected || didAutoAskRef.current) return;
+    didAutoAskRef.current = true;
+
+    setLocalMessages(prev => [
+      ...prev,
+      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: Sample2 },
+    ]);
+
+    submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
+  }, [connected, paintingId, submitAsk]);
 
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
@@ -340,7 +360,7 @@ export default function ArtworkPage() {
 
       {showChatInput && (
         <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[430px] -translate-x-1/2">
-          <ChatInputBar onSend={submitAsk} />
+          <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
         </div>
       )}
 
