@@ -1,45 +1,97 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
+import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
-import useCreateBadgeEvent from '@/services/mutations/useCreateBadgeEvent';
+import useConfirmPainting from '@/services/mutations/useConfirmPainting';
+import getAuthToken from '@/utils/getToken';
 
-type LocationState = { paintingId?: number };
+type DetectedEvent = {
+  paintingId: number;
+  imgUrl?: string;
+  title?: string;
+  artist?: string;
+  description?: string;
+  exhibition?: string;
+  artId?: number;
+};
 
-const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
-const DEFAULT_PAINTING_ID = 200001;
+const FALLBACK_PAINTING_ID = 200001;
 
 export default function GazePage() {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const paintingId =
-    ((state as LocationState | null)?.paintingId as number | undefined) ??
-    DEFAULT_PAINTING_ID;
+  const token = getAuthToken();
 
   const [trackingComplete, setTrackingComplete] = useState(false);
-  const { mutate: createBadgeEvent, isPending } = useCreateBadgeEvent();
+  const [detected, setDetected] = useState<DetectedEvent | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setTrackingComplete(true), 3000);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => setTrackingComplete(true), 3000);
+    return () => window.clearTimeout(timer);
   }, []);
 
+  const queue = useMemo(
+    () => ({
+      destinations: ['/queue/events'],
+      onMessage: (payload: unknown) => {
+        try {
+          const e = payload as Partial<DetectedEvent>;
+          if (typeof e?.paintingId === 'number') {
+            setDetected({
+              paintingId: e.paintingId,
+              imgUrl: e.imgUrl,
+              title: e.title,
+              artist: e.artist,
+              description: e.description,
+              exhibition: e.exhibition,
+              artId: e.artId,
+            });
+          }
+        } catch {
+          /* ignore */
+        }
+      },
+    }),
+    [],
+  );
+
+  useStompChat({
+    paintingId: FALLBACK_PAINTING_ID,
+    token,
+    queue,
+  });
+
+  const { mutate: confirmPainting, isPending } = useConfirmPainting();
+
   const handleStartConversation = () => {
-    createBadgeEvent({
-      eventUid: `visit-${crypto.randomUUID()}`,
-      type: 'EXHIBITION_COLLECTED',
-      occurredAt: new Date().toISOString(),
-      payload: { exhibitionId: 1, timezone: 'Asia/Seoul' },
+    const pid = detected?.paintingId ?? FALLBACK_PAINTING_ID;
+    confirmPainting(pid); // 대기하지 않고 발사
+
+    // Artwork로 작품 컨텍스트 전달(artId가 있으면 같이 넘김)
+    navigate('/chat-artwork', {
+      state: {
+        paintingId: pid,
+        artId: detected?.artId ?? pid,
+        title: detected?.title,
+        artist: detected?.artist,
+        imgUrl: detected?.imgUrl,
+        description: detected?.description,
+        exhibition: detected?.exhibition,
+      },
     });
-    navigate('/chat-artwork', { state: { paintingId } });
   };
+
+  const title = detected?.title ?? '작품 인식 중';
+  const artist = detected?.artist ?? '';
+  const currentImg = detected?.imgUrl ?? Sample;
+  const currentId = detected?.paintingId ?? FALLBACK_PAINTING_ID;
 
   return (
     <>
-      <div className="relative flex max-h-dvh w-full flex-col items-center justify-start pb-[3rem] text-white">
+      <section className="relative flex max-h-dvh w-full flex-col items-center justify-start pb-[3rem] text-white">
         <Header showBackButton backgroundColorClass="bg-gray-5" />
         <div className="w-[30.7rem] space-y-[2.2rem]">
           <div className="mx-auto flex flex-col justify-between gap-[0.4rem]">
@@ -61,15 +113,15 @@ export default function GazePage() {
             {trackingComplete ? (
               <div className="relative h-full w-full">
                 <img
-                  src={Sample}
-                  alt={artworkInfo.title}
+                  src={currentImg}
+                  alt={title}
                   className="h-full w-full rounded-2xl object-cover"
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
-                  <div className="text-white t3">{artworkInfo.title}</div>
-                  <div className="text-white/80 ct4">{artworkInfo.artist}</div>
-                  <div className="text-white/70 ct5">ID: {paintingId}</div>
+                  <div className="text-white t3">{title}</div>
+                  {artist && <div className="text-white/80 ct4">{artist}</div>}
+                  <div className="text-white/70 ct5">ID: {currentId}</div>
                 </div>
               </div>
             ) : (
@@ -83,7 +135,7 @@ export default function GazePage() {
             )}
           </div>
         </div>
-      </div>
+      </section>
 
       {trackingComplete && (
         <div className="sticky w-full px-[3rem] pb-[2rem]">

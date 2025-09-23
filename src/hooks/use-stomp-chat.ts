@@ -22,10 +22,7 @@ export default function useStompChat({
   const clientRef = useRef<ReturnType<typeof makeStompClient> | null>(null);
   const subRef = useRef<StompSubscription | null>(null);
 
-  const topic = useMemo(
-    () => `/topic/chat/art/${paintingId}` as const,
-    [paintingId],
-  );
+  const topic = useMemo(() => `/queue/events`);
 
   useEffect(() => {
     const url = import.meta.env.VITE_WS_URL as string;

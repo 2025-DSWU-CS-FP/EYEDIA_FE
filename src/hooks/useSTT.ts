@@ -1,242 +1,173 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-interface ISpeechRecognitionAlternative {
-  transcript: string;
-  confidence?: number;
-}
-interface ISpeechRecognitionResult {
-  isFinal: boolean;
-  length: number;
-  0: ISpeechRecognitionAlternative;
-  [index: number]: ISpeechRecognitionAlternative;
-  item(index: number): ISpeechRecognitionAlternative;
-}
-interface ISpeechRecognitionResultList {
-  length: number;
-  [index: number]: ISpeechRecognitionResult;
-  item(index: number): ISpeechRecognitionResult;
-}
-interface ISpeechRecognitionEvent extends Event {
-  resultIndex: number;
-  results: ISpeechRecognitionResultList;
-}
-interface ISpeechRecognitionErrorEvent extends Event {
-  error: string; // 'not-allowed' | 'no-speech' | 'aborted' | 'audio-capture' ...
-  message?: string;
-}
-interface ISpeechRecognition extends EventTarget {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  maxAlternatives: number;
-  start(): void;
-  stop(): void;
-  abort(): void;
-  onresult:
-    | ((this: ISpeechRecognition, ev: ISpeechRecognitionEvent) => void)
-    | null;
-  onstart: ((this: ISpeechRecognition, ev: Event) => void) | null;
-  onend: ((this: ISpeechRecognition, ev: Event) => void) | null;
-  onerror:
-    | ((this: ISpeechRecognition, ev: ISpeechRecognitionErrorEvent) => void)
-    | null;
-}
-type SpeechRecognitionConstructor = new () => ISpeechRecognition;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
-type UseSTTOptions = {
+type STTOptions = {
   lang?: string;
+  interim?: boolean;
   continuous?: boolean;
-  interimResults?: boolean;
-  keepAlive?: boolean;
-  restartDelayMs?: number;
+  onFinal?: (text: string) => void;
+  onErrorToast?: (msg: string) => void;
 };
 
-type STTState = {
-  engine: 'standard' | 'webkit' | 'none';
-  supported: boolean;
-  listening: boolean;
+interface STTAlt {
   transcript: string;
-  interimTranscript: string;
-  error: string | null;
-  start: () => Promise<void>;
-  stop: () => Promise<void>;
+}
+interface STTResultItem {
+  isFinal: boolean;
+  0: STTAlt;
+}
+interface STTResultEvent {
+  results: ArrayLike<STTResultItem>;
+}
+
+type RecognitionInstance = {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  maxAlternatives?: number;
+  start: () => void;
+  stop: () => void;
   abort: () => void;
-  reset: () => void;
+  onstart: (() => void) | null;
+  onresult: ((e: STTResultEvent) => void) | null;
+  onerror: ((e: { error?: string }) => void) | null;
+  onend: (() => void) | null;
 };
 
-export default function useSTT({
-  lang = 'ko-KR',
-  continuous = true,
-  interimResults = true,
-  keepAlive = true,
-  restartDelayMs = 150,
-}: UseSTTOptions = {}): STTState {
-  const [engine, setEngine] = useState<'standard' | 'webkit' | 'none'>('none');
-  const [supported, setSupported] = useState(false);
+type RecognitionCtor = new () => RecognitionInstance;
+
+function getCtor(): RecognitionCtor | null {
+  if (typeof window === 'undefined') return null;
+  const w = window as unknown as {
+    SpeechRecognition?: RecognitionCtor;
+    webkitSpeechRecognition?: RecognitionCtor;
+  };
+  return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+
+export default function useSTT(opts?: STTOptions) {
+  const {
+    lang = 'ko-KR',
+    interim = false,
+    continuous = false,
+    onFinal,
+    onErrorToast,
+  } = opts ?? {};
+
+  const Ctor = useMemo(getCtor, []);
+  const supported =
+    !!Ctor && typeof window !== 'undefined' && window.isSecureContext;
+
+  const recogRef = useRef<RecognitionInstance | null>(null);
   const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [interimTranscript, setInterimTranscript] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  const recRef = useRef<ISpeechRecognition | null>(null);
-  const wantListeningRef = useRef(false);
-  const restartTimerRef = useRef<number | null>(null);
+  const triedRetryRef = useRef(false);
+  const startingRef = useRef(false);
 
   useEffect(() => {
-    const SR: SpeechRecognitionConstructor | undefined =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    let r: RecognitionInstance | null = null;
 
-    if (!SR) {
-      setEngine('none');
-      setSupported(false);
-      return () => {};
-    }
-    setEngine(window.SpeechRecognition ? 'standard' : 'webkit');
-    setSupported(true);
-    return () => {};
-  }, []);
+    if (Ctor && supported) {
+      r = new Ctor();
+      r.lang = lang;
+      r.interimResults = interim;
+      r.continuous = continuous;
+      if ('maxAlternatives' in r) r.maxAlternatives = 1;
 
-  useEffect(() => {
-    if (!supported) return () => {};
+      r.onstart = () => {
+        startingRef.current = false;
+        setListening(true);
+      };
 
-    const SR: SpeechRecognitionConstructor | undefined =
-      window.SpeechRecognition ?? window.webkitSpeechRecognition;
-    if (!SR) return () => {};
+      r.onresult = e => {
+        let finalText = '';
+        for (let i = 0; i < e.results.length; i += 1) {
+          const item = e.results[i];
+          if (item.isFinal) finalText += item[0].transcript;
+        }
+        const text = finalText.trim();
+        if (text) onFinal?.(text);
+      };
 
-    const rec = new SR();
-    rec.lang = lang;
-    rec.continuous = continuous;
-    rec.interimResults = interimResults;
-    rec.maxAlternatives = 1;
-
-    rec.onresult = (e: ISpeechRecognitionEvent) => {
-      let interim = '';
-      let finals = '';
-      for (let i = e.resultIndex; i < e.results.length; i += 1) {
-        const r = e.results[i];
-        const t = r[0]?.transcript ?? '';
-        if (r.isFinal) finals += t;
-        else interim += t;
-      }
-      if (interim) setInterimTranscript(interim);
-      if (finals) {
-        setTranscript(prev => (prev ? `${prev} ${finals}` : finals));
-        setInterimTranscript('');
-      }
-    };
-
-    rec.onstart = () => {
-      setListening(true);
-      setError(null);
-    };
-
-    rec.onend = () => {
-      setListening(false);
-      if (keepAlive && wantListeningRef.current) {
-        if (restartTimerRef.current !== null)
-          window.clearTimeout(restartTimerRef.current);
-        restartTimerRef.current = window.setTimeout(() => {
-          try {
-            rec.start();
-          } catch {
-            /* 재시작 실패 무시 */
+      r.onerror = e => {
+        const code = e?.error ?? 'unknown';
+        if (code === 'no-speech') {
+          // 마이크는 켰지만 음성이 감지 안 된 경우: 1회 재시도
+          if (!triedRetryRef.current) {
+            triedRetryRef.current = true;
+            try {
+              r?.start();
+            } catch {}
+            return;
           }
-        }, restartDelayMs);
-      }
-    };
+          onErrorToast?.('음성이 감지되지 않았어요. 다시 한 번 말씀해 주세요.');
+        } else if (code === 'audio-capture') {
+          onErrorToast?.('마이크를 찾을 수 없어요. 연결을 확인해 주세요.');
+        } else if (code === 'not-allowed' || code === 'service-not-allowed') {
+          onErrorToast?.(
+            '마이크 권한이 거부되었어요. 브라우저 설정에서 허용해 주세요.',
+          );
+        } else {
+          onErrorToast?.('음성 인식 중 오류가 발생했어요.');
+        }
+      };
 
-    rec.onerror = (e: ISpeechRecognitionErrorEvent) => {
-      setError(e.error || 'recognition_error');
-      setListening(false);
-    };
+      r.onend = () => {
+        setListening(false);
+        startingRef.current = false;
+        triedRetryRef.current = false;
+      };
 
-    recRef.current = rec;
+      recogRef.current = r;
+    }
 
     return () => {
-      if (restartTimerRef.current !== null) {
-        window.clearTimeout(restartTimerRef.current);
-        restartTimerRef.current = null;
-      }
+      if (!r) return;
       try {
-        rec.onresult = null;
-        rec.onstart = null;
-        rec.onend = null;
-        rec.onerror = null;
-        rec.stop();
-      } catch {
-        /* no-op */
-      }
-      recRef.current = null;
+        r.onstart = null;
+        r.onresult = null;
+        r.onerror = null;
+        r.onend = null;
+        r.abort();
+      } catch {}
+      if (recogRef.current === r) recogRef.current = null;
+      setListening(false);
+      startingRef.current = false;
+      triedRetryRef.current = false;
     };
-  }, [supported, lang, continuous, interimResults, keepAlive, restartDelayMs]);
+  }, [Ctor, supported, lang, interim, continuous, onFinal, onErrorToast]);
 
-  /** 제어 함수 */
-  const start = useCallback(async (): Promise<void> => {
-    const rec = recRef.current;
-    if (!rec || listening) return;
-    setError(null);
-    setInterimTranscript('');
-    wantListeningRef.current = true;
-    try {
-      rec.start(); // HTTPS + 사용자 제스처 이후 호출 권장
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'start_failed');
-      wantListeningRef.current = false;
+  const start = useCallback(() => {
+    if (!supported) {
+      onErrorToast?.(
+        'HTTPS 환경에서만 동작해요(또는 브라우저가 지원하지 않음).',
+      );
+      return;
     }
-  }, [listening]);
-
-  const stop = useCallback(async (): Promise<void> => {
-    const rec = recRef.current;
-    if (!rec) return;
-    wantListeningRef.current = false;
+    if (!recogRef.current || listening || startingRef.current) return;
+    startingRef.current = true;
+    triedRetryRef.current = false;
     try {
-      rec.stop();
+      recogRef.current.start();
     } catch {
-      /* no-op */
+      startingRef.current = false;
     }
-  }, []);
+  }, [supported, listening, onErrorToast]);
 
-  const abort = useCallback((): void => {
-    const rec = recRef.current;
-    wantListeningRef.current = false;
-
-    if (restartTimerRef.current !== null) {
-      window.clearTimeout(restartTimerRef.current);
-      restartTimerRef.current = null;
-    }
-
-    if (!rec) return;
-
+  const stop = useCallback(() => {
+    if (!recogRef.current) return;
     try {
-      rec.abort();
-    } catch {
-      /* no-op */
-    }
+      recogRef.current.stop();
+    } catch {}
   }, []);
 
-  const reset = useCallback((): void => {
-    setTranscript('');
-    setInterimTranscript('');
-    setError(null);
+  const abort = useCallback(() => {
+    if (!recogRef.current) return;
+    try {
+      recogRef.current.abort();
+    } catch {}
+    setListening(false);
+    startingRef.current = false;
+    triedRetryRef.current = false;
   }, []);
 
-  return {
-    engine,
-    supported,
-    listening,
-    transcript,
-    interimTranscript,
-    error,
-    start,
-    stop,
-    abort,
-    reset,
-  };
+  return { supported, listening, start, stop, abort };
 }

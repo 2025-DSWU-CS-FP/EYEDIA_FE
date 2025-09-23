@@ -9,8 +9,8 @@ import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
 import '@/styles/typing.css';
 import keyboardIcon from '@/assets/icons/keyboard.svg';
-import Sample from '@/assets/images/chat/image1.jpg';
-import Sample2 from '@/assets/images/chat/image2.png';
+import SampleFallback from '@/assets/images/chat/image1.jpg';
+import SampleCrop from '@/assets/images/chat/image2.png';
 import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
@@ -33,17 +33,29 @@ import type { LocalMsg } from '@/types/chatLocal';
 import dateKST from '@/utils/dateKST';
 import getAuthToken from '@/utils/getToken';
 
-type LocationState = { paintingId?: number };
+type LocationState = {
+  paintingId: number;
+  title?: string;
+  artist?: string;
+  imgUrl?: string;
+  description?: string;
+  exhibition?: string;
+};
 
-const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
-const exhibitionName = '한이음 전시회';
-const DEFAULT_PAINTING_ID = 200001;
+const DEFAULT_EXHIBITION = '전시';
 
 export default function ArtworkPage() {
   const { state } = useLocation();
-  const paintingId =
-    ((state as LocationState | null)?.paintingId as number | undefined) ??
-    DEFAULT_PAINTING_ID;
+  const s = state as LocationState;
+
+  const paintingId = s.paintingId;
+
+  const artworkInfo = {
+    title: s?.title ?? '작품',
+    artist: s?.artist ?? '',
+    imgUrl: s?.imgUrl ?? SampleFallback,
+  };
+  const exhibitionName = s?.exhibition ?? DEFAULT_EXHIBITION;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRecognized, setIsRecognized] = useState(false);
@@ -117,7 +129,7 @@ export default function ArtworkPage() {
     }
     saveScrap(
       {
-        paintingId,
+        paintingId, // ✅ paintingId
         date: dateKST(),
         excerpt: quote,
         location: exhibitionName,
@@ -152,10 +164,8 @@ export default function ArtworkPage() {
       setTyping(true);
       try {
         const { signal: abortSignal } = ac.renew();
-        const res = await askArtworkLLM(
-          { artId: paintingId, text },
-          abortSignal,
-        );
+        // ✅ ask도 paintingId 사용으로 통일
+        const res = await askArtworkLLM({ paintingId, text }, abortSignal);
         setTyping(false);
         const botId = nanoid();
         setLocalMessages(prev => [
@@ -190,7 +200,12 @@ export default function ArtworkPage() {
         if (voiceStepRef.current === 0) {
           setLocalMessages(prev => [
             ...prev,
-            { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: Sample2 },
+            {
+              id: nanoid(),
+              sender: 'USER',
+              type: 'IMAGE',
+              imageUrl: SampleCrop,
+            },
           ]);
           voiceStepRef.current = 1;
         } else {
@@ -206,18 +221,17 @@ export default function ArtworkPage() {
 
     setLocalMessages(prev => [
       ...prev,
-      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: Sample2 },
+      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: SampleCrop },
     ]);
-
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
-  }, [connected, paintingId, submitAsk]);
+  }, [connected, submitAsk]);
 
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
         <img
-          src={Sample}
-          alt="작품 이미지"
+          src={artworkInfo.imgUrl}
+          alt={artworkInfo.title}
           className="pointer-events-none h-full min-h-[35vh] w-full touch-none select-none object-cover"
           draggable={false}
         />
@@ -229,7 +243,9 @@ export default function ArtworkPage() {
           <div className="flex max-w-[100%] items-end justify-between px-[2.3rem]">
             <div className="flex flex-col gap-[0.3rem]">
               <h1 className="t3">{artworkInfo.title}</h1>
-              <p className="text-gray-70 ct5">{artworkInfo.artist}</p>
+              {artworkInfo.artist && (
+                <p className="text-gray-70 ct5">{artworkInfo.artist}</p>
+              )}
             </div>
             <div className="flex gap-[0.8rem]">
               <RoundedIconButton size="lg" icon={<FiHeart />} />
@@ -240,7 +256,7 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <main className={`relative ${isExpanded ? 'pt-[11.2rem]' : ''}`}>
+        <main className={isExpanded ? 'relative pt-[11.2rem]' : 'relative'}>
           {!isExpanded && (
             <>
               <div className="fixed -top-4 right-7 z-20 flex justify-end gap-2">
@@ -250,8 +266,10 @@ export default function ArtworkPage() {
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t1">{artworkInfo.title} </h1>
-                    <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
+                    <h1 className="font-normal t1">{artworkInfo.title}</h1>
+                    {artworkInfo.artist && (
+                      <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
+                    )}
                   </div>
                   <p className="text-gray-50 ct4">{exhibitionName}</p>
                 </div>
@@ -367,7 +385,7 @@ export default function ArtworkPage() {
       {showExtractCard && (
         <div className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center">
           <ExtractCard
-            imageUrl={Sample}
+            imageUrl={artworkInfo.imgUrl}
             quote={selectionText}
             title={artworkInfo.title}
             artist={artworkInfo.artist}

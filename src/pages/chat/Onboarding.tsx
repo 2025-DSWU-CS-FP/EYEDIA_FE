@@ -20,14 +20,12 @@ export default function OnboardingPage() {
   const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
 
-  // 온보딩 단계에서는 방 입장용 paintingId를 미리 정해 연결
   const token = getAuthToken();
   const { connected, send } = useStompChat({
     paintingId: TARGET_PAINTING_ID,
     token,
   });
 
-  // 연결 상태를 UI에 반영
   useEffect(() => {
     if (connected) setIsConnected(true);
   }, [connected]);
