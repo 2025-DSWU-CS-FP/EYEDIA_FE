@@ -1,16 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
-import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
 import useConfirmPainting from '@/services/mutations/useConfirmPainting';
-import getAuthToken from '@/utils/getToken';
 
-type DetectedEvent = {
-  paintingId: number;
+type LocationState = {
+  userId?: string;
+  paintingId?: number;
   imgUrl?: string;
   title?: string;
   artist?: string;
@@ -19,75 +18,72 @@ type DetectedEvent = {
   artId?: number;
 };
 
-const FALLBACK_PAINTING_ID = 200001;
-
 export default function GazePage() {
+  const { state } = useLocation();
+  const s = (state as LocationState | null) ?? null;
   const navigate = useNavigate();
-  const token = getAuthToken();
-
-  const [trackingComplete, setTrackingComplete] = useState(false);
-  const [detected, setDetected] = useState<DetectedEvent | null>(null);
-
-  useEffect(() => {
-    const timer = window.setTimeout(() => setTrackingComplete(true), 3000);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  const queue = useMemo(
-    () => ({
-      destinations: ['/queue/events'],
-      onMessage: (payload: unknown) => {
-        try {
-          const e = payload as Partial<DetectedEvent>;
-          if (typeof e?.paintingId === 'number') {
-            setDetected({
-              paintingId: e.paintingId,
-              imgUrl: e.imgUrl,
-              title: e.title,
-              artist: e.artist,
-              description: e.description,
-              exhibition: e.exhibition,
-              artId: e.artId,
-            });
-          }
-        } catch {
-          /* ignore */
-        }
-      },
-    }),
-    [],
-  );
-
-  useStompChat({
-    paintingId: FALLBACK_PAINTING_ID,
-    token,
-    queue,
-  });
-
   const { mutate: confirmPainting, isPending } = useConfirmPainting();
 
-  const handleStartConversation = () => {
-    const pid = detected?.paintingId ?? FALLBACK_PAINTING_ID;
-    confirmPainting(pid); // 대기하지 않고 발사
+  // 이벤트 수신 여부
+  const hasDetected = typeof s?.paintingId === 'number';
+  const pid = s?.paintingId;
 
-    // Artwork로 작품 컨텍스트 전달(artId가 있으면 같이 넘김)
+  // UX: 최소 2초 로딩 도트
+  const [minSpinDone, setMinSpinDone] = useState(false);
+  useEffect(() => {
+    const t = window.setTimeout(() => setMinSpinDone(true), 2000);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  // 이벤트도 왔고, 최소 로딩도 끝났을 때만 본문/버튼 노출
+  const ready = hasDetected && minSpinDone;
+
+  const title = s?.title ?? '작품 인식 중';
+  const artist = s?.artist ?? '';
+  const imgUrl = s?.imgUrl ?? Sample;
+
+  const headline = useMemo(
+    () => (ready ? '시선추적 성공!' : '시선추적중...'),
+    [ready],
+  );
+  const sub = useMemo(
+    () =>
+      ready
+        ? `지금 보고 있는 작품으로\n대화를 시작해볼까요?`
+        : '궁금한 작품을\n2초 이상 응시하세요.',
+    [ready],
+  );
+
+  const handleStartConversation = () => {
+    if (!pid) return; // 안전 가드
+
+    // 디버깅용 로그(필요시 남겨두세요)
+    // eslint-disable-next-line no-console
+    console.log('[confirm] sending with paintingId=', pid);
+
+    // 비동기 전송: 네비게이션과 병렬로 날려도 react-query가 계속 수행함
+    confirmPainting(pid, {
+      onSuccess: () => {
+        // eslint-disable-next-line no-console
+        console.log('[confirm] success');
+      },
+      onError: e => {
+        // eslint-disable-next-line no-console
+        console.log('[confirm] error', e);
+      },
+    });
+
     navigate('/chat-artwork', {
       state: {
         paintingId: pid,
-        artId: detected?.artId ?? pid,
-        title: detected?.title,
-        artist: detected?.artist,
-        imgUrl: detected?.imgUrl,
-        description: detected?.description,
-        exhibition: detected?.exhibition,
+        title: s?.title,
+        artist: s?.artist,
+        imgUrl: s?.imgUrl,
+        description: s?.description,
+        exhibition: s?.exhibition,
       },
     });
   };
-
-  const title = detected?.title ?? '작품 인식 중';
-  const artist = detected?.artist ?? '';
-  const currentImg = detected?.imgUrl ?? Sample;
-  const currentId = detected?.paintingId ?? FALLBACK_PAINTING_ID;
 
   return (
     <>
@@ -95,25 +91,17 @@ export default function GazePage() {
         <Header showBackButton backgroundColorClass="bg-gray-5" />
         <div className="w-[30.7rem] space-y-[2.2rem]">
           <div className="mx-auto flex flex-col justify-between gap-[0.4rem]">
-            {trackingComplete ? (
-              <div className="font-medium text-brand-blue ct2">
-                시선추적 성공!
-              </div>
-            ) : (
-              <div className="font-medium text-gray-60 ct2">시선추적중...</div>
-            )}
+            <div className="font-medium text-brand-blue ct2">{headline}</div>
             <div className="mt-2 whitespace-pre-line text-gray-100 t3">
-              {trackingComplete
-                ? `지금 보고 있는 작품으로\n대화를 시작해볼까요?`
-                : '궁금한 작품을\n2초 이상 응시하세요.'}
+              {sub}
             </div>
           </div>
 
           <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
-            {trackingComplete ? (
+            {ready ? (
               <div className="relative h-full w-full">
                 <img
-                  src={currentImg}
+                  src={imgUrl}
                   alt={title}
                   className="h-full w-full rounded-2xl object-cover"
                 />
@@ -121,7 +109,7 @@ export default function GazePage() {
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-white t3">{title}</div>
                   {artist && <div className="text-white/80 ct4">{artist}</div>}
-                  <div className="text-white/70 ct5">ID: {currentId}</div>
+                  <div className="text-white/70 ct5">ID: {pid}</div>
                 </div>
               </div>
             ) : (
@@ -137,13 +125,13 @@ export default function GazePage() {
         </div>
       </section>
 
-      {trackingComplete && (
+      {ready && (
         <div className="sticky w-full px-[3rem] pb-[2rem]">
           <Button
             type="button"
             onClick={handleStartConversation}
             className="mt-[3rem] bg-brand-blue bt2"
-            disabled={isPending}
+            disabled={isPending /* 클릭 후 중복 방지 */}
             aria-busy={isPending}
           >
             대화 시작하기

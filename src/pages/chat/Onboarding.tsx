@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
@@ -14,50 +14,89 @@ import Header from '@/layouts/Header';
 import '@/styles/eyewear-transition.css';
 import getAuthToken from '@/utils/getToken';
 
-const TARGET_PAINTING_ID = 200001;
+type QueueEvent = {
+  paintingId?: number;
+  imgUrl?: string;
+  title?: string;
+  artist?: string;
+  description?: string;
+  exhibition?: string;
+  artId?: number;
+};
 
 export default function OnboardingPage() {
   const [isConnected, setIsConnected] = useState(false);
+  const [userId, setUserId] = useState<string>();
+  const [detected, setDetected] = useState<QueueEvent | null>(null);
   const navigate = useNavigate();
 
   const token = getAuthToken();
-  const { connected, send } = useStompChat({
-    paintingId: TARGET_PAINTING_ID,
+
+  const { connected, messages } = useStompChat({
+    paintingId: 0,
     token,
+    topic: '/queue/events',
+    onConnected: headers => {
+      setIsConnected(true);
+      const uid = headers['user-name'] as string | undefined;
+      if (uid) setUserId(uid);
+    },
   });
 
   useEffect(() => {
-    if (connected) setIsConnected(true);
-  }, [connected]);
+    const items = Array.isArray(messages)
+      ? (messages as unknown as QueueEvent[])
+      : [];
+    const next = items.find(e => typeof e?.paintingId === 'number');
+    if (next) {
+      setDetected({
+        paintingId: next.paintingId,
+        imgUrl: next.imgUrl,
+        title: next.title,
+        artist: next.artist,
+        description: next.description,
+        exhibition: next.exhibition,
+        artId: next.artId,
+      });
+    }
+  }, [messages]);
 
   useEffect(() => {
-    const timer = isConnected
-      ? window.setTimeout(
-          () =>
-            navigate('/chat-gaze', {
-              state: { paintingId: TARGET_PAINTING_ID },
-            }),
-          3000,
-        )
-      : null;
-
+    let t: number | undefined;
+    if (detected?.paintingId) {
+      t = window.setTimeout(() => {
+        navigate('/chat-gaze', {
+          state: {
+            userId,
+            paintingId: detected.paintingId,
+            artId: detected.artId ?? detected.paintingId,
+            title: detected.title,
+            artist: detected.artist,
+            imgUrl: detected.imgUrl,
+            description: detected.description,
+            exhibition: detected.exhibition,
+          },
+        });
+      }, 3000);
+    }
     return () => {
-      if (timer !== null) window.clearTimeout(timer);
+      if (t !== undefined) window.clearTimeout(t);
     };
-  }, [isConnected, navigate]);
+  }, [detected, userId, navigate]);
+
+  const text = useMemo(
+    () =>
+      connected || isConnected
+        ? '아이웨어 연결에 성공하였습니다.'
+        : '전용 아이웨어를 착용하고 연결해주세요.',
+    [connected, isConnected],
+  );
 
   return (
-    <div className="relative flex h-dvh flex-col items-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
-      <Header showBackButton backgroundColorClass="bg-transperate" />
+    <section className="relative flex h-dvh flex-col items-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
+      <Header showBackButton backgroundColorClass="bg-transparent" />
       <div className="w-full px-4 pt-[10rem]">
-        <OnboardingText
-          text={
-            isConnected
-              ? '아이웨어 연결에 성공하였습니다.'
-              : '전용 아이웨어를 착용하고 연결해주세요.'
-          }
-        />
-
+        <OnboardingText text={text} />
         <div className="relative mx-auto flex h-[24rem] w-[30rem] items-center justify-center">
           <img
             src={ringImage}
@@ -66,39 +105,33 @@ export default function OnboardingPage() {
           />
           <SwitchTransition mode="out-in">
             <CSSTransition
-              key={isConnected ? 'connected' : 'disconnected'}
+              key={connected || isConnected ? 'connected' : 'disconnected'}
               timeout={300}
               classNames="fade"
             >
               <EyewearImage
-                src={isConnected ? connectedIcon : disconnectedIcon}
-                alt={isConnected ? '연결된 아이웨어' : '아이웨어 연결 전'}
+                src={
+                  connected || isConnected ? connectedIcon : disconnectedIcon
+                }
+                alt={
+                  connected || isConnected
+                    ? '연결된 아이웨어'
+                    : '아이웨어 연결 전'
+                }
               />
             </CSSTransition>
           </SwitchTransition>
         </div>
       </div>
 
-      {!isConnected && (
+      {!connected && !isConnected && (
         <div className="flex w-full flex-col items-center gap-[1rem] pb-[2rem]">
           <BottomLink
             text="연결에 문제가 있나요?"
             onClick={() => navigate('/help')}
           />
-          {/* 임시 연결 버튼: STOMP 연결 후 테스트 메시지를 발행 */}
-          <button
-            type="button"
-            className="rounded-[24px] bg-gray-10 px-[1.6rem] py-[0.8rem] text-gray-100 bd2"
-            onClick={() => {
-              // 연결은 useStompChat가 이미 시도하고 있음. 임시로 메시지를 보내 서버 라우팅 확인
-              // 공개 채널: /app/chat.sendMessage 로 { paintingId, content } 발행
-              send('onboarding: 연결 테스트');
-            }}
-          >
-            임시 연결 시작
-          </button>
         </div>
       )}
-    </div>
+    </section>
   );
 }
