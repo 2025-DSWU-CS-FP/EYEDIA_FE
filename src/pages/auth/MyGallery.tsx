@@ -24,14 +24,14 @@ const galleryItems: GalleryItem[] = [
 
 export default function MyGalleryPage() {
   return (
-    <main className="flex w-full flex-col">
+    <main className="flex h-dvh w-full flex-col justify-start gap-[17%]">
       <Header
         title="수집한 전시"
         showBackButton
         backgroundColorClass="bg-gray-5"
       />
 
-      <section className="relative mx-auto w-full max-w-[43rem] overflow-visible py-[4rem]">
+      <section className="relative mx-auto w-full max-w-[43rem] overflow-hidden">
         <Swiper
           effect="coverflow"
           grabCursor
@@ -51,12 +51,12 @@ export default function MyGalleryPage() {
           className="relative z-10 w-full !overflow-visible px-[3rem]"
         >
           {galleryItems.map(item => (
-            <SwiperSlide key={item.id} className="!w-[18rem]">
+            <SwiperSlide key={item.id} className="!w-[22rem]">
               <figure className="relative w-full overflow-hidden rounded-[8px] shadow-lg backdrop-blur-md">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="h-[24rem] w-full object-cover"
+                  className="h-[30rem] w-full object-cover"
                 />
 
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[10rem] bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
