@@ -47,15 +47,20 @@ const DEFAULT_EXHIBITION = '전시';
 export default function ArtworkPage() {
   const { state } = useLocation();
   const s = state as LocationState;
-
-  const paintingId = s.paintingId;
+  const {
+    paintingId,
+    title: sTitle = '작품',
+    artist: sArtist = '',
+    imgUrl: sImgUrl = SampleFallback,
+    exhibition = DEFAULT_EXHIBITION,
+  } = s;
 
   const artworkInfo = {
-    title: s?.title ?? '작품',
-    artist: s?.artist ?? '',
-    imgUrl: s?.imgUrl ?? SampleFallback,
+    title: sTitle,
+    artist: sArtist,
+    imgUrl: sImgUrl,
   };
-  const exhibitionName = s?.exhibition ?? DEFAULT_EXHIBITION;
+  const exhibitionName = exhibition;
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRecognized, setIsRecognized] = useState(false);
@@ -77,6 +82,7 @@ export default function ArtworkPage() {
   const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
+    topic: `/topic/llm.${paintingId}`,
   });
 
   const { showToast } = useToast();
@@ -129,7 +135,7 @@ export default function ArtworkPage() {
     }
     saveScrap(
       {
-        paintingId, // ✅ paintingId
+        paintingId,
         date: dateKST(),
         excerpt: quote,
         location: exhibitionName,
@@ -164,7 +170,6 @@ export default function ArtworkPage() {
       setTyping(true);
       try {
         const { signal: abortSignal } = ac.renew();
-        // ✅ ask도 paintingId 사용으로 통일
         const res = await askArtworkLLM({ paintingId, text }, abortSignal);
         setTyping(false);
         const botId = nanoid();
