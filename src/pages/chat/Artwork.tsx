@@ -81,7 +81,11 @@ export default function ArtworkPage() {
     continuous: false,
     interimResults: true,
   });
-  const tts = useTts({ lang: 'ko-KR', rate: 1 });
+  const tts = useTts({
+    lang: 'ko-KR',
+    rate: 1,
+    voiceName: 'Google 한국의 여성',
+  });
 
   const { data: chatMessages } = useChatMessages(paintingId);
 
