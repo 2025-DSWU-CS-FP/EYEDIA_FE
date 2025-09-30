@@ -1,15 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import Player from 'lottie-react';
 import { useNavigate } from 'react-router-dom';
 
 import logoLottie from '@/assets/lottie/logo.json';
 import splashLottie from '@/assets/lottie/splash.json';
+import GoogleLoginButton from '@/components/auth/SocialButtons/google-login-button';
+import KakaoLoginButton from '@/components/auth/SocialButtons/kakao-login-button';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
 import useLogin from '@/services/mutations/useLogin';
+
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string).replace(
+  /\/+$/,
+  '',
+);
 
 export default function LoginPage() {
   const [showSplash, setShowSplash] = useState(true);
@@ -20,7 +27,6 @@ export default function LoginPage() {
 
   const loginMutation = useLogin();
   const navigate = useNavigate();
-
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -30,18 +36,19 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const goSocial = useCallback((registrationId: string) => {
+    window.location.assign(
+      `${API_BASE}/oauth2/authorization/${registrationId}`,
+    );
+  }, []);
+
   const handleLogin = () => {
     setIdError('');
     setPwError('');
-
     if (!id || !pw) {
-      if (!id && !pw) {
-        showToast('아이디와 비밀번호를 입력해주세요.', 'error');
-      } else if (!id) {
-        showToast('아이디를 입력해주세요.', 'error');
-      } else if (!pw) {
-        showToast('비밀번호를 입력해주세요.', 'error');
-      }
+      if (!id && !pw) showToast('아이디와 비밀번호를 입력해주세요.', 'error');
+      else if (!id) showToast('아이디를 입력해주세요.', 'error');
+      else showToast('비밀번호를 입력해주세요.', 'error');
       return;
     }
 
@@ -55,48 +62,50 @@ export default function LoginPage() {
             name,
             monthlyVisitCount,
           } = data;
-
           localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('name', name);
-          localStorage.setItem('monthlyVisitCount', String(monthlyVisitCount));
-
+          if (name) localStorage.setItem('name', name);
+          if (typeof monthlyVisitCount === 'number') {
+            localStorage.setItem(
+              'monthlyVisitCount',
+              String(monthlyVisitCount),
+            );
+          }
           showToast('로그인에 성공했습니다!', 'success');
           navigate(firstLogin ? '/landing' : '/');
         },
-        onError: () => {
-          showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error');
-        },
+        onError: () =>
+          showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error'),
       },
     );
   };
 
   if (showSplash) {
     return (
-      <div className="flex min-h-screen w-full items-center justify-center bg-[#769DFF]">
+      <main className="flex min-h-screen w-full items-center justify-center bg-[#769DFF]">
         <Player
           autoplay
           loop
           animationData={splashLottie}
           className="mb-[7rem] w-[18rem]"
         />
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-gray-5 p-6 px-[2.5rem] pt-[12rem]">
-      <div className="flex h-[37rem] w-full flex-col items-center justify-between">
-        <div className="flex flex-col items-center gap-[1rem]">
+    <main className="flex min-h-screen flex-col items-center bg-gray-5 px-[2.5rem] pt-[12rem]">
+      <section className="flex h-full w-full flex-col items-center justify-between gap-[2rem]">
+        <header className="flex flex-col items-center gap-[1rem]">
           <Player
             autoplay
             loop={false}
             animationData={logoLottie}
             className="w-[12.5rem]"
           />
-          <span className="font-bold text-gray-50 t2">EYEDIA</span>
-        </div>
+          <h1 className="font-bold text-gray-50 t2">EYEDIA</h1>
+        </header>
 
-        <div className="w-full space-y-[1rem] text-gray-80 placeholder-gray-30">
+        <section className="w-full space-y-[1rem] text-gray-80 placeholder-gray-30">
           <TextInput
             placeholder="아이디"
             value={id}
@@ -111,27 +120,36 @@ export default function LoginPage() {
             errorMessage={pwError}
             className="ct3"
           />
-        </div>
+        </section>
 
-        <div className="flex w-full flex-col gap-[2.2rem] text-gray-0">
+        <section className="flex w-full flex-col gap-[2.2rem] text-gray-0">
           <Button className="bg-brand-blue" onClick={handleLogin}>
             로그인
           </Button>
-          <div className="flex items-center justify-center space-x-3 text-gray-70 ct4">
+          <hr />
+          <div className="flex flex-col gap-[1rem] border-t">
+            <GoogleLoginButton onClick={() => goSocial('google')} />
+            <KakaoLoginButton onClick={() => goSocial('kakao')} />
+          </div>
+
+          <nav
+            aria-label="보조 링크"
+            className="flex items-center justify-center gap-[1.2rem] text-gray-70 ct4"
+          >
             <button type="button">아이디 찾기</button>
-            <span className="h-3.5 w-px bg-gray-300" />
+            <span className="h-[1.2rem] w-px bg-gray-300" />
             <button type="button">비밀번호 찾기</button>
-            <span className="h-3.5 w-px bg-gray-300" />
+            <span className="h-[1.2rem] w-px bg-gray-300" />
             <button
               onClick={() => navigate('/signup')}
-              aria-label="button"
+              aria-label="회원가입으로 이동"
               type="button"
             >
               회원가입
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
+          </nav>
+        </section>
+      </section>
+    </main>
   );
 }
