@@ -1,66 +1,115 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
 import Header from '@/layouts/Header';
-import useCreateBadgeEvent from '@/services/mutations/useCreateBadgeEvent';
+import useConfirmPainting from '@/services/mutations/useConfirmPainting';
 
-const artworkInfo = { title: '발레 수업', artist: '에드가 드가' };
+type LocationState = {
+  userId?: string;
+  paintingId?: number;
+  imgUrl?: string;
+  title?: string;
+  artist?: string;
+  description?: string;
+  exhibition?: string;
+  artId?: number;
+};
 
 export default function GazePage() {
+  const { state } = useLocation();
+  const s = (state as LocationState | null) ?? null;
   const navigate = useNavigate();
-  const [trackingComplete, setTrackingComplete] = useState(false);
-  const { mutate: createBadgeEvent, isPending } = useCreateBadgeEvent();
+  const { mutate: confirmPainting, isPending } = useConfirmPainting();
 
+  // 이벤트 수신 여부
+  const hasDetected = typeof s?.paintingId === 'number';
+  const pid = s?.paintingId;
+
+  // UX: 최소 2초 로딩 도트
+  const [minSpinDone, setMinSpinDone] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => setTrackingComplete(true), 3000);
-    return () => clearTimeout(timer);
+    const t = window.setTimeout(() => setMinSpinDone(true), 2000);
+    return () => window.clearTimeout(t);
   }, []);
 
+  // 이벤트도 왔고, 최소 로딩도 끝났을 때만 본문/버튼 노출
+  const ready = hasDetected && minSpinDone;
+
+  const title = s?.title ?? '작품 인식 중';
+  const artist = s?.artist ?? '';
+  const imgUrl = s?.imgUrl ?? Sample;
+
+  const headline = useMemo(
+    () => (ready ? '시선추적 성공!' : '시선추적중...'),
+    [ready],
+  );
+  const sub = useMemo(
+    () =>
+      ready
+        ? `지금 보고 있는 작품으로\n대화를 시작해볼까요?`
+        : '궁금한 작품을\n2초 이상 응시하세요.',
+    [ready],
+  );
+
   const handleStartConversation = () => {
-    createBadgeEvent({
-      eventUid: `visit-${crypto.randomUUID()}`,
-      type: 'EXHIBITION_COLLECTED',
-      occurredAt: new Date().toISOString(),
-      payload: { exhibitionId: 1, timezone: 'Asia/Seoul' },
+    if (!pid) return; // 안전 가드
+
+    // 디버깅용 로그(필요시 남겨두세요)
+    // eslint-disable-next-line no-console
+    console.log('[confirm] sending with paintingId=', pid);
+
+    // 비동기 전송: 네비게이션과 병렬로 날려도 react-query가 계속 수행함
+    confirmPainting(pid, {
+      onSuccess: () => {
+        // eslint-disable-next-line no-console
+        console.log('[confirm] success');
+      },
+      onError: e => {
+        // eslint-disable-next-line no-console
+        console.log('[confirm] error', e);
+      },
     });
-    navigate('/chat-artwork');
+
+    navigate('/chat-artwork', {
+      state: {
+        paintingId: pid,
+        title: s?.title,
+        artist: s?.artist,
+        imgUrl: s?.imgUrl,
+        description: s?.description,
+        exhibition: s?.exhibition,
+      },
+    });
   };
 
   return (
     <>
-      <div className="relative flex max-h-dvh w-full flex-col items-center justify-start pb-[3rem] text-white">
+      <section className="relative flex max-h-dvh w-full flex-col items-center justify-start pb-[3rem] text-white">
         <Header showBackButton backgroundColorClass="bg-gray-5" />
         <div className="w-[30.7rem] space-y-[2.2rem]">
           <div className="mx-auto flex flex-col justify-between gap-[0.4rem]">
-            {trackingComplete ? (
-              <div className="font-medium text-brand-blue ct2">
-                시선추적 성공!
-              </div>
-            ) : (
-              <div className="font-medium text-gray-60 ct2">시선추적중...</div>
-            )}
+            <div className="font-medium text-brand-blue ct2">{headline}</div>
             <div className="mt-2 whitespace-pre-line text-gray-100 t3">
-              {trackingComplete
-                ? '지금 보고 있는 작품으로\n대화를 시작해볼까요?'
-                : '궁금한 작품을\n2초 이상 응시하세요.'}
+              {sub}
             </div>
           </div>
 
           <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
-            {trackingComplete ? (
+            {ready ? (
               <div className="relative h-full w-full">
                 <img
-                  src={Sample}
-                  alt={artworkInfo.title}
+                  src={imgUrl}
+                  alt={title}
                   className="h-full w-full rounded-2xl object-cover"
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
-                  <div className="text-white t3">{artworkInfo.title}</div>
-                  <div className="text-white/80 ct4">{artworkInfo.artist}</div>
+                  <div className="text-white t3">{title}</div>
+                  {artist && <div className="text-white/80 ct4">{artist}</div>}
+                  <div className="text-white/70 ct5">ID: {pid}</div>
                 </div>
               </div>
             ) : (
@@ -74,15 +123,15 @@ export default function GazePage() {
             )}
           </div>
         </div>
-      </div>
+      </section>
 
-      {trackingComplete && (
+      {ready && (
         <div className="sticky w-full px-[3rem] pb-[2rem]">
           <Button
             type="button"
             onClick={handleStartConversation}
             className="mt-[3rem] bg-brand-blue bt2"
-            disabled={isPending}
+            disabled={isPending /* 클릭 후 중복 방지 */}
             aria-busy={isPending}
           >
             대화 시작하기

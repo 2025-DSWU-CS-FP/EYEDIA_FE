@@ -9,7 +9,6 @@ export interface LoginResponse {
   monthlyVisitCount: number;
   name: string;
 }
-
 export interface SignupRequest {
   id: string;
   pw: string;
@@ -18,10 +17,10 @@ export interface SignupRequest {
   gender: 'MALE' | 'FEMALE';
   profileImage?: string;
   currentLocation?: string;
+  keywords?: string[];
 }
 
-export type GenderStrict = 'MALE' | 'FEMALE';
-export type Gender = '' | GenderStrict;
+export type Gender = '' | 'MALE' | 'FEMALE';
 
 export interface Terms {
   all: boolean;
@@ -30,5 +29,6 @@ export interface Terms {
   marketing: boolean;
 }
 
-export const isGenderStrict = (g: Gender): g is GenderStrict =>
-  g === 'MALE' || g === 'FEMALE';
+export function isGenderStrict(g: Gender): g is 'MALE' | 'FEMALE' {
+  return g === 'MALE' || g === 'FEMALE';
+}
