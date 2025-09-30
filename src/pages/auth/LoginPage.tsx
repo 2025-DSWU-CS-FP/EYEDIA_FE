@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import logoLottie from '@/assets/lottie/logo.json';
 import splashLottie from '@/assets/lottie/splash.json';
 import GoogleLoginButton from '@/components/auth/SocialButtons/google-login-button';
-import KakaoLoginButton from '@/components/auth/SocialButtons/kakao-login-button';
+import NaverLoginButton from '@/components/auth/SocialButtons/naver-login-button';
 import Button from '@/components/common/Button';
 import PasswordInput from '@/components/common/PasswordInput';
 import TextInput from '@/components/common/TextInput';
@@ -30,10 +30,8 @@ export default function LoginPage() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 2000);
-    return () => clearTimeout(timer);
+    const timer = window.setTimeout(() => setShowSplash(false), 2000);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const goSocial = useCallback((registrationId: string) => {
@@ -93,7 +91,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center bg-gray-5 px-[2.5rem] pt-[12rem]">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gray-5 px-[2.5rem]">
       <section className="flex h-full w-full flex-col items-center justify-between gap-[2rem]">
         <header className="flex flex-col items-center gap-[1rem]">
           <Player
@@ -127,9 +125,9 @@ export default function LoginPage() {
             로그인
           </Button>
           <hr />
-          <div className="flex flex-col gap-[1rem] border-t">
+          <div className="flex flex-col gap-[1rem]">
+            <NaverLoginButton onClick={() => goSocial('naver')} />
             <GoogleLoginButton onClick={() => goSocial('google')} />
-            <KakaoLoginButton onClick={() => goSocial('kakao')} />
           </div>
 
           <nav
