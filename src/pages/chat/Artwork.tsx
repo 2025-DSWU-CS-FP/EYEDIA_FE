@@ -22,7 +22,9 @@ import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
 import useAbortControllerRef from '@/hooks/useAbortControllerRef';
 import useAutoScrollToEnd from '@/hooks/useAutoScrollToEnd';
+import useStt from '@/hooks/useSTT';
 import useTimers from '@/hooks/useTimers';
+import useTts from '@/hooks/useTTS';
 import useTypewriter from '@/hooks/useTypewriter';
 import Header from '@/layouts/Header';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
@@ -63,18 +65,27 @@ export default function ArtworkPage() {
   const exhibitionName = exhibition;
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isRecognized, setIsRecognized] = useState(false);
   const [showChatInput, setShowChatInput] = useState(false);
   const [selectionText, setSelectionText] = useState('');
   const [showExtractCard, setShowExtractCard] = useState(false);
   const [localMessages, setLocalMessages] = useState<LocalMsg[]>([]);
   const [typing, setTyping] = useState(false);
 
-  const voiceStepRef = useRef(0);
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const didAutoAskRef = useRef(false);
+
+  const stt = useStt({
+    lang: 'ko-KR',
+    continuous: false,
+    interimResults: true,
+  });
+  const tts = useTts({
+    lang: 'ko-KR',
+    rate: 1,
+    voiceName: 'Google 한국의 여성',
+  });
 
   const { data: chatMessages } = useChatMessages(paintingId);
 
@@ -120,12 +131,17 @@ export default function ArtworkPage() {
 
   const promptText = useMemo(() => {
     if (!connected) return PROMPT_MESSAGES.checkingConnection;
-    if (isRecognized) return PROMPT_MESSAGES.speaking;
+    if (stt.listening) return PROMPT_MESSAGES.speaking;
     if (typing) return PROMPT_MESSAGES.generating;
     return PROMPT_MESSAGES.ask;
-  }, [connected, isRecognized, typing]);
+  }, [connected, stt.listening, typing]);
 
-  const voiceDisabled = isRecognized || typing || !connected;
+  const voiceDisabled =
+    stt.listening ||
+    typing ||
+    !connected ||
+    stt.status === 'denied' ||
+    stt.status === 'unavailable';
 
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
@@ -177,13 +193,18 @@ export default function ArtworkPage() {
           ...prev,
           { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
         ]);
+
         startTypewriter(
           botId,
           res.answer,
-          partial =>
+          partial => {
             setLocalMessages(prev =>
               prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
-            ),
+            );
+            if (partial === res.answer) {
+              tts.speak(res.answer);
+            }
+          },
           16,
         );
       } catch (e) {
@@ -193,32 +214,22 @@ export default function ArtworkPage() {
         }
       }
     },
-    [ac, paintingId, showToast, startTypewriter],
+    [ac, paintingId, showToast, startTypewriter, tts],
   );
 
-  const startVoiceDemo = () => {
-    if (isRecognized || typing) return;
-    setIsRecognized(true);
-    add(
-      window.setTimeout(() => {
-        setIsRecognized(false);
-        if (voiceStepRef.current === 0) {
-          setLocalMessages(prev => [
-            ...prev,
-            {
-              id: nanoid(),
-              sender: 'USER',
-              type: 'IMAGE',
-              imageUrl: SampleCrop,
-            },
-          ]);
-          voiceStepRef.current = 1;
-        } else {
-          setShowChatInput(true);
-        }
-      }, 3000),
-    );
+  const startVoice = () => {
+    if (stt.listening || typing) return;
+    stt.resetFinal();
+    stt.start();
   };
+
+  useEffect(() => {
+    if (!stt.listening && stt.finalText.trim()) {
+      const text = stt.finalText.trim();
+      stt.resetFinal();
+      submitAsk(text, { showUserBubble: true });
+    }
+  }, [stt.listening, stt.finalText, submitAsk, stt]);
 
   useEffect(() => {
     if (!connected || didAutoAskRef.current) return;
@@ -342,7 +353,7 @@ export default function ArtworkPage() {
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
-            {isRecognized ? (
+            {stt.listening ? (
               <>
                 <span className="wave" />
                 <span className="wave delay-1" />
@@ -356,19 +367,24 @@ export default function ArtworkPage() {
                 disabled={voiceDisabled}
                 aria-disabled={voiceDisabled}
                 className="glow-pulse disabled:cursor-not-allowed disabled:opacity-50"
-                onClick={startVoiceDemo}
+                onClick={startVoice}
               />
+            )}
+            {stt.listening && (
+              <p className="relative z-10 mt-4 line-clamp-2 max-w-[43rem] text-center text-gray-80 ct4">
+                {stt.interim || stt.finalText || '듣고 있어요…'}
+              </p>
             )}
           </div>
 
           <p className="relative z-10 mt-6 text-gray-70 bd2">{promptText}</p>
 
-          <div className="pointer-events-auto relative z-10 mx-auto mt-4 flex w-full max-w-[430px] justify-end">
+          <div className="pointer-events-auto relative z-10 mx-auto mt-4 flex w-full max-w-[43rem] justify-end">
             <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
               onClick={() => setShowChatInput(true)}
-              className="flex items-center justify-center rounded-[40px] bg-gray-10 px-[1.3rem] py-[0.6rem] hover:bg-gray-20/80 active:bg-gray-20"
+              className="flex items-center justify-center rounded-[4rem] bg-gray-10 px-[1.3rem] py-[0.6rem] hover:bg-gray-20/80 active:bg-gray-20"
               aria-label="키보드 입력으로 질문하기"
             >
               <img
@@ -382,7 +398,7 @@ export default function ArtworkPage() {
       )}
 
       {showChatInput && (
-        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[430px] -translate-x-1/2">
+        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[43rem] -translate-x-1/2">
           <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
         </div>
       )}
