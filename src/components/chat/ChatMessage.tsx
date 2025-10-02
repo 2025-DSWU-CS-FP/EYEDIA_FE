@@ -104,7 +104,7 @@ export default function ChatMessage({
 
     const finishSelection = () => {
       selectingRef.current = false;
-      scheduleUpdate(80); // iOS에서 선택 사각형 안정화 대기
+      scheduleUpdate(80); // iOS 안정화 대기
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
@@ -127,6 +127,19 @@ export default function ChatMessage({
       document.removeEventListener('keyup', onKeyUp);
     };
   }, [scheduleUpdate]);
+
+  const toRichHTML = useCallback((value: string) => {
+    const escape = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const escaped = escape(value);
+    const withBold = escaped.replace(
+      /\*\*([\s\S]+?)\*\*/g,
+      '<strong>$1</strong>',
+    );
+    const withBreaks = withBold.replace(/\r?\n/g, '<br/>');
+    return withBreaks;
+  }, []);
 
   return (
     <div
@@ -154,7 +167,7 @@ export default function ChatMessage({
           }}
         />
       )}
-      {text}
+      <div dangerouslySetInnerHTML={{ __html: toRichHTML(text) }} />
     </div>
   );
 }

@@ -5,14 +5,17 @@ interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
   backgroundColorClass?: string;
+  onBackClick?: () => void;
 }
 
 export default function Header({
   title = '',
   showBackButton = false,
   backgroundColorClass = 'bg-white',
+  onBackClick,
 }: HeaderProps) {
   const navigate = useNavigate();
+  const handleBack = onBackClick ?? (() => navigate(-1));
 
   return (
     <header
@@ -21,7 +24,7 @@ export default function Header({
       {showBackButton ? (
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="flex items-center justify-center"
         >
           <IoChevronBack className="text-gray-100" size={24} />
@@ -30,9 +33,7 @@ export default function Header({
         <div className="w-6" />
       )}
       <h1
-        className={`flex-1 text-center font-semibold t5 ${
-          title ? 'text-gray-100' : 'invisible'
-        }`}
+        className={`flex-1 text-center font-semibold t5 ${title ? 'text-gray-100' : 'invisible'}`}
       >
         {title}
       </h1>

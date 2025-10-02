@@ -13,10 +13,9 @@ import TextInput from '@/components/common/TextInput';
 import { useToast } from '@/contexts/ToastContext';
 import useLogin from '@/services/mutations/useLogin';
 
-const API_BASE = (import.meta.env.VITE_API_BASE_URL as string).replace(
-  /\/+$/,
-  '',
-);
+const API_BASE = (
+  (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ''
+).replace(/\/+$/, '');
 
 export default function LoginPage() {
   const [showSplash, setShowSplash] = useState(true);
@@ -24,32 +23,63 @@ export default function LoginPage() {
   const [pw, setPw] = useState('');
   const [idError, setIdError] = useState('');
   const [pwError, setPwError] = useState('');
+  const [isSocialRedirecting, setIsSocialRedirecting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loginMutation = useLogin();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setShowSplash(false), 2000);
+    const timer = window.setTimeout(() => setShowSplash(false), 1200);
     return () => window.clearTimeout(timer);
   }, []);
 
-  const goSocial = useCallback((registrationId: string) => {
-    window.location.assign(
-      `${API_BASE}/oauth2/authorization/${registrationId}`,
-    );
-  }, []);
+  const goSocial = useCallback(
+    (registrationId: 'naver' | 'google') => {
+      if (!API_BASE) {
+        showToast(
+          'API_BASE가 설정되지 않았습니다. 환경 변수를 확인해주세요.',
+          'error',
+        );
+        return;
+      }
+      if (isSocialRedirecting) return;
+      setIsSocialRedirecting(true);
+      try {
+        window.location.replace(
+          `${API_BASE}/oauth2/authorization/${registrationId}`,
+        );
+      } catch {
+        setIsSocialRedirecting(false);
+        showToast(
+          '소셜 로그인 진입에 실패했습니다. 잠시 후 다시 시도해주세요.',
+          'error',
+        );
+      }
+    },
+    [isSocialRedirecting, showToast],
+  );
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
+    if (isSubmitting) return;
+
     setIdError('');
     setPwError('');
+
     if (!id || !pw) {
       if (!id && !pw) showToast('아이디와 비밀번호를 입력해주세요.', 'error');
-      else if (!id) showToast('아이디를 입력해주세요.', 'error');
-      else showToast('비밀번호를 입력해주세요.', 'error');
+      else if (!id) {
+        setIdError('아이디를 입력해주세요.');
+        showToast('아이디를 입력해주세요.', 'error');
+      } else {
+        setPwError('비밀번호를 입력해주세요.');
+        showToast('비밀번호를 입력해주세요.', 'error');
+      }
       return;
     }
 
+    setIsSubmitting(true);
     loginMutation.mutate(
       { id, pw },
       {
@@ -60,22 +90,34 @@ export default function LoginPage() {
             name,
             monthlyVisitCount,
           } = data;
-          localStorage.setItem('accessToken', accessToken);
-          if (name) localStorage.setItem('name', name);
-          if (typeof monthlyVisitCount === 'number') {
-            localStorage.setItem(
-              'monthlyVisitCount',
-              String(monthlyVisitCount),
+          try {
+            localStorage.setItem('accessToken', accessToken);
+            if (name) localStorage.setItem('name', name);
+            if (typeof monthlyVisitCount === 'number') {
+              localStorage.setItem(
+                'monthlyVisitCount',
+                String(monthlyVisitCount),
+              );
+            }
+          } catch {
+            showToast(
+              '로그인 정보를 저장할 수 없습니다. 브라우저 설정을 확인해 주세요.',
+              'error',
             );
+            setIsSubmitting(false);
+            return;
           }
           showToast('로그인에 성공했습니다!', 'success');
-          navigate(firstLogin ? '/landing' : '/');
+          navigate(firstLogin ? '/landing' : '/', { replace: true });
         },
-        onError: () =>
-          showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error'),
+        onError: () => {
+          showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error');
+          setPwError('아이디 또는 비밀번호가 올바르지 않습니다.');
+          setIsSubmitting(false);
+        },
       },
     );
-  };
+  }, [id, pw, isSubmitting, loginMutation, navigate, showToast]);
 
   if (showSplash) {
     return (
@@ -110,21 +152,43 @@ export default function LoginPage() {
             onChange={e => setId(e.target.value)}
             errorMessage={idError}
             className="ct3"
+            autoComplete="username"
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                const el = document.getElementById('password-input');
+                if (el instanceof HTMLInputElement) el.focus();
+              }
+            }}
           />
           <PasswordInput
+            id="password-input"
             placeholder="비밀번호"
             value={pw}
             onChange={e => setPw(e.target.value)}
             errorMessage={pwError}
             className="ct3"
+            autoComplete="current-password"
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleLogin();
+              }
+            }}
           />
         </section>
 
         <section className="flex w-full flex-col gap-[2.2rem] text-gray-0">
-          <Button className="bg-brand-blue" onClick={handleLogin}>
-            로그인
+          <Button
+            className="bg-brand-blue"
+            onClick={handleLogin}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? '로그인 중…' : '로그인'}
           </Button>
+
           <hr />
+
           <div className="flex flex-col gap-[1rem]">
             <NaverLoginButton onClick={() => goSocial('naver')} />
             <GoogleLoginButton onClick={() => goSocial('google')} />

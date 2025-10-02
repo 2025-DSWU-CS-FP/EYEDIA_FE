@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
+import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
 import useConfirmPainting from '@/services/mutations/useConfirmPainting';
 
@@ -24,23 +25,25 @@ export default function GazePage() {
   const navigate = useNavigate();
   const { mutate: confirmPainting, isPending } = useConfirmPainting();
 
-  // 이벤트 수신 여부
   const hasDetected = typeof s?.paintingId === 'number';
-  const pid = s?.paintingId;
+  const pid = useMemo<number>(
+    () => (typeof s?.paintingId === 'number' ? s.paintingId : -1),
+    [s?.paintingId],
+  );
 
-  // UX: 최소 2초 로딩 도트
   const [minSpinDone, setMinSpinDone] = useState(false);
   useEffect(() => {
     const t = window.setTimeout(() => setMinSpinDone(true), 2000);
     return () => window.clearTimeout(t);
   }, []);
 
-  // 이벤트도 왔고, 최소 로딩도 끝났을 때만 본문/버튼 노출
   const ready = hasDetected && minSpinDone;
 
   const title = s?.title ?? '작품 인식 중';
   const artist = s?.artist ?? '';
   const imgUrl = s?.imgUrl ?? Sample;
+
+  useStompChat({ paintingId: pid });
 
   const headline = useMemo(
     () => (ready ? '시선추적 성공!' : '시선추적중...'),
@@ -54,36 +57,33 @@ export default function GazePage() {
     [ready],
   );
 
-  const handleStartConversation = () => {
-    if (!pid) return; // 안전 가드
-
-    // 디버깅용 로그(필요시 남겨두세요)
-    // eslint-disable-next-line no-console
-    console.log('[confirm] sending with paintingId=', pid);
-
-    // 비동기 전송: 네비게이션과 병렬로 날려도 react-query가 계속 수행함
+  const handleStartConversation = useCallback(() => {
+    if (pid < 0) return;
     confirmPainting(pid, {
-      onSuccess: () => {
-        // eslint-disable-next-line no-console
-        console.log('[confirm] success');
-      },
-      onError: e => {
-        // eslint-disable-next-line no-console
-        console.log('[confirm] error', e);
-      },
-    });
-
-    navigate('/chat-artwork', {
-      state: {
-        paintingId: pid,
-        title: s?.title,
-        artist: s?.artist,
-        imgUrl: s?.imgUrl,
-        description: s?.description,
-        exhibition: s?.exhibition,
+      onSettled: () => {
+        navigate('/chat-artwork', {
+          state: {
+            paintingId: pid,
+            title: s?.title,
+            artist: s?.artist,
+            imgUrl: s?.imgUrl,
+            description: s?.description,
+            exhibition: s?.exhibition,
+          },
+          replace: true,
+        });
       },
     });
-  };
+  }, [
+    confirmPainting,
+    navigate,
+    pid,
+    s?.artist,
+    s?.description,
+    s?.exhibition,
+    s?.imgUrl,
+    s?.title,
+  ]);
 
   return (
     <>
@@ -109,7 +109,9 @@ export default function GazePage() {
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-white t3">{title}</div>
                   {artist && <div className="text-white/80 ct4">{artist}</div>}
-                  <div className="text-white/70 ct5">ID: {pid}</div>
+                  {pid >= 0 && (
+                    <div className="text-white/70 ct5">ID: {pid}</div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -131,7 +133,7 @@ export default function GazePage() {
             type="button"
             onClick={handleStartConversation}
             className="mt-[3rem] bg-brand-blue bt2"
-            disabled={isPending /* 클릭 후 중복 방지 */}
+            disabled={isPending}
             aria-busy={isPending}
           >
             대화 시작하기

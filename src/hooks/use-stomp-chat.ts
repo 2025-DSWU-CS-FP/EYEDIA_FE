@@ -10,6 +10,7 @@ type UseStompChatArgs = {
   token?: string;
   onConnected?: (headers: IFrame['headers']) => void;
   topic?: string;
+  onRoomMessage?: (msg: IMessage) => void;
 };
 
 type UseStompChat = {
@@ -24,21 +25,29 @@ export default function useStompChat({
   token,
   onConnected,
   topic: topicOverride,
+  onRoomMessage,
 }: UseStompChatArgs): UseStompChat {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState<IncomingChat[]>([]);
   const clientRef = useRef<ReturnType<typeof makeStompClient> | null>(null);
-  const subRef = useRef<StompSubscription | null>(null);
+  const chatSubRef = useRef<StompSubscription | null>(null);
+  const roomSubRef = useRef<StompSubscription | null>(null);
   const onConnectedRef = useRef<typeof onConnected>();
+  const onRoomMessageRef = useRef<typeof onRoomMessage>();
 
   useEffect(() => {
     onConnectedRef.current = onConnected;
   }, [onConnected]);
 
-  const topic = useMemo<string>(
+  useEffect(() => {
+    onRoomMessageRef.current = onRoomMessage;
+  }, [onRoomMessage]);
+
+  const chatTopic = useMemo(
     () => topicOverride ?? `/topic/chat/art/${paintingId}`,
     [topicOverride, paintingId],
   );
+  const roomTopic = useMemo(() => `/room/${paintingId}`, [paintingId]);
 
   useEffect(() => {
     const url = import.meta.env.VITE_WS_URL as string;
@@ -48,13 +57,18 @@ export default function useStompChat({
     client.onConnect = (frame: IFrame) => {
       setConnected(true);
       onConnectedRef.current?.(frame.headers);
-      subRef.current = client.subscribe(topic, (f: IMessage) => {
+
+      chatSubRef.current = client.subscribe(chatTopic, (f: IMessage) => {
         try {
           const data = JSON.parse(f.body) as IncomingChat;
           setMessages(prev => [...prev, data]);
         } catch {
-          /*  */
+          /* */
         }
+      });
+
+      roomSubRef.current = client.subscribe(roomTopic, (f: IMessage) => {
+        onRoomMessageRef.current?.(f);
       });
     };
 
@@ -64,7 +78,12 @@ export default function useStompChat({
 
     return () => {
       try {
-        subRef.current?.unsubscribe();
+        chatSubRef.current?.unsubscribe();
+      } catch {
+        /* */
+      }
+      try {
+        roomSubRef.current?.unsubscribe();
       } catch {
         /* */
       }
@@ -74,9 +93,10 @@ export default function useStompChat({
         /* */
       }
       clientRef.current = null;
-      subRef.current = null;
+      chatSubRef.current = null;
+      roomSubRef.current = null;
     };
-  }, [token, topic]);
+  }, [token, chatTopic, roomTopic]);
 
   const send = useCallback(
     (content: string) => {
@@ -92,7 +112,12 @@ export default function useStompChat({
 
   const disconnect = useCallback(() => {
     try {
-      subRef.current?.unsubscribe();
+      chatSubRef.current?.unsubscribe();
+    } catch {
+      /* */
+    }
+    try {
+      roomSubRef.current?.unsubscribe();
     } catch {
       /* */
     }
