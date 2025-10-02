@@ -43,11 +43,11 @@ export default function useStompChat({
     onRoomMessageRef.current = onRoomMessage;
   }, [onRoomMessage]);
 
-  const chatTopic = useMemo<string>(
+  const chatTopic = useMemo(
     () => topicOverride ?? `/topic/chat/art/${paintingId}`,
     [topicOverride, paintingId],
   );
-  const roomTopic = useMemo<string>(() => `/room/${paintingId}`, [paintingId]);
+  const roomTopic = useMemo(() => `/room/${paintingId}`, [paintingId]);
 
   useEffect(() => {
     const url = import.meta.env.VITE_WS_URL as string;

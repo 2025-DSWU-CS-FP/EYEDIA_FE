@@ -10,7 +10,6 @@ import '@/styles/glow-pulse-before.css';
 import '@/styles/typing.css';
 import keyboardIcon from '@/assets/icons/keyboard.svg';
 import SampleFallback from '@/assets/images/chat/image1.jpg';
-import SampleCrop from '@/assets/images/chat/image2.png';
 import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
 import ChatMessage from '@/components/chat/ChatMessage';
@@ -44,6 +43,14 @@ type LocationState = {
   exhibition?: string;
 };
 
+type RoomPayload = {
+  paintingId: number;
+  answer?: string | null;
+  model?: string | null;
+  imgUrl?: string | null;
+  audioUrl?: string | null;
+};
+
 const DEFAULT_EXHIBITION = '전시';
 
 export default function ArtworkPage() {
@@ -75,6 +82,7 @@ export default function ArtworkPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const didAutoAskRef = useRef(false);
+  const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
 
   const stt = useStt({
     lang: 'ko-KR',
@@ -90,12 +98,6 @@ export default function ArtworkPage() {
   const { data: chatMessages } = useChatMessages(paintingId);
 
   const token = getAuthToken();
-  const { connected, messages: wsMessages } = useStompChat({
-    paintingId,
-    token,
-    topic: `/topic/llm.${paintingId}`,
-  });
-
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
@@ -103,6 +105,48 @@ export default function ArtworkPage() {
   const { add } = useTimers();
   const ac = useAbortControllerRef();
   const { start: startTypewriter } = useTypewriter(add);
+  const { connected, messages: wsMessages } = useStompChat({
+    paintingId,
+    token,
+    topic: `/topic/llm.${paintingId}`,
+    onRoomMessage: frame => {
+      const mid = frame.headers['message-id'] ?? '';
+      if (mid && processedRoomMessageIdsRef.current.has(mid)) return;
+      try {
+        const payload = JSON.parse(frame.body) as RoomPayload;
+        if (payload.paintingId !== paintingId) return;
+        if (mid) processedRoomMessageIdsRef.current.add(mid);
+
+        const userImageUrl = payload.imgUrl ?? artworkInfo.imgUrl;
+        const botAnswer = payload.answer ?? '';
+
+        const imgId = nanoid();
+        setLocalMessages(prev => [
+          ...prev,
+          { id: imgId, sender: 'USER', type: 'IMAGE', imageUrl: userImageUrl },
+        ]);
+
+        const botId = nanoid();
+        setLocalMessages(prev => [
+          ...prev,
+          { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
+        ]);
+        startTypewriter(
+          botId,
+          botAnswer,
+          partial => {
+            setLocalMessages(prev =>
+              prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
+            );
+            if (partial === botAnswer && botAnswer) tts.speak(botAnswer);
+          },
+          16,
+        );
+      } catch {
+        /* */
+      }
+    },
+  });
 
   useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
 
@@ -193,7 +237,6 @@ export default function ArtworkPage() {
           ...prev,
           { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
         ]);
-
         startTypewriter(
           botId,
           res.answer,
@@ -201,9 +244,7 @@ export default function ArtworkPage() {
             setLocalMessages(prev =>
               prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
             );
-            if (partial === res.answer) {
-              tts.speak(res.answer);
-            }
+            if (partial === res.answer) tts.speak(res.answer);
           },
           16,
         );
@@ -234,13 +275,12 @@ export default function ArtworkPage() {
   useEffect(() => {
     if (!connected || didAutoAskRef.current) return;
     didAutoAskRef.current = true;
-
     setLocalMessages(prev => [
       ...prev,
-      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: SampleCrop },
+      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: sImgUrl },
     ]);
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
-  }, [connected, submitAsk]);
+  }, [connected, submitAsk, sImgUrl]);
 
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
@@ -254,7 +294,7 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="absolute z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
+        <header className="sticky top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header showBackButton backgroundColorClass="bg-gray-5" />
           <div className="flex max-w-[100%] items-end justify-between px-[2.3rem]">
             <div className="flex flex-col gap-[0.3rem]">
@@ -272,7 +312,7 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <main className={isExpanded ? 'relative pt-[11.2rem]' : 'relative'}>
+        <main className={isExpanded ? 'relative pt-[1rem]' : 'relative'}>
           {!isExpanded && (
             <>
               <div className="fixed -top-4 right-7 z-20 flex justify-end gap-2">

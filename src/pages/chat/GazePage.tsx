@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
+import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
 import useConfirmPainting from '@/services/mutations/useConfirmPainting';
-import useStompChat from '@/hooks/use-stomp-chat';
 
 type LocationState = {
   userId?: string;
@@ -25,7 +26,10 @@ export default function GazePage() {
   const { mutate: confirmPainting, isPending } = useConfirmPainting();
 
   const hasDetected = typeof s?.paintingId === 'number';
-  const pid = s?.paintingId;
+  const pid = useMemo<number>(
+    () => (typeof s?.paintingId === 'number' ? s.paintingId : -1),
+    [s?.paintingId],
+  );
 
   const [minSpinDone, setMinSpinDone] = useState(false);
   useEffect(() => {
@@ -54,7 +58,7 @@ export default function GazePage() {
   );
 
   const handleStartConversation = useCallback(() => {
-    if (!pid) return;
+    if (pid < 0) return;
     confirmPainting(pid, {
       onSettled: () => {
         navigate('/chat-artwork', {
@@ -105,7 +109,9 @@ export default function GazePage() {
                 <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-white t3">{title}</div>
                   {artist && <div className="text-white/80 ct4">{artist}</div>}
-                  <div className="text-white/70 ct5">ID: {pid}</div>
+                  {pid >= 0 && (
+                    <div className="text-white/70 ct5">ID: {pid}</div>
+                  )}
                 </div>
               </div>
             ) : (
