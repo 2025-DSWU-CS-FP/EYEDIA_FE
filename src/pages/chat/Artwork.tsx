@@ -61,24 +61,19 @@ export default function ArtworkPage() {
   const [selectionText, setSelectionText] = useState('');
   const [showExtractCard, setShowExtractCard] = useState(false);
 
-  // 리스트/스크롤 ref
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
-  // 중복 WS 메시지 방지 ref
   const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
 
   const token = getAuthToken();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
 
-  // 저장 뮤테이션
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
 
-  // 삭제 뮤테이션
   const deleteMutation = useDeletePainting();
 
-  // 채팅 훅 (로컬 메시지/음성/타자효과/질문 전송 등)
   const {
     localMessages,
     setLocalMessages,
@@ -95,7 +90,6 @@ export default function ArtworkPage() {
     onError: msg => showToast(msg, 'error'),
   });
 
-  // 과거 저장된 메시지
   const { data: chatMessages } = useChatMessages(paintingId);
   const initial = useMemo(
     () =>
@@ -108,7 +102,6 @@ export default function ArtworkPage() {
     [chatMessages],
   );
 
-  // WS 메시지 핸들러 훅
   const onRoomMessage = useRoomMessageHandler({
     paintingId,
     artworkInfo: { imgUrl: artworkInfo.imgUrl },
@@ -118,7 +111,6 @@ export default function ArtworkPage() {
     speak,
   });
 
-  // STOMP 구독
   const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
@@ -139,16 +131,13 @@ export default function ArtworkPage() {
     type: 'TEXT' as const,
   }));
 
-  // 자동 스크롤
   useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
 
-  // 상단 상태 문구 (연결 상태 반영)
   const headerPromptText = useMemo(() => {
     if (!connected) return PROMPT_MESSAGES.checkingConnection;
     return promptText;
   }, [connected, promptText]);
 
-  // 발췌 저장
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
     if (!quote) {
@@ -176,7 +165,6 @@ export default function ArtworkPage() {
     );
   };
 
-  // 삭제
   const handleDeletePainting = useCallback(async () => {
     try {
       await deleteMutation.mutateAsync(paintingId);
@@ -187,7 +175,6 @@ export default function ArtworkPage() {
     }
   }, [deleteMutation, paintingId, navigate, showToast]);
 
-  // 최초 자동 질문(이미지 전송 + "설명해줘")
   useEffect(() => {
     if (!connected || didAutoAskRef.current) return;
     didAutoAskRef.current = true;
@@ -200,7 +187,6 @@ export default function ArtworkPage() {
 
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
-      {/* 배경 아트워크 이미지 */}
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
         <img
           src={artworkInfo.imgUrl}
@@ -210,7 +196,6 @@ export default function ArtworkPage() {
         />
       </div>
 
-      {/* 확장 시 헤더 */}
       {isExpanded && (
         <header className="sticky top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header
@@ -257,7 +242,6 @@ export default function ArtworkPage() {
             </>
           )}
 
-          {/* 메시지 리스트 */}
           <MessageList
             initial={initial}
             wsList={wsList}
@@ -273,12 +257,10 @@ export default function ArtworkPage() {
         </main>
       </ArtworkBottomSheet>
 
-      {/* 음성 버튼/프롬프트/키보드 버튼 */}
       {!showChatInput && (
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
-            {/* 마이크 버튼 */}
             {voiceDisabled ? (
               <button
                 aria-label="음성 인식 시작"
@@ -318,14 +300,12 @@ export default function ArtworkPage() {
         </footer>
       )}
 
-      {/* 텍스트 입력 바 */}
       {showChatInput && (
         <div className="w full fixed bottom-0 left-1/2 z-20 max-w-[43rem] -translate-x-1/2">
           <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
         </div>
       )}
 
-      {/* 발췌 저장 카드 */}
       {showExtractCard && (
         <div className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center">
           <ExtractCard
