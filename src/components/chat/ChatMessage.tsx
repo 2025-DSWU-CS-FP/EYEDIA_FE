@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
+import { nanoid } from 'nanoid';
+
 import SelectionActionMenu from '@/components/chat/SelectionActionMenu';
+
 import '@/styles/chat-selection.css';
 
 interface ChatMessageProps {
@@ -104,7 +107,7 @@ export default function ChatMessage({
 
     const finishSelection = () => {
       selectingRef.current = false;
-      scheduleUpdate(80); // iOS에서 선택 사각형 안정화 대기
+      scheduleUpdate(80);
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
@@ -128,15 +131,40 @@ export default function ChatMessage({
     };
   }, [scheduleUpdate]);
 
+  const toRichNodes = useCallback((value: string) => {
+    const nodes: JSX.Element[] = [];
+    const parts = value.split(/(\*\*[^*]+?\*\*)/g);
+    parts.forEach(seg => {
+      if (/^\*\*[^*]+?\*\*$/.test(seg)) {
+        const k = nanoid();
+        nodes.push(
+          <strong key={k} className="font-bold">
+            {seg.slice(2, -2)}
+          </strong>,
+        );
+      } else {
+        const lines = seg.split('\n');
+        lines.forEach((line, idx) => {
+          const sk = nanoid();
+          nodes.push(<span key={sk}>{line}</span>);
+          if (idx < lines.length - 1) {
+            const bk = nanoid();
+            nodes.push(<br key={bk} />);
+          }
+        });
+      }
+    });
+    return nodes;
+  }, []);
+
   return (
     <div
       ref={containerRef}
-      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
+      className={`relative max-w-[80%] select-text overflow-visible whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
         isFromUser
           ? 'self-end bg-brand-blue text-gray-0'
           : 'bg-gray-0 text-gray-90'
       }`}
-      style={{ overflow: 'visible' }}
     >
       {menu && (
         <SelectionActionMenu
@@ -154,7 +182,7 @@ export default function ChatMessage({
           }}
         />
       )}
-      {text}
+      {toRichNodes(text)}
     </div>
   );
 }
