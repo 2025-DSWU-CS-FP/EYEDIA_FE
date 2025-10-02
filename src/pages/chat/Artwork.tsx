@@ -2,7 +2,7 @@ import { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
-import { FiHeart, FiShare, FiTrash2 } from 'react-icons/fi';
+import { FiHeart, FiShare } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import '@/styles/glow-pulse.css';
@@ -12,26 +12,21 @@ import keyboardIcon from '@/assets/icons/keyboard.svg';
 import SampleFallback from '@/assets/images/chat/image1.jpg';
 import ArtworkBottomSheet from '@/components/bottomsheet/ArtworkBottomSheet';
 import ChatInputBar from '@/components/chat/ChatInputBar';
-import ChatMessage from '@/components/chat/ChatMessage';
 import ExtractCard from '@/components/chat/ExtractCard';
+import MessageList from '@/components/chat/MessageList';
 import RoundedIconButton from '@/components/chat/RoundedIconButton';
 import Divider from '@/components/mypage/Divider';
 import { PROMPT_MESSAGES } from '@/constants/promptMessages';
 import { useToast } from '@/contexts/ToastContext';
 import useStompChat from '@/hooks/use-stomp-chat';
-import useAbortControllerRef from '@/hooks/useAbortControllerRef';
+import useArtworkChat from '@/hooks/useArtworkChat';
 import useAutoScrollToEnd from '@/hooks/useAutoScrollToEnd';
-import useStt from '@/hooks/useSTT';
-import useTimers from '@/hooks/useTimers';
-import useTts from '@/hooks/useTTS';
-import useTypewriter from '@/hooks/useTypewriter';
+import useRoomMessageHandler from '@/hooks/useRoomMessageHandler';
 import Header from '@/layouts/Header';
 import useDeletePainting from '@/services/mutations/useDeletePainting';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
-import { askArtworkLLM } from '@/services/ws/chat';
 import type { IncomingChat } from '@/types/chat';
-import type { LocalMsg } from '@/types/chatLocal';
 import dateKST from '@/utils/dateKST';
 import getAuthToken from '@/utils/getToken';
 
@@ -42,14 +37,6 @@ type LocationState = {
   imgUrl?: string;
   description?: string;
   exhibition?: string;
-};
-
-type RoomPayload = {
-  paintingId: number;
-  answer?: string | null;
-  model?: string | null;
-  imgUrl?: string | null;
-  audioUrl?: string | null;
 };
 
 const DEFAULT_EXHIBITION = '전시';
@@ -73,82 +60,43 @@ export default function ArtworkPage() {
   const [showChatInput, setShowChatInput] = useState(false);
   const [selectionText, setSelectionText] = useState('');
   const [showExtractCard, setShowExtractCard] = useState(false);
-  const [localMessages, setLocalMessages] = useState<LocalMsg[]>([]);
-  const [typing, setTyping] = useState(false);
 
+  // 리스트/스크롤 ref
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const didAutoAskRef = useRef(false);
+
+  // 중복 WS 메시지 방지 ref
   const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
-
-  const stt = useStt({
-    lang: 'ko-KR',
-    continuous: false,
-    interimResults: true,
-  });
-  const tts = useTts({
-    lang: 'ko-KR',
-    rate: 1,
-    voiceName: 'Google 한국의 여성',
-  });
-
-  const { data: chatMessages } = useChatMessages(paintingId);
 
   const token = getAuthToken();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
+
+  // 저장 뮤테이션
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
+
+  // 삭제 뮤테이션
   const deleteMutation = useDeletePainting();
-  const { add } = useTimers();
-  const ac = useAbortControllerRef();
-  const { start: startTypewriter } = useTypewriter(add);
 
-  const { connected, messages: wsMessages } = useStompChat({
+  // 채팅 훅 (로컬 메시지/음성/타자효과/질문 전송 등)
+  const {
+    localMessages,
+    setLocalMessages,
+    typing,
+    submitAsk,
+    startVoice,
+    promptText,
+    voiceDisabled,
+    didAutoAskRef,
+    startTypewriter,
+    speak,
+  } = useArtworkChat({
     paintingId,
-    token,
-    topic: `/topic/llm.${paintingId}`,
-    onRoomMessage: frame => {
-      const mid = frame.headers['message-id'] ?? '';
-      if (mid && processedRoomMessageIdsRef.current.has(mid)) return;
-      try {
-        const payload = JSON.parse(frame.body) as RoomPayload;
-        if (payload.paintingId !== paintingId) return;
-        if (mid) processedRoomMessageIdsRef.current.add(mid);
-
-        const userImageUrl = payload.imgUrl ?? artworkInfo.imgUrl;
-        const botAnswer = payload.answer ?? '';
-
-        const imgId = nanoid();
-        setLocalMessages(prev => [
-          ...prev,
-          { id: imgId, sender: 'USER', type: 'IMAGE', imageUrl: userImageUrl },
-        ]);
-
-        const botId = nanoid();
-        setLocalMessages(prev => [
-          ...prev,
-          { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
-        ]);
-        startTypewriter(
-          botId,
-          botAnswer,
-          partial => {
-            setLocalMessages(prev =>
-              prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
-            );
-            if (partial === botAnswer && botAnswer) tts.speak(botAnswer);
-          },
-          16,
-        );
-      } catch {
-        /* */
-      }
-    },
+    onError: msg => showToast(msg, 'error'),
   });
 
-  useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
-
+  // 과거 저장된 메시지
+  const { data: chatMessages } = useChatMessages(paintingId);
   const initial = useMemo(
     () =>
       (chatMessages ?? []).map(m => ({
@@ -160,6 +108,25 @@ export default function ArtworkPage() {
     [chatMessages],
   );
 
+  // WS 메시지 핸들러 훅
+  const onRoomMessage = useRoomMessageHandler({
+    paintingId,
+    artworkInfo: { imgUrl: artworkInfo.imgUrl },
+    processedIdsRef: processedRoomMessageIdsRef,
+    setLocalMessages,
+    startTypewriter,
+    speak,
+  });
+
+  // STOMP 구독
+  const { connected, messages: wsMessages } = useStompChat({
+    paintingId,
+    token,
+    topic: `/topic/llm.${paintingId}`,
+    onRoomMessage,
+  });
+
+  // WS 수신 리스트(텍스트만)
   const wsList: Array<{
     id: string;
     sender: 'USER' | 'BOT' | 'SYSTEM';
@@ -172,20 +139,16 @@ export default function ArtworkPage() {
     type: 'TEXT' as const,
   }));
 
-  const promptText = useMemo(() => {
+  // 자동 스크롤
+  useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
+
+  // 상단 상태 문구 (연결 상태 반영)
+  const headerPromptText = useMemo(() => {
     if (!connected) return PROMPT_MESSAGES.checkingConnection;
-    if (stt.listening) return PROMPT_MESSAGES.speaking;
-    if (typing) return PROMPT_MESSAGES.generating;
-    return PROMPT_MESSAGES.ask;
-  }, [connected, stt.listening, typing]);
+    return promptText;
+  }, [connected, promptText]);
 
-  const voiceDisabled =
-    stt.listening ||
-    typing ||
-    !connected ||
-    stt.status === 'denied' ||
-    stt.status === 'unavailable';
-
+  // 발췌 저장
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
     if (!quote) {
@@ -213,6 +176,7 @@ export default function ArtworkPage() {
     );
   };
 
+  // 삭제
   const handleDeletePainting = useCallback(async () => {
     try {
       await deleteMutation.mutateAsync(paintingId);
@@ -223,64 +187,7 @@ export default function ArtworkPage() {
     }
   }, [deleteMutation, paintingId, navigate, showToast]);
 
-  const submitAsk = useCallback(
-    async (raw: string, opts?: { showUserBubble?: boolean }) => {
-      const text = raw.trim();
-      if (!text) return;
-
-      const showUserBubble = opts?.showUserBubble ?? true;
-      if (showUserBubble) {
-        setLocalMessages(prev => [
-          ...prev,
-          { id: nanoid(), sender: 'USER', type: 'TEXT', content: text },
-        ]);
-      }
-
-      setTyping(true);
-      try {
-        const { signal: abortSignal } = ac.renew();
-        const res = await askArtworkLLM({ paintingId, text }, abortSignal);
-        setTyping(false);
-        const botId = nanoid();
-        setLocalMessages(prev => [
-          ...prev,
-          { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
-        ]);
-        startTypewriter(
-          botId,
-          res.answer,
-          partial => {
-            setLocalMessages(prev =>
-              prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
-            );
-            if (partial === res.answer) tts.speak(res.answer);
-          },
-          16,
-        );
-      } catch (e) {
-        setTyping(false);
-        if (!(e instanceof DOMException && e.name === 'AbortError')) {
-          showToast('질문 전송에 실패했어요. 다시 시도해 주세요.', 'error');
-        }
-      }
-    },
-    [ac, paintingId, showToast, startTypewriter, tts],
-  );
-
-  const startVoice = () => {
-    if (stt.listening || typing) return;
-    stt.resetFinal();
-    stt.start();
-  };
-
-  useEffect(() => {
-    if (!stt.listening && stt.finalText.trim()) {
-      const text = stt.finalText.trim();
-      stt.resetFinal();
-      submitAsk(text, { showUserBubble: true });
-    }
-  }, [stt.listening, stt.finalText, submitAsk, stt]);
-
+  // 최초 자동 질문(이미지 전송 + "설명해줘")
   useEffect(() => {
     if (!connected || didAutoAskRef.current) return;
     didAutoAskRef.current = true;
@@ -289,10 +196,11 @@ export default function ArtworkPage() {
       { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: sImgUrl },
     ]);
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
-  }, [connected, submitAsk, sImgUrl]);
+  }, [connected, submitAsk, sImgUrl, didAutoAskRef, setLocalMessages]);
 
   return (
     <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
+      {/* 배경 아트워크 이미지 */}
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
         <img
           src={artworkInfo.imgUrl}
@@ -302,6 +210,7 @@ export default function ArtworkPage() {
         />
       </div>
 
+      {/* 확장 시 헤더 */}
       {isExpanded && (
         <header className="sticky top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header
@@ -331,23 +240,12 @@ export default function ArtworkPage() {
               <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
                 <RoundedIconButton size="lg" icon={<FiHeart />} />
                 <RoundedIconButton size="lg" icon={<FiShare />} />
-                <button
-                  type="button"
-                  onClick={handleDeletePainting}
-                  disabled={deleteMutation.isPending}
-                  aria-busy={deleteMutation.isPending}
-                  className="flex items-center gap-[0.4rem] rounded-[20px] bg-gray-10 px-[1.2rem] py-[0.6rem] text-gray-80 ct5 hover:bg-gray-20 disabled:opacity-60"
-                  aria-label="작품 삭제"
-                  title="작품 삭제"
-                >
-                  <FiTrash2 />
-                  {deleteMutation.isPending ? '삭제 중…' : '삭제'}
-                </button>
               </div>
+
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t1">{artworkInfo.title}</h1>
+                    <h1 className="font-normal t2">{artworkInfo.title}</h1>
                     {artworkInfo.artist && (
                       <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
                     )}
@@ -359,93 +257,51 @@ export default function ArtworkPage() {
             </>
           )}
 
-          <div
-            ref={listRef}
-            className="flex h-full flex-col gap-[1.2rem] overflow-y-auto px-[1.8rem] pt-8"
-          >
-            {(!chatMessages || chatMessages.length === 0) &&
-              localMessages.length === 0 &&
-              wsMessages.length === 0 && (
-                <div className="pb-[1.2rem] pt-[1.6rem]">
-                  <ChatMessage text="무물이에게 작품에 대해 궁금한 점을 물어보세요(2초 이상 응시한 객체에 대해서 설명해 줍니다)." />
-                </div>
-              )}
-
-            {[...initial, ...wsList, ...localMessages].map(m =>
-              m.type === 'IMAGE' ? (
-                <figure
-                  key={m.id}
-                  className="max-w-[75%] self-end overflow-hidden rounded-[20px] bg-gray-10"
-                >
-                  <img
-                    src={m.imageUrl!}
-                    alt="선택한 부분 이미지"
-                    className="block h-auto w-full object-cover"
-                  />
-                </figure>
-              ) : (
-                <ChatMessage
-                  key={m.id}
-                  text={m.content!}
-                  isFromUser={m.sender === 'USER'}
-                  onExtract={quote => {
-                    setSelectionText(quote);
-                    setShowExtractCard(true);
-                  }}
-                />
-              ),
-            )}
-
-            {typing && (
-              <div className="flex items-start gap-[1rem]">
-                <div className="rounded-[20px] bg-gray-10 px-[1.2rem] py-[0.8rem]">
-                  <span className="sr-only">상대가 입력 중…</span>
-                  <div className="flex items-end gap-[0.4rem]">
-                    <span className="typing-dot" />
-                    <span className="typing-dot delay-1" />
-                    <span className="typing-dot delay-2" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div ref={endRef} />
-          </div>
+          {/* 메시지 리스트 */}
+          <MessageList
+            initial={initial}
+            wsList={wsList}
+            localMessages={localMessages}
+            typing={typing}
+            onExtract={quote => {
+              setSelectionText(quote);
+              setShowExtractCard(true);
+            }}
+            listRef={listRef}
+            endRef={endRef}
+          />
         </main>
       </ArtworkBottomSheet>
 
+      {/* 음성 버튼/프롬프트/키보드 버튼 */}
       {!showChatInput && (
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
-            {stt.listening ? (
-              <>
-                <span className="wave" />
-                <span className="wave delay-1" />
-                <span className="wave delay-2" />
-                <div className="glow-core wave-border" />
-              </>
+            {/* 마이크 버튼 */}
+            {voiceDisabled ? (
+              <button
+                aria-label="음성 인식 시작"
+                type="button"
+                disabled
+                aria-disabled
+                className="glow-pulse disabled:cursor-not-allowed disabled:opacity-50"
+              />
             ) : (
               <button
                 aria-label="음성 인식 시작"
                 type="button"
-                disabled={voiceDisabled}
-                aria-disabled={voiceDisabled}
-                className="glow-pulse disabled:cursor-not-allowed disabled:opacity-50"
+                className="glow-pulse"
                 onClick={startVoice}
               />
             )}
-            {stt.listening && (
-              <p className="relative z-10 mt-4 line-clamp-2 max-w-[43rem] text-center text-gray-80 ct4">
-                {stt.interim || stt.finalText || '듣고 있어요…'}
-              </p>
-            )}
           </div>
 
-          <p className="relative z-10 mt-6 text-gray-70 bd2">{promptText}</p>
+          <p className="relative z-10 mt-6 text-gray-70 bd2">
+            {headerPromptText}
+          </p>
 
           <div className="pointer-events-auto relative z-10 mx-auto mt-4 flex w-full max-w-[43rem] justify-end">
-            <input ref={inputRef} type="text" className="sr-only" />
             <button
               type="button"
               onClick={() => setShowChatInput(true)}
@@ -462,12 +318,14 @@ export default function ArtworkPage() {
         </footer>
       )}
 
+      {/* 텍스트 입력 바 */}
       {showChatInput && (
         <div className="w full fixed bottom-0 left-1/2 z-20 max-w-[43rem] -translate-x-1/2">
           <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
         </div>
       )}
 
+      {/* 발췌 저장 카드 */}
       {showExtractCard && (
         <div className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center">
           <ExtractCard

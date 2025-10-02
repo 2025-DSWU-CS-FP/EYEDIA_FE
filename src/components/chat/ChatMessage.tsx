@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-import { nanoid } from 'nanoid';
-
 import SelectionActionMenu from '@/components/chat/SelectionActionMenu';
-
 import '@/styles/chat-selection.css';
 
 interface ChatMessageProps {
@@ -107,7 +104,7 @@ export default function ChatMessage({
 
     const finishSelection = () => {
       selectingRef.current = false;
-      scheduleUpdate(80);
+      scheduleUpdate(80); // iOS 안정화 대기
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
@@ -131,40 +128,28 @@ export default function ChatMessage({
     };
   }, [scheduleUpdate]);
 
-  const toRichNodes = useCallback((value: string) => {
-    const nodes: JSX.Element[] = [];
-    const parts = value.split(/(\*\*[^*]+?\*\*)/g);
-    parts.forEach(seg => {
-      if (/^\*\*[^*]+?\*\*$/.test(seg)) {
-        const k = nanoid();
-        nodes.push(
-          <strong key={k} className="font-bold">
-            {seg.slice(2, -2)}
-          </strong>,
-        );
-      } else {
-        const lines = seg.split('\n');
-        lines.forEach((line, idx) => {
-          const sk = nanoid();
-          nodes.push(<span key={sk}>{line}</span>);
-          if (idx < lines.length - 1) {
-            const bk = nanoid();
-            nodes.push(<br key={bk} />);
-          }
-        });
-      }
-    });
-    return nodes;
+  const toRichHTML = useCallback((value: string) => {
+    const escape = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    const escaped = escape(value);
+    const withBold = escaped.replace(
+      /\*\*([\s\S]+?)\*\*/g,
+      '<strong>$1</strong>',
+    );
+    const withBreaks = withBold.replace(/\r?\n/g, '<br/>');
+    return withBreaks;
   }, []);
 
   return (
     <div
       ref={containerRef}
-      className={`relative max-w-[80%] select-text overflow-visible whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
+      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
         isFromUser
           ? 'self-end bg-brand-blue text-gray-0'
           : 'bg-gray-0 text-gray-90'
       }`}
+      style={{ overflow: 'visible' }}
     >
       {menu && (
         <SelectionActionMenu
@@ -182,7 +167,7 @@ export default function ChatMessage({
           }}
         />
       )}
-      {toRichNodes(text)}
+      <div dangerouslySetInnerHTML={{ __html: toRichHTML(text) }} />
     </div>
   );
 }
