@@ -2,8 +2,8 @@ import { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { nanoid } from 'nanoid';
-import { FiHeart, FiShare } from 'react-icons/fi';
-import { useLocation } from 'react-router-dom';
+import { FiHeart, FiShare, FiTrash2 } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import '@/styles/glow-pulse.css';
 import '@/styles/glow-pulse-before.css';
@@ -26,6 +26,7 @@ import useTimers from '@/hooks/useTimers';
 import useTts from '@/hooks/useTTS';
 import useTypewriter from '@/hooks/useTypewriter';
 import Header from '@/layouts/Header';
+import useDeletePainting from '@/services/mutations/useDeletePainting';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
 import { askArtworkLLM } from '@/services/ws/chat';
@@ -54,6 +55,7 @@ type RoomPayload = {
 const DEFAULT_EXHIBITION = '전시';
 
 export default function ArtworkPage() {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const s = state as LocationState;
   const {
@@ -64,11 +66,7 @@ export default function ArtworkPage() {
     exhibition = DEFAULT_EXHIBITION,
   } = s;
 
-  const artworkInfo = {
-    title: sTitle,
-    artist: sArtist,
-    imgUrl: sImgUrl,
-  };
+  const artworkInfo = { title: sTitle, artist: sArtist, imgUrl: sImgUrl };
   const exhibitionName = exhibition;
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -101,10 +99,11 @@ export default function ArtworkPage() {
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
-
+  const deleteMutation = useDeletePainting();
   const { add } = useTimers();
   const ac = useAbortControllerRef();
   const { start: startTypewriter } = useTypewriter(add);
+
   const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
@@ -214,6 +213,16 @@ export default function ArtworkPage() {
     );
   };
 
+  const handleDeletePainting = useCallback(async () => {
+    try {
+      await deleteMutation.mutateAsync(paintingId);
+      showToast('작품이 삭제되었습니다.', 'success');
+      navigate('/chat-onboarding', { replace: true });
+    } catch {
+      showToast('작품 삭제에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
+    }
+  }, [deleteMutation, paintingId, navigate, showToast]);
+
   const submitAsk = useCallback(
     async (raw: string, opts?: { showUserBubble?: boolean }) => {
       const text = raw.trim();
@@ -295,7 +304,11 @@ export default function ArtworkPage() {
 
       {isExpanded && (
         <header className="sticky top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
-          <Header showBackButton backgroundColorClass="bg-gray-5" />
+          <Header
+            onBackClick={handleDeletePainting}
+            showBackButton
+            backgroundColorClass="bg-gray-5"
+          />
           <div className="flex max-w-[100%] items-end justify-between px-[2.3rem]">
             <div className="flex flex-col gap-[0.3rem]">
               <h1 className="t3">{artworkInfo.title}</h1>
@@ -315,9 +328,21 @@ export default function ArtworkPage() {
         <main className={isExpanded ? 'relative pt-[1rem]' : 'relative'}>
           {!isExpanded && (
             <>
-              <div className="fixed -top-4 right-7 z-20 flex justify-end gap-2">
+              <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
                 <RoundedIconButton size="lg" icon={<FiHeart />} />
                 <RoundedIconButton size="lg" icon={<FiShare />} />
+                <button
+                  type="button"
+                  onClick={handleDeletePainting}
+                  disabled={deleteMutation.isPending}
+                  aria-busy={deleteMutation.isPending}
+                  className="flex items-center gap-[0.4rem] rounded-[20px] bg-gray-10 px-[1.2rem] py-[0.6rem] text-gray-80 ct5 hover:bg-gray-20 disabled:opacity-60"
+                  aria-label="작품 삭제"
+                  title="작품 삭제"
+                >
+                  <FiTrash2 />
+                  {deleteMutation.isPending ? '삭제 중…' : '삭제'}
+                </button>
               </div>
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
@@ -438,7 +463,7 @@ export default function ArtworkPage() {
       )}
 
       {showChatInput && (
-        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[43rem] -translate-x-1/2">
+        <div className="w full fixed bottom-0 left-1/2 z-20 max-w-[43rem] -translate-x-1/2">
           <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
         </div>
       )}
