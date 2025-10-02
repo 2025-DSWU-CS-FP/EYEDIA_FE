@@ -230,7 +230,7 @@ export default function ArtworkPage() {
               <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
                 <div className="px-[2.4rem]">
                   <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t2">{artworkInfo.title}</h1>
+                    <h1 className="font-normal t3">{artworkInfo.title}</h1>
                     {artworkInfo.artist && (
                       <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
                     )}
@@ -316,6 +316,7 @@ export default function ArtworkPage() {
             onSave={handleSaveExcerpt}
             onShare={() => showToast('공유 기능은 준비 중이에요.', 'info')}
             aria-busy={saving}
+            onClose={() => setShowExtractCard(false)}
           />
         </div>
       )}

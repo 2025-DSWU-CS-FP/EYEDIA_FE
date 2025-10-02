@@ -6,7 +6,7 @@ import { flushSync } from 'react-dom';
 import addIcon from '@/assets/icons/add-image.svg';
 import shareIcon from '@/assets/icons/share-image.svg';
 import Logo from '@/assets/images/logo.svg';
-import BackButton from '@/components/common/BackButton';
+import Header from '@/layouts/Header';
 
 type WebShareNavigator = Navigator & {
   share?: (data: {
@@ -30,6 +30,7 @@ interface ExtractCardProps {
   artist: string;
   onSave: () => void;
   onShare: () => void;
+  onClose: () => void;
 }
 
 export default function ExtractCard({
@@ -39,9 +40,11 @@ export default function ExtractCard({
   artist,
   onSave,
   onShare,
+  onClose,
 }: ExtractCardProps) {
   const cardRef = React.useRef<HTMLDivElement | null>(null);
   const [isCapturing, setIsCapturing] = React.useState(false);
+
   const waitFontsReady = async (): Promise<void> => {
     const d = document as unknown as { fonts?: { ready?: Promise<unknown> } };
     try {
@@ -208,9 +211,13 @@ export default function ExtractCard({
           isCapturing ? 'capture-still' : ''
         }`}
       >
-        <div className="pt-[max(1rem,env(safe-area-inset-top))]">
-          <BackButton className="capture-ignore text-gray-100" />
-        </div>
+        <Header
+          showBackButton
+          backgroundColorClass="bg-gray-0"
+          onBackClick={() => {
+            onClose();
+          }}
+        />
 
         <div
           ref={cardRef}
