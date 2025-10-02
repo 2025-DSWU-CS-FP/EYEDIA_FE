@@ -30,13 +30,21 @@ export default function OAuthSuccessPage() {
       return;
     }
 
-    localStorage.setItem('accessToken', token);
-    if (name) localStorage.setItem('name', name);
-    if (mvc && /^\d+$/.test(mvc))
-      localStorage.setItem('monthlyVisitCount', mvc);
+    try {
+      localStorage.setItem('accessToken', token);
+      if (name) localStorage.setItem('name', name);
+      if (mvc && /^\d+$/.test(mvc))
+        localStorage.setItem('monthlyVisitCount', mvc);
 
-    showToast('로그인에 성공했습니다!', 'success');
-    navigate(firstLogin ? '/landing' : '/', { replace: true });
+      showToast('로그인에 성공했습니다!', 'success');
+      navigate(firstLogin ? '/landing' : '/', { replace: true });
+    } catch {
+      showToast(
+        '로그인 정보를 저장할 수 없습니다. 브라우저 설정을 확인해 주세요.',
+        'error',
+      );
+      navigate('/login', { replace: true });
+    }
   }, [navigate, params, showToast]);
 
   return (
