@@ -53,7 +53,6 @@ export default function useArtworkChat({
     interimResults: true,
   });
 
-  // 웹스피치 폴백(브라우저 내장)
   const webTts = useTts({
     lang: 'ko-KR',
     rate: 1,
@@ -76,7 +75,7 @@ export default function useArtworkChat({
       if (!apiKey) throw new Error('NO_KEY');
 
       const languageCode = 'ko-KR';
-      const voiceName = 'ko-KR-Wavenet-A';
+      const voiceName = 'ko-KR-Chirp3-HD-Alnilam';
       const audioEncoding: AudioEncoding = 'LINEAR16';
 
       const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
@@ -127,17 +126,15 @@ export default function useArtworkChat({
     [apiKey],
   );
 
-  // 최대 글자수만 컷 → 클라우드 → 실패 시 WebSpeech 폴백
   const speak = useCallback(
-    async (text: string) => {
+    (text: string): void => {
       const t = text.trim();
       if (!t) return;
       const capped = cap(t);
-      try {
-        await cloudSpeak(capped);
-      } catch {
+
+      cloudSpeak(capped).catch(() => {
         webTts.speak(capped);
-      }
+      });
     },
     [cloudSpeak, webTts],
   );
@@ -173,7 +170,7 @@ export default function useArtworkChat({
               prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
             );
             if (partial === res.answer) {
-              void speak(res.answer);
+              speak(res.answer);
             }
           },
           16,

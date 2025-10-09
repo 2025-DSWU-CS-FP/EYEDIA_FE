@@ -6,7 +6,7 @@ type SpeakArgs = { text: string };
 export default function useUnifiedTts() {
   const cloud = useGoogleTtsFront({
     languageCode: 'ko-KR',
-    voiceName: 'Alnilam',
+    voiceName: 'ko-KR-Chirp3-HD-Alnilam',
     audioEncoding: 'LINEAR16',
   });
   const web = useTts({
