@@ -11,10 +11,29 @@ import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
+const TTS_MAX_CHARS = 10;
+function cap(text: string): string {
+  return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
+}
+
 type UseArtworkChatArgs = {
   paintingId: number;
   onError: (msg: string) => void;
 };
+
+// v1로 고정(레거시 Cloud TTS)
+const GOOGLE_TTS_ENDPOINT =
+  'https://texttospeech.googleapis.com/v1/text:synthesize';
+
+type AudioEncoding = 'MP3' | 'OGG_OPUS' | 'LINEAR16';
+
+function b64ToBlob(base64: string, mime: string): Blob {
+  const bin = atob(base64);
+  const len = bin.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i += 1) bytes[i] = bin.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
 
 export default function useArtworkChat({
   paintingId,
@@ -33,11 +52,95 @@ export default function useArtworkChat({
     continuous: false,
     interimResults: true,
   });
-  const { speak } = useTts({
+
+  // 웹스피치 폴백(브라우저 내장)
+  const webTts = useTts({
     lang: 'ko-KR',
     rate: 1,
     voiceName: 'Google 한국의 여성',
   });
+
+  const apiKey = import.meta.env.VITE_TTS_API_KEY as string | undefined;
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const ttsCacheRef = useRef<Map<string, string>>(new Map());
+
+  const cacheKeyOf = (
+    text: string,
+    languageCode: string,
+    voiceName: string,
+    encoding: AudioEncoding,
+  ) => `${languageCode}::${voiceName}::${encoding}::${text}`;
+
+  const cloudSpeak = useCallback(
+    async (text: string): Promise<void> => {
+      if (!apiKey) throw new Error('NO_KEY');
+
+      const languageCode = 'ko-KR';
+      const voiceName = 'ko-KR-Wavenet-A';
+      const audioEncoding: AudioEncoding = 'LINEAR16';
+
+      const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
+      const cached = ttsCacheRef.current.get(key);
+
+      let objectUrl = cached;
+      if (!objectUrl) {
+        const resp = await fetch(
+          `${GOOGLE_TTS_ENDPOINT}?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              input: { text },
+              voice: { languageCode, name: voiceName },
+              audioConfig: { audioEncoding, speakingRate: 1, pitch: 0 },
+            }),
+          },
+        );
+        if (!resp.ok) {
+          let message = `HTTP ${resp.status}`;
+          try {
+            const err = (await resp.json()) as { error?: { message?: string } };
+            if (err?.error?.message) message = err.error.message;
+          } catch {
+            // ignore
+          }
+          throw new Error(message);
+        }
+        const json = (await resp.json()) as { audioContent: string };
+
+        const MIME_BY_ENCODING: Record<AudioEncoding, string> = {
+          LINEAR16: 'audio/wav',
+          OGG_OPUS: 'audio/ogg',
+          MP3: 'audio/mpeg',
+        };
+        const mime = MIME_BY_ENCODING[audioEncoding];
+
+        const blob = b64ToBlob(json.audioContent, mime);
+        objectUrl = URL.createObjectURL(blob);
+        ttsCacheRef.current.set(key, objectUrl);
+      }
+
+      if (!audioRef.current) audioRef.current = new Audio();
+      audioRef.current.src = objectUrl;
+      await audioRef.current.play();
+    },
+    [apiKey],
+  );
+
+  // 최대 글자수만 컷 → 클라우드 → 실패 시 WebSpeech 폴백
+  const speak = useCallback(
+    async (text: string) => {
+      const t = text.trim();
+      if (!t) return;
+      const capped = cap(t);
+      try {
+        await cloudSpeak(capped);
+      } catch {
+        webTts.speak(capped);
+      }
+    },
+    [cloudSpeak, webTts],
+  );
 
   const { listening, finalText, resetFinal, status, start } = stt;
 
@@ -69,7 +172,9 @@ export default function useArtworkChat({
             setLocalMessages(prev =>
               prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
             );
-            if (partial === res.answer) speak(res.answer);
+            if (partial === res.answer) {
+              void speak(res.answer);
+            }
           },
           16,
         );
