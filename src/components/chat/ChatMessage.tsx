@@ -104,7 +104,7 @@ export default function ChatMessage({
 
     const finishSelection = () => {
       selectingRef.current = false;
-      scheduleUpdate(80); // iOS 안정화 대기
+      scheduleUpdate(80);
     };
 
     const onKeyUp = (e: KeyboardEvent) => {
@@ -132,13 +132,18 @@ export default function ChatMessage({
     const escape = (s: string) =>
       s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-    const escaped = escape(value);
-    const withBold = escaped.replace(
-      /\*\*([\s\S]+?)\*\*/g,
-      '<strong>$1</strong>',
+    let s = escape(value);
+
+    s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/__([\s\S]+?)__/g, '<strong>$1</strong>');
+
+    s = s.replace(
+      /(^|[^*])\*([^*\n]+?)\*/g,
+      (_m, p1, p2) => `${p1}<strong>${p2}</strong>`,
     );
-    const withBreaks = withBold.replace(/\r?\n/g, '<br/>');
-    return withBreaks;
+    s = s.replace(/\r?\n/g, '<br/>');
+
+    return s;
   }, []);
 
   return (
