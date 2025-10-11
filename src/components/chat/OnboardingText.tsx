@@ -4,7 +4,7 @@ interface OnboardingTextProps {
 
 function OnboardingText({ text }: OnboardingTextProps) {
   return (
-    <p className="mb-6 px-6 text-center text-[1.6rem] font-medium text-black">
+    <p className="mb-[6rem] px-6 text-center text-[1.6rem] font-medium text-black">
       {text}
     </p>
   );
