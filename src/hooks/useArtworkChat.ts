@@ -11,7 +11,7 @@ import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
-const TTS_MAX_CHARS = 10;
+export const TTS_MAX_CHARS = 10;
 function cap(text: string): string {
   return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
 }

@@ -301,8 +301,14 @@ export default function ArtworkPage() {
       )}
 
       {showChatInput && (
-        <div className="w full fixed bottom-0 left-1/2 z-20 max-w-[43rem] -translate-x-1/2">
-          <ChatInputBar onSend={v => submitAsk(v, { showUserBubble: true })} />
+        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[43rem] -translate-x-1/2">
+          <ChatInputBar
+            onSend={v => submitAsk(v, { showUserBubble: true })}
+            onMicClick={() => {
+              setShowChatInput(false);
+              if (!voiceDisabled) startVoice();
+            }}
+          />
         </div>
       )}
 
