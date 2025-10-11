@@ -63,7 +63,6 @@ export default function ArtworkPage() {
 
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
-
   const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
 
   const token = getAuthToken();
@@ -90,10 +89,8 @@ export default function ArtworkPage() {
     onError: msg => showToast(msg, 'error'),
   });
 
-  // 컴포넌트 내부 상단 refs 근처에 추가
   const spokenIdsRef = useRef<Set<string>>(new Set());
 
-  // TTS → 타자효과 래퍼 (원 시그니처 유지)
   const startTypewriterWithTTS = useCallback(
     (
       id: string,
@@ -103,21 +100,20 @@ export default function ArtworkPage() {
     ) => {
       if (!spokenIdsRef.current.has(id)) {
         spokenIdsRef.current.add(id);
-        speak(fullText); // 🔊 TTS 먼저
+        speak(fullText);
       }
-      startTypewriter(id, fullText, setText, speed); // ⌨️ 이어서 타자효과
+      startTypewriter(id, fullText, setText, speed);
     },
     [speak, startTypewriter],
   );
 
-  // useRoomMessageHandler 전달부 교체
   const onRoomMessage = useRoomMessageHandler({
     paintingId,
     artworkInfo: { imgUrl: artworkInfo.imgUrl },
     processedIdsRef: processedRoomMessageIdsRef,
     setLocalMessages,
-    startTypewriter: startTypewriterWithTTS, // ← 래퍼 전달
-    speak: () => {}, // ← 내부 TTS 비활성화(중복 방지)
+    startTypewriter: startTypewriterWithTTS,
+    speak: () => {},
   });
 
   const { data: chatMessages } = useChatMessages(paintingId);
@@ -151,8 +147,10 @@ export default function ArtworkPage() {
     type: 'TEXT' as const,
   }));
 
-  useAutoScrollToEnd([chatMessages, wsMessages, localMessages, typing], endRef);
-
+  useAutoScrollToEnd(
+    [chatMessages, wsMessages, localMessages, typing, showChatInput],
+    listRef,
+  );
   const headerPromptText = useMemo(() => {
     if (!connected) return PROMPT_MESSAGES.checkingConnection;
     return promptText;
@@ -239,44 +237,58 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <main className={isExpanded ? 'relative pt-[1rem]' : 'relative'}>
-          {!isExpanded && (
-            <>
-              <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
-                <RoundedIconButton size="lg" icon={<FiHeart />} />
-                <RoundedIconButton size="lg" icon={<FiShare />} />
-              </div>
-
-              <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
-                <div className="px-[2.4rem]">
-                  <div className="flex flex-col gap-[0.3rem]">
-                    <h1 className="font-normal t3">{artworkInfo.title}</h1>
-                    {artworkInfo.artist && (
-                      <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
-                    )}
-                  </div>
-                  <p className="text-gray-50 ct4">{exhibitionName}</p>
+        <div className="flex h-full flex-col">
+          <div ref={listRef} className="flex-1 overflow-y-auto">
+            {!isExpanded && (
+              <div className="sticky top-0 z-10 bg-gray-5">
+                <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
+                  <RoundedIconButton size="lg" icon={<FiHeart />} />
+                  <RoundedIconButton size="lg" icon={<FiShare />} />
                 </div>
-                <Divider />
-              </div>
-            </>
-          )}
 
-          <MessageList
-            initial={initial}
-            wsList={wsList}
-            localMessages={localMessages}
-            typing={typing}
-            onExtract={quote => {
-              setSelectionText(quote);
-              setShowExtractCard(true);
-            }}
-            listRef={listRef}
-            endRef={endRef}
-          />
-        </main>
+                <div className="mb-4 flex select-none flex-col gap-[1.8rem]">
+                  <div className="px-[2.4rem]">
+                    <div className="flex flex-col gap-[0.3rem]">
+                      <h1 className="font-normal t3">{artworkInfo.title}</h1>
+                      {artworkInfo.artist && (
+                        <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
+                      )}
+                    </div>
+                    <p className="text-gray-50 ct4">{exhibitionName}</p>
+                  </div>
+                  <Divider />
+                </div>
+              </div>
+            )}
+
+            <MessageList
+              initial={initial}
+              wsList={wsList}
+              localMessages={localMessages}
+              typing={typing}
+              onExtract={quote => {
+                setSelectionText(quote);
+                setShowExtractCard(true);
+              }}
+              listRef={listRef}
+              endRef={endRef}
+            />
+            <div ref={endRef} className="h-0" />
+          </div>
+        </div>
       </ArtworkBottomSheet>
 
+      {showChatInput && (
+        <div className="fixed bottom-0 z-20 w-full">
+          <ChatInputBar
+            onSend={v => submitAsk(v, { showUserBubble: true })}
+            onMicClick={() => {
+              setShowChatInput(false);
+              if (!voiceDisabled) startVoice();
+            }}
+          />
+        </div>
+      )}
       {!showChatInput && (
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
@@ -318,18 +330,6 @@ export default function ArtworkPage() {
             </button>
           </div>
         </footer>
-      )}
-
-      {showChatInput && (
-        <div className="fixed bottom-0 left-1/2 z-20 w-full max-w-[43rem] -translate-x-1/2">
-          <ChatInputBar
-            onSend={v => submitAsk(v, { showUserBubble: true })}
-            onMicClick={() => {
-              setShowChatInput(false);
-              if (!voiceDisabled) startVoice();
-            }}
-          />
-        </div>
       )}
 
       {showExtractCard && (
