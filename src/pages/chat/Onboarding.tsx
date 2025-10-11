@@ -93,15 +93,15 @@ export default function OnboardingPage() {
   );
 
   return (
-    <section className="relative flex h-dvh flex-col items-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
+    <section className="relative flex h-dvh flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-slate-300">
       <Header showBackButton backgroundColorClass="bg-transparent" />
-      <div className="w-full px-4 pt-[10rem]">
+      <div className="flex h-dvh w-full flex-col justify-center">
         <OnboardingText text={text} />
-        <div className="relative mx-auto flex h-[24rem] w-[30rem] items-center justify-center">
+        <div className="relative mx-auto flex h-[24rem] w-[30rem] items-center justify-center pb-[45%]">
           <img
             src={ringImage}
             alt="background ring"
-            className="pointer-events-none absolute -bottom-[5rem] h-[23rem] w-[30rem] opacity-70"
+            className="pointer-events-none absolute bottom-[5rem] h-[23rem] w-[30rem] opacity-70"
           />
           <SwitchTransition mode="out-in">
             <CSSTransition
