@@ -86,18 +86,18 @@ export default function GazePage() {
   ]);
 
   return (
-    <>
-      <section className="relative flex max-h-dvh w-full flex-col items-center justify-start pb-[3rem] text-white">
+    <div className="flex h-dvh flex-col items-center justify-between">
+      <section className="relative flex w-full flex-col items-center justify-between pb-[3rem] text-white">
         <Header showBackButton backgroundColorClass="bg-gray-5" />
-        <div className="w-[30.7rem] space-y-[2.2rem]">
+        <div className="w-full space-y-[2.2rem] px-[3rem]">
           <div className="mx-auto flex flex-col justify-between gap-[0.4rem]">
-            <div className="font-medium text-brand-blue ct2">{headline}</div>
+            <div className="font-medium text-brand-blue ct1">{headline}</div>
             <div className="mt-2 whitespace-pre-line text-gray-100 t3">
               {sub}
             </div>
           </div>
 
-          <div className="relative h-[43.5rem] w-[30.7rem] self-center overflow-hidden rounded-2xl">
+          <div className="relative h-[43.5rem] w-full overflow-hidden rounded-2xl">
             {ready ? (
               <div className="relative h-full w-full">
                 <img
@@ -106,12 +106,9 @@ export default function GazePage() {
                   className="h-full w-full rounded-2xl object-cover"
                 />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-black/0 via-black/40 to-black/80" />
-                <div className="absolute bottom-[2.5rem] left-[2rem] space-y-[0.4rem] text-left">
+                <div className="absolute bottom-[2.5rem] left-[2rem] right-[2rem] space-y-[0.4rem] text-left">
                   <div className="text-white t3">{title}</div>
-                  {artist && <div className="text-white/80 ct4">{artist}</div>}
-                  {pid >= 0 && (
-                    <div className="text-white/70 ct5">ID: {pid}</div>
-                  )}
+                  {artist && <div className="text-white/80 ct3">{artist}</div>}
                 </div>
               </div>
             ) : (
@@ -128,11 +125,11 @@ export default function GazePage() {
       </section>
 
       {ready && (
-        <div className="sticky w-full px-[3rem] pb-[2rem]">
+        <div className="sticky bottom-0 w-full bg-gray-0 px-[3rem] py-[1.5rem]">
           <Button
             type="button"
             onClick={handleStartConversation}
-            className="mt-[3rem] bg-brand-blue bt2"
+            className="bg-brand-blue bt2"
             disabled={isPending}
             aria-busy={isPending}
           >
@@ -140,6 +137,6 @@ export default function GazePage() {
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 }

@@ -5,9 +5,13 @@ import SendIcon from '@/components/common/SendIcon';
 
 interface ChatInputBarProps {
   onSend?: (message: string) => void;
+  onMicClick?: () => void;
 }
 
-export default function ChatInputBar({ onSend }: ChatInputBarProps) {
+export default function ChatInputBar({
+  onSend,
+  onMicClick,
+}: ChatInputBarProps) {
   const [inputValue, setInputValue] = useState('');
   const [isComposing, setIsComposing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -30,7 +34,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
   }, [inputValue]);
 
   return (
-    <div className="flex w-screen max-w-[430px] flex-col gap-2 rounded-t-[2.4rem] bg-gray-10 px-[2.4rem] py-[1.8rem]">
+    <div className="flex w-screen max-w-[43rem] flex-col gap-2 rounded-t-[2.4rem] bg-gray-10 px-[2.4rem] py-[1.8rem]">
       <textarea
         ref={textareaRef}
         value={inputValue}
@@ -57,6 +61,7 @@ export default function ChatInputBar({ onSend }: ChatInputBarProps) {
         <button
           type="button"
           aria-label="음성 인식"
+          onClick={onMicClick}
           className="flex items-center justify-center rounded-full bg-gray-20 px-[1.3rem] py-[0.6rem] hover:bg-gray-30/90 active:bg-gray-30"
         >
           <img src={micIcon} alt="마이크" />
