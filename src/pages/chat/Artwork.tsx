@@ -90,6 +90,36 @@ export default function ArtworkPage() {
     onError: msg => showToast(msg, 'error'),
   });
 
+  // 컴포넌트 내부 상단 refs 근처에 추가
+  const spokenIdsRef = useRef<Set<string>>(new Set());
+
+  // TTS → 타자효과 래퍼 (원 시그니처 유지)
+  const startTypewriterWithTTS = useCallback(
+    (
+      id: string,
+      fullText: string,
+      setText: (partial: string) => void,
+      speed?: number,
+    ) => {
+      if (!spokenIdsRef.current.has(id)) {
+        spokenIdsRef.current.add(id);
+        speak(fullText); // 🔊 TTS 먼저
+      }
+      startTypewriter(id, fullText, setText, speed); // ⌨️ 이어서 타자효과
+    },
+    [speak, startTypewriter],
+  );
+
+  // useRoomMessageHandler 전달부 교체
+  const onRoomMessage = useRoomMessageHandler({
+    paintingId,
+    artworkInfo: { imgUrl: artworkInfo.imgUrl },
+    processedIdsRef: processedRoomMessageIdsRef,
+    setLocalMessages,
+    startTypewriter: startTypewriterWithTTS, // ← 래퍼 전달
+    speak: () => {}, // ← 내부 TTS 비활성화(중복 방지)
+  });
+
   const { data: chatMessages } = useChatMessages(paintingId);
   const initial = useMemo(
     () =>
@@ -102,15 +132,6 @@ export default function ArtworkPage() {
     [chatMessages],
   );
 
-  const onRoomMessage = useRoomMessageHandler({
-    paintingId,
-    artworkInfo: { imgUrl: artworkInfo.imgUrl },
-    processedIdsRef: processedRoomMessageIdsRef,
-    setLocalMessages,
-    startTypewriter,
-    speak,
-  });
-
   const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
@@ -118,7 +139,6 @@ export default function ArtworkPage() {
     onRoomMessage,
   });
 
-  // WS 수신 리스트(텍스트만)
   const wsList: Array<{
     id: string;
     sender: 'USER' | 'BOT' | 'SYSTEM';

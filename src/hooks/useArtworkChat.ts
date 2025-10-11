@@ -11,6 +11,7 @@ import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
+const TYPEWRITER_LAG_MS = 200;
 export const TTS_MAX_CHARS = 10;
 function cap(text: string): string {
   return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
@@ -21,7 +22,6 @@ type UseArtworkChatArgs = {
   onError: (msg: string) => void;
 };
 
-// v1로 고정(레거시 Cloud TTS)
 const GOOGLE_TTS_ENDPOINT =
   'https://texttospeech.googleapis.com/v1/text:synthesize';
 
@@ -70,58 +70,51 @@ export default function useArtworkChat({
     encoding: AudioEncoding,
   ) => `${languageCode}::${voiceName}::${encoding}::${text}`;
 
-  const cloudSpeak = useCallback(
-    async (text: string): Promise<void> => {
+  const cloudSynthesize = useCallback(
+    async (text: string): Promise<string> => {
       if (!apiKey) throw new Error('NO_KEY');
-
       const languageCode = 'ko-KR';
       const voiceName = 'ko-KR-Chirp3-HD-Alnilam';
       const audioEncoding: AudioEncoding = 'LINEAR16';
 
       const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
       const cached = ttsCacheRef.current.get(key);
+      if (cached) return cached;
 
-      let objectUrl = cached;
-      if (!objectUrl) {
-        const resp = await fetch(
-          `${GOOGLE_TTS_ENDPOINT}?key=${encodeURIComponent(apiKey)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              input: { text },
-              voice: { languageCode, name: voiceName },
-              audioConfig: { audioEncoding, speakingRate: 1, pitch: 0 },
-            }),
-          },
-        );
-        if (!resp.ok) {
-          let message = `HTTP ${resp.status}`;
-          try {
-            const err = (await resp.json()) as { error?: { message?: string } };
-            if (err?.error?.message) message = err.error.message;
-          } catch {
-            // ignore
-          }
-          throw new Error(message);
-        }
-        const json = (await resp.json()) as { audioContent: string };
+      const resp = await fetch(
+        `${GOOGLE_TTS_ENDPOINT}?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            input: { text },
+            voice: { languageCode, name: voiceName },
+            audioConfig: { audioEncoding, speakingRate: 1, pitch: 0 },
+          }),
+        },
+      );
 
-        const MIME_BY_ENCODING: Record<AudioEncoding, string> = {
-          LINEAR16: 'audio/wav',
-          OGG_OPUS: 'audio/ogg',
-          MP3: 'audio/mpeg',
-        };
-        const mime = MIME_BY_ENCODING[audioEncoding];
-
-        const blob = b64ToBlob(json.audioContent, mime);
-        objectUrl = URL.createObjectURL(blob);
-        ttsCacheRef.current.set(key, objectUrl);
+      if (!resp.ok) {
+        const detail = (await resp.json().catch(() => null)) as {
+          error?: { message?: string };
+        } | null;
+        const message = detail?.error?.message ?? `HTTP ${resp.status}`;
+        throw new Error(message);
       }
 
-      if (!audioRef.current) audioRef.current = new Audio();
-      audioRef.current.src = objectUrl;
-      await audioRef.current.play();
+      const json = (await resp.json()) as { audioContent: string };
+
+      const MIME_BY_ENCODING: Record<AudioEncoding, string> = {
+        LINEAR16: 'audio/wav',
+        OGG_OPUS: 'audio/ogg',
+        MP3: 'audio/mpeg',
+      };
+      const mime = MIME_BY_ENCODING.LINEAR16;
+
+      const blob = b64ToBlob(json.audioContent, mime);
+      const url = URL.createObjectURL(blob);
+      ttsCacheRef.current.set(key, url);
+      return url;
     },
     [apiKey],
   );
@@ -131,12 +124,19 @@ export default function useArtworkChat({
       const t = text.trim();
       if (!t) return;
       const capped = cap(t);
-
-      cloudSpeak(capped).catch(() => {
-        webTts.speak(capped);
-      });
+      cloudSynthesize(capped)
+        .then(url => {
+          if (!audioRef.current) audioRef.current = new Audio();
+          audioRef.current.src = url;
+          audioRef.current.play().catch(() => {
+            webTts.speak(capped);
+          });
+        })
+        .catch(() => {
+          webTts.speak(capped);
+        });
     },
-    [cloudSpeak, webTts],
+    [cloudSynthesize, webTts],
   );
 
   const { listening, finalText, resetFinal, status, start } = stt;
@@ -146,43 +146,87 @@ export default function useArtworkChat({
       const text = raw.trim();
       if (!text) return;
       const showUserBubble = opts?.showUserBubble ?? true;
+
       if (showUserBubble) {
         setLocalMessages(prev => [
           ...prev,
           { id: nanoid(), sender: 'USER', type: 'TEXT', content: text },
         ]);
       }
+
       setTyping(true);
+
       try {
         const { signal } = ac.renew();
         const res = await askArtworkLLM({ paintingId, text }, signal);
-        setTyping(false);
+
+        const full = res.answer.trim();
+        const ttsText = cap(full);
+        let url: string | null = null;
+
+        try {
+          url = await cloudSynthesize(ttsText);
+        } catch {
+          url = null;
+        }
+
         const botId = nanoid();
+
         setLocalMessages(prev => [
           ...prev,
           { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
         ]);
-        startTypewriter(
-          botId,
-          res.answer,
-          partial => {
-            setLocalMessages(prev =>
-              prev.map(m => (m.id === botId ? { ...m, content: partial } : m)),
-            );
-            if (partial === res.answer) {
-              speak(res.answer);
-            }
-          },
-          16,
-        );
+
+        const startTypingNow = () => {
+          setTyping(false);
+          startTypewriter(
+            botId,
+            full,
+            partial => {
+              setLocalMessages(prev =>
+                prev.map(m =>
+                  m.id === botId ? { ...m, content: partial } : m,
+                ),
+              );
+            },
+            16,
+          );
+        };
+
+        if (url) {
+          if (!audioRef.current) audioRef.current = new Audio();
+          const a = audioRef.current;
+          let fired = false;
+          const kick = () => {
+            if (fired) return;
+            fired = true;
+            window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
+            a.removeEventListener('play', kick);
+            a.removeEventListener('playing', kick);
+          };
+          a.addEventListener('play', kick);
+          a.addEventListener('playing', kick);
+          a.src = url;
+          a.play().catch(() => {
+            webTts.speak(full);
+            window.setTimeout(startTypingNow, 80);
+            a.removeEventListener('play', kick);
+            a.removeEventListener('playing', kick);
+          });
+          window.setTimeout(() => {
+            if (!fired) startTypingNow();
+          }, 600);
+        } else {
+          webTts.speak(full);
+          window.setTimeout(startTypingNow, 80);
+        }
       } catch {
         setTyping(false);
         onError('질문 전송에 실패했어요. 다시 시도해 주세요.');
       }
     },
-    [ac, onError, paintingId, speak, startTypewriter],
+    [ac, onError, paintingId, cloudSynthesize, webTts, startTypewriter],
   );
-
   const startVoice = () => {
     if (listening || typing) return;
     resetFinal();
