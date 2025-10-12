@@ -11,16 +11,60 @@ import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
-const TYPEWRITER_LAG_MS = 300;
-export const TTS_MAX_CHARS = 10;
+const TYPEWRITER_LAG_MS = 300; // 오디오 시작 후 텍스트 시작 지연
+const CLOUD_TIMEOUT_MS = 1200; // 클라우드가 이 시간 내 시작 못하면 웹스피치 폴백
+export const TTS_MAX_CHARS = 10; // 비용 절감: 초반 미리듣기 글자 수
+
 function cap(text: string): string {
   return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
 }
 
-type UseArtworkChatArgs = {
-  paintingId: number;
-  onError: (msg: string) => void;
+const IS_IOS =
+  typeof navigator !== 'undefined' &&
+  /iP(hone|ad|od)/i.test(navigator.userAgent);
+
+type AudioContextCtor = new (
+  contextOptions?: AudioContextOptions,
+) => AudioContext;
+
+const getAudioContextCtor = (): AudioContextCtor | null => {
+  const w = window as unknown as {
+    AudioContext?: AudioContextCtor;
+    webkitAudioContext?: AudioContextCtor;
+  };
+  return w.AudioContext ?? w.webkitAudioContext ?? null;
 };
+
+type DecodeAudioDataCb = (
+  audioData: ArrayBuffer,
+  success: (buf: AudioBuffer) => void,
+  failure?: (err: DOMException) => void,
+) => void;
+
+function isPromiseLike<T>(x: unknown): x is PromiseLike<T> {
+  return !!x && typeof (x as { then?: unknown }).then === 'function';
+}
+
+function decodeAudio(ctx: AudioContext, ab: ArrayBuffer): Promise<AudioBuffer> {
+  try {
+    const maybe = (
+      ctx.decodeAudioData as unknown as (d: ArrayBuffer) => unknown
+    )(ab);
+    if (isPromiseLike<AudioBuffer>(maybe)) {
+      return Promise.resolve(maybe as PromiseLike<AudioBuffer>);
+    }
+  } catch {
+    /* */
+  }
+  return new Promise<AudioBuffer>((resolve, reject) => {
+    (ctx.decodeAudioData as unknown as DecodeAudioDataCb)(
+      ab,
+      resolve,
+      (err?: DOMException) =>
+        reject(err ?? new DOMException('decodeAudioData failed')),
+    );
+  });
+}
 
 const GOOGLE_TTS_ENDPOINT =
   'https://texttospeech.googleapis.com/v1/text:synthesize';
@@ -34,6 +78,11 @@ function b64ToBlob(base64: string, mime: string): Blob {
   for (let i = 0; i < len; i += 1) bytes[i] = bin.charCodeAt(i);
   return new Blob([bytes], { type: mime });
 }
+
+type UseArtworkChatArgs = {
+  paintingId: number;
+  onError: (msg: string) => void;
+};
 
 export default function useArtworkChat({
   paintingId,
@@ -60,8 +109,37 @@ export default function useArtworkChat({
   });
 
   const apiKey = import.meta.env.VITE_TTS_API_KEY as string | undefined;
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const ttsCacheRef = useRef<Map<string, string>>(new Map());
+
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioUnlockedRef = useRef(false);
+
+  const ensureAudioUnlocked = useCallback(async () => {
+    if (audioUnlockedRef.current) return;
+    const Ctx = getAudioContextCtor();
+    if (!Ctx) {
+      audioUnlockedRef.current = true;
+      return;
+    }
+    let ctx = audioCtxRef.current;
+    if (!ctx) {
+      ctx = new Ctx();
+      audioCtxRef.current = ctx;
+    }
+    try {
+      if (ctx.state === 'suspended') await ctx.resume();
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      src.connect(ctx.destination);
+      src.start(0);
+    } catch {
+      /*  */
+    }
+    audioUnlockedRef.current = true;
+  }, []);
 
   const cacheKeyOf = (
     text: string,
@@ -75,7 +153,8 @@ export default function useArtworkChat({
       if (!apiKey) throw new Error('NO_KEY');
       const languageCode = 'ko-KR';
       const voiceName = 'ko-KR-Chirp3-HD-Alnilam';
-      const audioEncoding: AudioEncoding = 'LINEAR16';
+      // iOS: 파일 작은 MP3, 그 외: 디코드 빠른 LINEAR16
+      const audioEncoding: AudioEncoding = IS_IOS ? 'MP3' : 'LINEAR16';
 
       const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
       const cached = ttsCacheRef.current.get(key);
@@ -89,7 +168,11 @@ export default function useArtworkChat({
           body: JSON.stringify({
             input: { text },
             voice: { languageCode, name: voiceName },
-            audioConfig: { audioEncoding, speakingRate: 1, pitch: 0 },
+            audioConfig: {
+              audioEncoding,
+              speakingRate: 1,
+              pitch: 0,
+            },
           }),
         },
       );
@@ -109,7 +192,7 @@ export default function useArtworkChat({
         OGG_OPUS: 'audio/ogg',
         MP3: 'audio/mpeg',
       };
-      const mime = MIME_BY_ENCODING.LINEAR16;
+      const mime = MIME_BY_ENCODING[audioEncoding];
 
       const blob = b64ToBlob(json.audioContent, mime);
       const url = URL.createObjectURL(blob);
@@ -119,34 +202,80 @@ export default function useArtworkChat({
     [apiKey],
   );
 
-  const speak = useCallback(
-    (text: string): void => {
-      const t = text.trim();
-      if (!t) return;
-      const capped = cap(t);
-      cloudSynthesize(capped)
-        .then(url => {
+  const playCloudFirstWithFallback = useCallback(
+    async (preview: string): Promise<void> => {
+      await ensureAudioUnlocked();
+
+      let cloudStarted = false;
+      let fallbackStarted = false;
+
+      const startCloud = (async () => {
+        const url = await cloudSynthesize(preview);
+
+        if (IS_IOS && audioCtxRef.current) {
+          const res = await fetch(url);
+          const ab = await res.arrayBuffer();
+          const buf = await decodeAudio(audioCtxRef.current, ab);
+          const src = audioCtxRef.current.createBufferSource();
+          src.buffer = buf;
+          src.connect(audioCtxRef.current.destination);
+          src.start(0);
+        } else {
           if (!audioRef.current) audioRef.current = new Audio();
+          audioRef.current.setAttribute('playsinline', 'true');
+          audioRef.current.setAttribute('preload', 'auto');
           audioRef.current.src = url;
-          audioRef.current.play().catch(() => {
-            webTts.speak(capped);
-          });
-        })
-        .catch(() => {
-          webTts.speak(capped);
-        });
+          await audioRef.current.play();
+        }
+
+        cloudStarted = true;
+        if (fallbackStarted) {
+          try {
+            webTts.cancel();
+          } catch {
+            /* ignore */
+          }
+        }
+      })();
+
+      const timeoutGate = new Promise<void>(resolve => {
+        window.setTimeout(() => {
+          if (!cloudStarted) {
+            fallbackStarted = true;
+            webTts.speak(preview);
+          }
+          resolve();
+        }, CLOUD_TIMEOUT_MS);
+      });
+
+      await Promise.race([startCloud, timeoutGate]);
     },
-    [cloudSynthesize, webTts],
+    [cloudSynthesize, ensureAudioUnlocked, webTts],
   );
 
+  const speak = useCallback(
+    (text: string): void => {
+      const raw = text.trim();
+      if (!raw) return;
+      const preview = cap(raw);
+      playCloudFirstWithFallback(preview).catch(() => {
+        /*  */
+      });
+    },
+    [playCloudFirstWithFallback],
+  );
+
+  /* ===== STT ===== */
   const { listening, finalText, resetFinal, status, start } = stt;
 
   const submitAsk = useCallback(
     async (raw: string, opts?: { showUserBubble?: boolean }) => {
       const text = raw.trim();
       if (!text) return;
-      const showUserBubble = opts?.showUserBubble ?? true;
 
+      await ensureAudioUnlocked();
+
+      const showUserBubble = opts?.showUserBubble ?? true;
       if (showUserBubble) {
         setLocalMessages(prev => [
           ...prev,
@@ -162,22 +291,6 @@ export default function useArtworkChat({
 
         const full = res.answer.trim();
         const preview = cap(full);
-
-        const webPreviewCancel = () => {
-          try {
-            webTts.cancel();
-          } catch {
-            /** */
-          }
-        };
-        webTts.speak(preview);
-
-        let url: string | null = null;
-        try {
-          url = await cloudSynthesize(preview);
-        } catch {
-          url = null;
-        }
 
         const botId = nanoid();
         setLocalMessages(prev => [
@@ -204,21 +317,9 @@ export default function useArtworkChat({
           );
         };
 
-        if (url) {
-          if (!audioRef.current) audioRef.current = new Audio();
-          const a = audioRef.current;
-          a.src = url;
-
-          try {
-            await a.play();
-            webPreviewCancel();
-            window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
-          } catch {
-            window.setTimeout(startTypingNow, 120);
-          }
-        } else {
-          window.setTimeout(startTypingNow, 120);
-        }
+        // 오디오 먼저(구글 우선/지연 시 웹스피치), 그 다음 타자 효과
+        await playCloudFirstWithFallback(preview);
+        window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
       } catch {
         setTyping(false);
         onError('질문 전송에 실패했어요. 다시 시도해 주세요.');
@@ -228,26 +329,31 @@ export default function useArtworkChat({
       ac,
       onError,
       paintingId,
-      cloudSynthesize,
-      webTts,
       startTypewriter,
       setLocalMessages,
+      ensureAudioUnlocked,
+      playCloudFirstWithFallback,
     ],
   );
 
-  const startVoice = () => {
+  /* ===== STT → Ask 자동 전송 ===== */
+  useEffect(() => {
+    if (!listening && finalText.trim()) {
+      const t = finalText.trim();
+      resetFinal();
+      // fire-and-forget: no-void 룰 회피
+      submitAsk(t, { showUserBubble: true }).catch(() => {
+        /* ignore */
+      });
+    }
+  }, [listening, finalText, resetFinal, submitAsk]);
+
+  const startVoice = async () => {
     if (listening || typing) return;
+    await ensureAudioUnlocked();
     resetFinal();
     start();
   };
-
-  useEffect(() => {
-    if (!listening && finalText.trim()) {
-      const text = finalText.trim();
-      resetFinal();
-      submitAsk(text, { showUserBubble: true });
-    }
-  }, [listening, finalText, resetFinal, submitAsk]);
 
   const promptText = useMemo(() => {
     if (listening) return PROMPT_MESSAGES.speaking;
