@@ -237,7 +237,9 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <div className="mb-[2rem] flex h-full flex-col">
+        <div
+          className={`mb-[2rem] flex h-full flex-col ${isExpanded ? 'pt-[15rem]' : ''}`}
+        >
           <div ref={listRef} className="flex-1 overflow-y-auto">
             {!isExpanded && (
               <div className="sticky top-0 z-10 bg-gray-5">
