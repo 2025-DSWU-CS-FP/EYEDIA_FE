@@ -6,7 +6,6 @@ interface LoopLoadingProps {
 
 export default function LoopLoading({ size = 40 }: LoopLoadingProps) {
   const BAR_COUNT = 10;
-  // 굳이 randomUUID 불필요 — 고정 배열 + 인덱스 키
   const bars = useMemo(
     () => Array.from({ length: BAR_COUNT }, (_, i) => i),
     [],
