@@ -11,7 +11,7 @@ import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
-const TYPEWRITER_LAG_MS = 220;
+const TYPEWRITER_LAG_MS = 300;
 export const TTS_MAX_CHARS = 10;
 function cap(text: string): string {
   return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
@@ -161,23 +161,34 @@ export default function useArtworkChat({
         const res = await askArtworkLLM({ paintingId, text }, signal);
 
         const full = res.answer.trim();
-        const ttsText = cap(full);
-        let url: string | null = null;
+        const preview = cap(full);
 
+        const webPreviewCancel = () => {
+          try {
+            webTts.cancel();
+          } catch {
+            /** */
+          }
+        };
+        webTts.speak(preview);
+
+        let url: string | null = null;
         try {
-          url = await cloudSynthesize(ttsText);
+          url = await cloudSynthesize(preview);
         } catch {
           url = null;
         }
 
         const botId = nanoid();
-
         setLocalMessages(prev => [
           ...prev,
           { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
         ]);
 
+        let started = false;
         const startTypingNow = () => {
+          if (started) return;
+          started = true;
           setTyping(false);
           startTypewriter(
             botId,
@@ -196,37 +207,34 @@ export default function useArtworkChat({
         if (url) {
           if (!audioRef.current) audioRef.current = new Audio();
           const a = audioRef.current;
-          let fired = false;
-          const kick = () => {
-            if (fired) return;
-            fired = true;
-            window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
-            a.removeEventListener('play', kick);
-            a.removeEventListener('playing', kick);
-          };
-          a.addEventListener('play', kick);
-          a.addEventListener('playing', kick);
           a.src = url;
-          a.play().catch(() => {
-            webTts.speak(full);
-            window.setTimeout(startTypingNow, 80);
-            a.removeEventListener('play', kick);
-            a.removeEventListener('playing', kick);
-          });
-          window.setTimeout(() => {
-            if (!fired) startTypingNow();
-          }, 600);
+
+          try {
+            await a.play();
+            webPreviewCancel();
+            window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
+          } catch {
+            window.setTimeout(startTypingNow, 120);
+          }
         } else {
-          webTts.speak(full);
-          window.setTimeout(startTypingNow, 80);
+          window.setTimeout(startTypingNow, 120);
         }
       } catch {
         setTyping(false);
         onError('질문 전송에 실패했어요. 다시 시도해 주세요.');
       }
     },
-    [ac, onError, paintingId, cloudSynthesize, webTts, startTypewriter],
+    [
+      ac,
+      onError,
+      paintingId,
+      cloudSynthesize,
+      webTts,
+      startTypewriter,
+      setLocalMessages,
+    ],
   );
+
   const startVoice = () => {
     if (listening || typing) return;
     resetFinal();
