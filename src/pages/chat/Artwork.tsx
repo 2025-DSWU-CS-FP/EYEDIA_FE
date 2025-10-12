@@ -204,7 +204,7 @@ export default function ArtworkPage() {
   }, [connected, submitAsk, sImgUrl, didAutoAskRef, setLocalMessages]);
 
   return (
-    <section className="relative h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
+    <section className="relative h-dvh max-h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
       <div className="pointer-events-none absolute left-0 top-0 h-full w-full">
         <img
           src={artworkInfo.imgUrl}
@@ -215,7 +215,7 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="sticky top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
+        <header className="fixed top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header
             onBackClick={handleDeletePainting}
             showBackButton
