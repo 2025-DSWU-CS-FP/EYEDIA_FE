@@ -45,12 +45,24 @@ export default function ExtractCard({
   const cardRef = React.useRef<HTMLDivElement | null>(null);
   const [isCapturing, setIsCapturing] = React.useState(false);
 
+  const isIOS = React.useMemo(
+    () =>
+      /iP(hone|od|ad)/.test(navigator.userAgent) ||
+      (navigator.platform?.includes('Mac') && 'ontouchend' in document),
+    [],
+  );
+
+  const safeSrc = React.useMemo(
+    () => imageUrl.replace(/^http:\/\//i, 'https://'),
+    [imageUrl],
+  );
+
   const waitFontsReady = async (): Promise<void> => {
     const d = document as unknown as { fonts?: { ready?: Promise<unknown> } };
     try {
       await d.fonts?.ready;
     } catch {
-      /*  */
+      /* noop */
     }
   };
 
@@ -60,14 +72,11 @@ export default function ExtractCard({
 
     await Promise.all(
       imgs.map(img => {
-        if (img.complete && img.naturalWidth > 0) {
-          return Promise.resolve();
-        }
+        if (img.complete && img.naturalWidth > 0) return Promise.resolve();
 
         const maybeDecode = (
           img as HTMLImageElement & { decode?: () => Promise<unknown> }
         ).decode;
-
         if (typeof maybeDecode === 'function') {
           return maybeDecode.call(img).catch(() => undefined);
         }
@@ -82,9 +91,7 @@ export default function ExtractCard({
 
   const nextFrame = (): Promise<void> =>
     new Promise<void>(resolve => {
-      requestAnimationFrame(() => {
-        resolve();
-      });
+      requestAnimationFrame(() => resolve());
     });
 
   const twoFrames = async (): Promise<void> => {
@@ -117,7 +124,7 @@ export default function ExtractCard({
     };
 
     const options = {
-      backgroundColor: undefined,
+      backgroundColor: undefined as string | undefined,
       width,
       height,
       pixelRatio: 1,
@@ -129,7 +136,19 @@ export default function ExtractCard({
       onClone: (_doc: Document, clonedNode: HTMLElement) => {
         clonedNode.querySelectorAll('img').forEach(n => {
           const img = n as HTMLImageElement;
-          img.crossOrigin = 'anonymous';
+
+          try {
+            const src = new URL(img.src, document.baseURI);
+            if (
+              src.origin !== window.location.origin &&
+              src.protocol === 'https:'
+            ) {
+              img.crossOrigin = 'anonymous';
+            }
+          } catch {
+            /*  */
+          }
+
           img.loading = 'eager';
           Object.assign(img.style, {
             position: 'absolute',
@@ -150,7 +169,7 @@ export default function ExtractCard({
         pixelRatio: scale,
       });
     } catch {
-      /*  */
+      /* noop */
     }
 
     if (!blob) {
@@ -169,13 +188,19 @@ export default function ExtractCard({
     try {
       const blob = await captureBlob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title || 'eyedia'}-extract.png`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
+
+      if (isIOS) {
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${title || 'eyedia'}-extract.png`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
       onSave();
     } finally {
       setIsCapturing(false);
@@ -205,7 +230,7 @@ export default function ExtractCard({
   };
 
   return (
-    <div className="fixed inset-0 z-10 flex items-center justify-center">
+    <section className="fixed inset-0 z-10 grid place-items-center">
       <div
         className={`mx-auto flex h-[100dvh] w-full max-w-[43rem] flex-col bg-gray-0 ${
           isCapturing ? 'capture-still' : ''
@@ -214,33 +239,29 @@ export default function ExtractCard({
         <Header
           showBackButton
           backgroundColorClass="bg-gray-0"
-          onBackClick={() => {
-            onClose();
-          }}
+          onBackClick={onClose}
         />
 
-        <div
+        <figure
           ref={cardRef}
-          className="relative mx-auto my-auto h-[50rem] w-[90%] overflow-hidden rounded-[16px]"
-          style={{ isolation: 'isolate' }}
+          className="relative isolate mx-auto my-auto h-[50rem] w-[90%] overflow-hidden rounded-[16px]"
         >
           <img
-            src={imageUrl}
+            src={safeSrc}
             alt="artwork"
-            crossOrigin="anonymous"
+            loading="eager"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            draggable={false}
             className="h-full w-full object-cover"
           />
+
           <div className="absolute inset-0 bg-black/45" />
 
-          <div className="absolute left-[1.5rem] top-[1.5rem] flex items-center gap-[0.5rem]">
-            <img
-              src={Logo}
-              alt="로고"
-              crossOrigin="anonymous"
-              className="h-[3rem] w-[3rem]"
-            />
+          <figcaption className="absolute left-[1.5rem] top-[1.5rem] flex items-center gap-[0.5rem]">
+            <img src={Logo} alt="EYEDIA" className="h-[3rem] w-[3rem]" />
             <span className="font-bold text-gray-0 t4">EYEDIA</span>
-          </div>
+          </figcaption>
 
           <div className="absolute bottom-28 left-6 right-6 top-0 flex items-center">
             <p className="leading-relaxed text-white bd1">{quote}</p>
@@ -249,11 +270,11 @@ export default function ExtractCard({
           <div className="absolute bottom-[2.6rem] left-6 right-6 flex flex-col gap-[1.6rem] text-white/90">
             <div className="h-px bg-white/30" />
             <div>
-              <div className="text-white t4">{title}</div>
-              <div className="mt-1 ct4">{artist}</div>
+              <h2 className="text-white t4">{title}</h2>
+              <p className="mt-1 ct4">{artist}</p>
             </div>
           </div>
-        </div>
+        </figure>
 
         <div className="mt-auto flex w-full justify-center pb-[max(2rem,env(safe-area-inset-bottom))]">
           <div className="capture-ignore flex items-center gap-[2.7rem] rounded-full bg-brand-blue px-10 py-4 shadow-lg">
@@ -282,6 +303,6 @@ export default function ExtractCard({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
