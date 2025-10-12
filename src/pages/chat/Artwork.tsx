@@ -237,11 +237,11 @@ export default function ArtworkPage() {
       )}
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
-        <div className="flex h-full flex-col">
+        <div className="mb-[2rem] flex h-full flex-col">
           <div ref={listRef} className="flex-1 overflow-y-auto">
             {!isExpanded && (
               <div className="sticky top-0 z-10 bg-gray-5">
-                <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
+                <div className="absolute -top-4 right-7 z-20 flex items-center gap-2">
                   <RoundedIconButton size="lg" icon={<FiHeart />} />
                   <RoundedIconButton size="lg" icon={<FiShare />} />
                 </div>
