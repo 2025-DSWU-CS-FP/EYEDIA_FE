@@ -29,7 +29,6 @@ export default function OnboardingPage() {
   const [userId, setUserId] = useState<string>();
   const [detected, setDetected] = useState<QueueEvent | null>(null);
   const navigate = useNavigate();
-
   const token = getAuthToken();
 
   const { connected, messages } = useStompChat({

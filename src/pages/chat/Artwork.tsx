@@ -23,7 +23,6 @@ import useArtworkChat from '@/hooks/useArtworkChat';
 import useAutoScrollToEnd from '@/hooks/useAutoScrollToEnd';
 import useRoomMessageHandler from '@/hooks/useRoomMessageHandler';
 import Header from '@/layouts/Header';
-import useDeletePainting from '@/services/mutations/useDeletePainting';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import useChatMessages from '@/services/queries/useChatMessages';
 import type { IncomingChat } from '@/types/chat';
@@ -70,8 +69,6 @@ export default function ArtworkPage() {
   const queryClient = useQueryClient();
 
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
-
-  const deleteMutation = useDeletePainting();
 
   const {
     localMessages,
@@ -183,16 +180,6 @@ export default function ArtworkPage() {
     );
   };
 
-  const handleDeletePainting = useCallback(async () => {
-    try {
-      await deleteMutation.mutateAsync(paintingId);
-      showToast('작품이 삭제되었습니다.', 'success');
-      navigate('/chat-onboarding', { replace: true });
-    } catch {
-      showToast('작품 삭제에 실패했어요. 잠시 후 다시 시도해 주세요.', 'error');
-    }
-  }, [deleteMutation, paintingId, navigate, showToast]);
-
   useEffect(() => {
     if (!connected || didAutoAskRef.current) return;
     didAutoAskRef.current = true;
@@ -215,9 +202,9 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="fixed top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
+        <header className="fixed top-0 z-[1] w-full max-w-[43rem] border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header
-            onBackClick={handleDeletePainting}
+            onBackClick={() => navigate('/chat-onboarding')}
             showBackButton
             backgroundColorClass="bg-gray-5"
           />
@@ -242,8 +229,8 @@ export default function ArtworkPage() {
         >
           <div ref={listRef} className="flex-1 overflow-y-auto">
             {!isExpanded && (
-              <div className="sticky top-0 z-10 bg-gray-5">
-                <div className="absolute -top-4 right-7 z-20 flex items-center gap-2">
+              <div className="sticky top-0 z-30 bg-gray-5">
+                <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
                   <RoundedIconButton size="lg" icon={<FiHeart />} />
                   <RoundedIconButton size="lg" icon={<FiShare />} />
                 </div>
