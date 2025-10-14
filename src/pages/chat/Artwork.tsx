@@ -202,7 +202,7 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="fixed top-0 z-[1] w-full border-b-2 border-gray-10 bg-gray-5 pb-4">
+        <header className="fixed top-0 z-[1] w-full max-w-[43rem] border-b-2 border-gray-10 bg-gray-5 pb-4">
           <Header
             onBackClick={() => navigate('/chat-onboarding')}
             showBackButton
@@ -229,8 +229,8 @@ export default function ArtworkPage() {
         >
           <div ref={listRef} className="flex-1 overflow-y-auto">
             {!isExpanded && (
-              <div className="sticky top-0 z-10 bg-gray-5">
-                <div className="absolute -top-4 right-7 z-20 flex items-center gap-2">
+              <div className="sticky top-0 z-30 bg-gray-5">
+                <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
                   <RoundedIconButton size="lg" icon={<FiHeart />} />
                   <RoundedIconButton size="lg" icon={<FiShare />} />
                 </div>
