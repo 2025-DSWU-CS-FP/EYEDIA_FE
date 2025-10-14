@@ -153,7 +153,6 @@ export default function useArtworkChat({
       if (!apiKey) throw new Error('NO_KEY');
       const languageCode = 'ko-KR';
       const voiceName = 'ko-KR-Chirp3-HD-Alnilam';
-      // iOS: 파일 작은 MP3, 그 외: 디코드 빠른 LINEAR16
       const audioEncoding: AudioEncoding = IS_IOS ? 'MP3' : 'LINEAR16';
 
       const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
@@ -266,7 +265,7 @@ export default function useArtworkChat({
   );
 
   /* ===== STT ===== */
-  const { listening, finalText, resetFinal, status, start } = stt;
+  const { listening, finalText, resetFinal, status, start, stop } = stt;
 
   const submitAsk = useCallback(
     async (raw: string, opts?: { showUserBubble?: boolean }) => {
@@ -317,7 +316,6 @@ export default function useArtworkChat({
           );
         };
 
-        // 오디오 먼저(구글 우선/지연 시 웹스피치), 그 다음 타자 효과
         await playCloudFirstWithFallback(preview);
         window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
       } catch {
@@ -341,7 +339,6 @@ export default function useArtworkChat({
     if (!listening && finalText.trim()) {
       const t = finalText.trim();
       resetFinal();
-      // fire-and-forget: no-void 룰 회피
       submitAsk(t, { showUserBubble: true }).catch(() => {
         /* ignore */
       });
@@ -354,6 +351,28 @@ export default function useArtworkChat({
     resetFinal();
     start();
   };
+
+  const stopVoice = useCallback(() => {
+    stop();
+    try {
+      webTts.cancel();
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    } catch {
+      /* ignore */
+    }
+    if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+      audioCtxRef.current.suspend().catch(() => {
+        /* ignore */
+      });
+    }
+  }, [stop, webTts]);
 
   const promptText = useMemo(() => {
     if (listening) return PROMPT_MESSAGES.speaking;
@@ -370,6 +389,8 @@ export default function useArtworkChat({
     typing,
     submitAsk,
     startVoice,
+    stopVoice,
+    isListening: listening,
     promptText,
     voiceDisabled,
     didAutoAskRef,

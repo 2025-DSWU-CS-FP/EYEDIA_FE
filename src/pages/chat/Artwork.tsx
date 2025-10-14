@@ -64,6 +64,11 @@ export default function ArtworkPage() {
   const endRef = useRef<HTMLDivElement>(null);
   const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
 
+  // 텍스트 타이핑 중단 플래그 (이 파일에서 시작한 타자 효과만 차단)
+  const haltTypingRef = useRef(false);
+  // 실제 타자 애니메이션(타자 진행 중) 상태
+  const [isTypingAnimating, setIsTypingAnimating] = useState(false);
+
   const token = getAuthToken();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -76,6 +81,8 @@ export default function ArtworkPage() {
     typing,
     submitAsk,
     startVoice,
+    stopVoice,
+    isListening,
     promptText,
     voiceDisabled,
     didAutoAskRef,
@@ -99,7 +106,20 @@ export default function ArtworkPage() {
         spokenIdsRef.current.add(id);
         speak(fullText);
       }
-      startTypewriter(id, fullText, setText, speed);
+      setIsTypingAnimating(true);
+      startTypewriter(
+        id,
+        fullText,
+        partial => {
+          if (haltTypingRef.current) {
+            setIsTypingAnimating(false);
+            return;
+          }
+          setText(partial);
+          if (partial === fullText) setIsTypingAnimating(false);
+        },
+        speed,
+      );
     },
     [speak, startTypewriter],
   );
@@ -153,6 +173,13 @@ export default function ArtworkPage() {
     return promptText;
   }, [connected, promptText]);
 
+  // 보이스/타자 진행 중에는 '탭하여 일시정지' 문구 노출
+  const isActive = isListening || typing || isTypingAnimating;
+  const displayPromptText = useMemo(
+    () => (isActive ? '탭하여 일시정지' : headerPromptText),
+    [isActive, headerPromptText],
+  );
+
   const handleSaveExcerpt = () => {
     const quote = selectionText.trim();
     if (!quote) {
@@ -189,6 +216,22 @@ export default function ArtworkPage() {
     ]);
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
   }, [connected, submitAsk, sImgUrl, didAutoAskRef, setLocalMessages]);
+
+  // 마이크 버튼 토글: 보이스/타자 모두 일시정지 가능
+  const handleMicToggle = useCallback(() => {
+    if (isActive) {
+      haltTypingRef.current = true;
+      setIsTypingAnimating(false);
+      stopVoice();
+      return;
+    }
+    haltTypingRef.current = false;
+    startVoice();
+  }, [isActive, stopVoice, startVoice]);
+
+  // 접근 가능해야 할 ‘비활성’ 상태만 엄격히 막기(권한 거부/미지원)
+  const micBlocked =
+    !isListening && !typing && !isTypingAnimating && voiceDisabled;
 
   return (
     <section className="relative h-dvh max-h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
@@ -282,7 +325,7 @@ export default function ArtworkPage() {
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />
           <div className="pointer-events-auto relative z-10 mt-[1.3rem] flex size-[12.8rem] items-center justify-center">
-            {voiceDisabled ? (
+            {micBlocked ? (
               <button
                 aria-label="음성 인식 시작"
                 type="button"
@@ -292,16 +335,17 @@ export default function ArtworkPage() {
               />
             ) : (
               <button
-                aria-label="음성 인식 시작"
+                aria-label={isActive ? '중단' : '음성 인식 시작'}
                 type="button"
                 className="glow-pulse"
-                onClick={startVoice}
+                onClick={handleMicToggle}
+                aria-pressed={isActive}
               />
             )}
           </div>
 
           <p className="relative z-10 mt-6 text-gray-70 bd2">
-            {headerPromptText}
+            {displayPromptText}
           </p>
 
           <div className="pointer-events-auto relative z-10 mx-auto mt-4 flex w-full max-w-[43rem] justify-end">
