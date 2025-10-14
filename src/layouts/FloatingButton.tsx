@@ -1,14 +1,25 @@
+import { useCallback } from 'react';
+
+import useDeletePainting from '@/services/mutations/useDeletePainting';
+
 interface FloatingButtonProps {
   onClick?: () => void;
 }
 
 function FloatingButton({ onClick }: FloatingButtonProps) {
+  const { mutate: deletePainting } = useDeletePainting();
+
+  const handleClick = useCallback(() => {
+    onClick?.();
+    deletePainting(undefined);
+  }, [onClick, deletePainting]);
+
   return (
     <div className="fixed bottom-[8rem] left-1/2 z-10 w-full max-w-[430px] -translate-x-1/2 items-center">
       <div className="flex justify-end px-4">
         <button
           type="button"
-          onClick={onClick}
+          onClick={handleClick}
           aria-label="button"
           className="flex h-[60px] w-[60px] items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-white transition hover:bg-gray-80"
         >
