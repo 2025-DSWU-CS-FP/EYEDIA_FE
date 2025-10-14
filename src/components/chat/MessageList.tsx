@@ -10,7 +10,6 @@ type Message = {
 };
 
 type Props = {
-  initial: Message[];
   wsList: Message[];
   localMessages: LocalMsg[];
   typing: boolean;
@@ -20,7 +19,6 @@ type Props = {
 };
 
 export default function MessageList({
-  initial,
   wsList,
   localMessages,
   typing,
@@ -33,7 +31,7 @@ export default function MessageList({
       ref={listRef}
       className="flex h-full flex-col gap-[1.2rem] overflow-y-auto px-[1.8rem] pt-8"
     >
-      {[...initial, ...wsList, ...localMessages].map(m =>
+      {[...wsList, ...localMessages].map(m =>
         m.type === 'IMAGE' ? (
           <figure
             key={m.id}
