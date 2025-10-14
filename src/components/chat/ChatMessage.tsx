@@ -25,7 +25,9 @@ export default function ChatMessage({
 
   const selectingRef = useRef(false);
   const rafRef = useRef<number | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const hidden = !isFromUser && text.trim().length === 0;
 
   const isSelectionInside = useCallback(
     (sel: Selection | null): sel is Selection => {
@@ -68,12 +70,12 @@ export default function ChatMessage({
 
   const scheduleUpdate = useCallback(
     (delay = 60) => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       if (timerRef.current !== null) {
         clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      timerRef.current = window.setTimeout(() => {
+      timerRef.current = setTimeout(() => {
         rafRef.current = requestAnimationFrame(updateMenuFromSelection);
       }, delay);
     },
@@ -81,6 +83,13 @@ export default function ChatMessage({
   );
 
   useEffect(() => {
+    if (hidden) {
+      return () => {
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+        if (timerRef.current !== null) clearTimeout(timerRef.current);
+      };
+    }
+
     const onSelectionChange: EventListener = () => {
       if (!selectingRef.current) return;
       scheduleUpdate(0);
@@ -118,7 +127,7 @@ export default function ChatMessage({
     document.addEventListener('keyup', onKeyUp);
 
     return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       if (timerRef.current !== null) clearTimeout(timerRef.current);
       document.removeEventListener('selectionchange', onSelectionChange);
       document.removeEventListener('pointerdown', onPointerDown);
@@ -126,35 +135,33 @@ export default function ChatMessage({
       document.removeEventListener('mouseup', finishSelection);
       document.removeEventListener('keyup', onKeyUp);
     };
-  }, [scheduleUpdate]);
+  }, [hidden, scheduleUpdate]);
 
   const toRichHTML = useCallback((value: string) => {
     const escape = (s: string) =>
       s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     let s = escape(value);
-
     s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/__([\s\S]+?)__/g, '<strong>$1</strong>');
-
     s = s.replace(
       /(^|[^*])\*([^*\n]+?)\*/g,
       (_m, p1, p2) => `${p1}<strong>${p2}</strong>`,
     );
     s = s.replace(/\r?\n/g, '<br/>');
-
     return s;
   }, []);
 
+  if (hidden) return null;
+
   return (
-    <div
+    <article
       ref={containerRef}
-      className={`relative max-w-[80%] select-text whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
+      className={`relative max-w-[80%] select-text overflow-visible whitespace-pre-wrap break-words rounded-[8px] px-[1.4rem] py-[1rem] bd3 ${
         isFromUser
           ? 'self-end bg-brand-blue text-gray-0'
           : 'bg-gray-0 text-gray-90'
       }`}
-      style={{ overflow: 'visible' }}
     >
       {menu && (
         <SelectionActionMenu
@@ -173,6 +180,6 @@ export default function ChatMessage({
         />
       )}
       <div dangerouslySetInnerHTML={{ __html: toRichHTML(text) }} />
-    </div>
+    </article>
   );
 }
