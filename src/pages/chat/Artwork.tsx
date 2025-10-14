@@ -24,7 +24,6 @@ import useAutoScrollToEnd from '@/hooks/useAutoScrollToEnd';
 import useRoomMessageHandler from '@/hooks/useRoomMessageHandler';
 import Header from '@/layouts/Header';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
-import useChatMessages from '@/services/queries/useChatMessages';
 import type { IncomingChat } from '@/types/chat';
 import dateKST from '@/utils/dateKST';
 import getAuthToken from '@/utils/getToken';
@@ -113,18 +112,6 @@ export default function ArtworkPage() {
     speak: () => {},
   });
 
-  const { data: chatMessages } = useChatMessages(paintingId);
-  const initial = useMemo(
-    () =>
-      (chatMessages ?? []).map(m => ({
-        id: nanoid(),
-        content: m.content,
-        sender: m.sender as 'USER' | 'BOT',
-        type: 'TEXT' as const,
-      })),
-    [chatMessages],
-  );
-
   const { connected, messages: wsMessages } = useStompChat({
     paintingId,
     token,
@@ -145,7 +132,7 @@ export default function ArtworkPage() {
   }));
 
   useAutoScrollToEnd(
-    [chatMessages, wsMessages, localMessages, typing, showChatInput],
+    [wsMessages, localMessages, typing, showChatInput],
     listRef,
   );
   const headerPromptText = useMemo(() => {
@@ -251,7 +238,6 @@ export default function ArtworkPage() {
             )}
 
             <MessageList
-              initial={initial}
               wsList={wsList}
               localMessages={localMessages}
               typing={typing}

@@ -96,7 +96,7 @@ export default function OnboardingPage() {
       <Header
         showBackButton
         backgroundColorClass="bg-transparent"
-        onBackClick={() => navigate(-1)}
+        onBackClick={() => navigate('/')}
       />
       <div className="flex h-dvh w-full flex-col justify-center">
         <OnboardingText text={text} />
