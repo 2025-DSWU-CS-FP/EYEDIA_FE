@@ -26,22 +26,9 @@ export default function KeywordList({
     () => keywords.find(k => k.isSelected)?.id ?? null,
     [keywords],
   );
-
   const [selectedId, setSelectedId] = useState<string | null>(
     initiallySelected,
   );
-
-  useEffect(() => {
-    if (initiallySelected && initiallySelected !== selectedId) {
-      setSelectedId(initiallySelected);
-    }
-  }, [initiallySelected, selectedId]);
-
-  useEffect(() => {
-    if (selectedId && !keywords.some(k => k.id === selectedId)) {
-      setSelectedId(initiallySelected);
-    }
-  }, [keywords, selectedId, initiallySelected]);
 
   const skeletonKeysRef = useRef<string[]>(makeIds(skeletonCount));
   useEffect(() => {

@@ -6,9 +6,8 @@ import PopularExhibitionSection from '@/components/main/section/PopularExhibitio
 import RecentArtworkSection from '@/components/main/section/RecentArtworkSection';
 import TasteArtworkSection from '@/components/main/section/TasteArtworkSection';
 import UserGreeting from '@/components/main/UserGreeting';
+import { recentArtworks, keywords, tasteArtworks } from '@/mock/mainData';
 import usePopularExhibitionsTop from '@/services/queries/usePopularExhibitionsTop';
-import useRecommendExhibitions from '@/services/queries/useRecommendExhibitions';
-import useTasteKeywords from '@/services/queries/useTasteKeywords';
 import s3ToHttp from '@/utils/url';
 
 export default function MainPage() {
@@ -48,30 +47,6 @@ export default function MainPage() {
     return mapped;
   }, [topPopular, isPopularError]);
 
-  const { data: tasteKeywords = [], isFetching: isKwLoading } =
-    useTasteKeywords();
-
-  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
-  useEffect(() => {
-    if (!selectedKeyword && tasteKeywords.length > 0) {
-      setSelectedKeyword(tasteKeywords[0].id);
-    }
-  }, [tasteKeywords, selectedKeyword]);
-
-  const { data: recExhibitions = [], isFetching: isRecLoading } =
-    useRecommendExhibitions(selectedKeyword);
-
-  const tasteArtworks = useMemo(
-    () =>
-      recExhibitions.map(e => ({
-        id: e.id,
-        title: e.title,
-        artist: e.artist,
-        thumbnailUrl: s3ToHttp(e.thumbnailUrl ?? e.imageUrl ?? ''),
-      })),
-    [recExhibitions],
-  );
-
   const handlePopularMore = () => navigate('/popular-exhibition');
   const handlePopularSelect = (id: number | string) =>
     navigate(`/popular/${id}`);
@@ -87,18 +62,9 @@ export default function MainPage() {
             onMoreClick={handlePopularMore}
             onSelect={handlePopularSelect}
           />
+          <RecentArtworkSection artworks={recentArtworks} />
 
-          <RecentArtworkSection />
-
-          <TasteArtworkSection
-            keywords={tasteKeywords.map(k => ({
-              ...k,
-              isSelected: k.id === selectedKeyword,
-            }))}
-            artworks={tasteArtworks}
-            isLoading={isKwLoading || isRecLoading}
-            onKeywordSelect={(id: string) => setSelectedKeyword(id)}
-          />
+          <TasteArtworkSection keywords={keywords} artworks={tasteArtworks} />
         </section>
       </div>
     </main>
