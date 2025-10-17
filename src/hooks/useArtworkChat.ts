@@ -13,10 +13,9 @@ import type { LocalMsg } from '@/types/chatLocal';
 
 const TYPEWRITER_LAG_MS = 300; // 오디오 시작 후 텍스트 시작 지연
 const CLOUD_TIMEOUT_MS = 1200; // 클라우드가 이 시간 내 시작 못하면 웹스피치 폴백
-export const TTS_MAX_CHARS = 10; // 비용 절감: 초반 미리듣기 글자 수
 
 function cap(text: string): string {
-  return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
+  return text;
 }
 
 const IS_IOS =
