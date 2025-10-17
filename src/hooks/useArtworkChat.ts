@@ -12,8 +12,8 @@ import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
 const TYPEWRITER_LAG_MS = 300;
-const CLOUD_TIMEOUT_MS = 100000;
-export const TTS_MAX_CHARS = 100000;
+const CLOUD_TIMEOUT_MS = 3000;
+export const TTS_MAX_CHARS = 150;
 
 function cap(text: string): string {
   return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
