@@ -6,13 +6,11 @@ import { PROMPT_MESSAGES } from '@/constants/promptMessages';
 import useAbortControllerRef from '@/hooks/useAbortControllerRef';
 import useStt from '@/hooks/useSTT';
 import useTimers from '@/hooks/useTimers';
-import useTts from '@/hooks/useTTS';
 import useTypewriter from '@/hooks/useTypewriter';
 import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
-const TYPEWRITER_LAG_MS = 300; // 오디오 시작 후 텍스트 시작 지연
-const CLOUD_TIMEOUT_MS = 1200; // 클라우드가 이 시간 내 시작 못하면 웹스피치 폴백
+const TYPEWRITER_LAG_MS = 300;
 
 function cap(text: string): string {
   return text;
@@ -99,12 +97,6 @@ export default function useArtworkChat({
     lang: 'ko-KR',
     continuous: false,
     interimResults: true,
-  });
-
-  const webTts = useTts({
-    lang: 'ko-KR',
-    rate: 1,
-    voiceName: 'Google 한국의 여성',
   });
 
   const apiKey = import.meta.env.VITE_TTS_API_KEY as string | undefined;
@@ -201,55 +193,30 @@ export default function useArtworkChat({
     [apiKey],
   );
 
-  const playCloudFirstWithFallback = useCallback(
+  // === 구글 TTS만 사용 ===
+  const playCloud = useCallback(
     async (preview: string): Promise<void> => {
       await ensureAudioUnlocked();
+      const url = await cloudSynthesize(preview);
 
-      let cloudStarted = false;
-      let fallbackStarted = false;
-
-      const startCloud = (async () => {
-        const url = await cloudSynthesize(preview);
-
-        if (IS_IOS && audioCtxRef.current) {
-          const res = await fetch(url);
-          const ab = await res.arrayBuffer();
-          const buf = await decodeAudio(audioCtxRef.current, ab);
-          const src = audioCtxRef.current.createBufferSource();
-          src.buffer = buf;
-          src.connect(audioCtxRef.current.destination);
-          src.start(0);
-        } else {
-          if (!audioRef.current) audioRef.current = new Audio();
-          audioRef.current.setAttribute('playsinline', 'true');
-          audioRef.current.setAttribute('preload', 'auto');
-          audioRef.current.src = url;
-          await audioRef.current.play();
-        }
-
-        cloudStarted = true;
-        if (fallbackStarted) {
-          try {
-            webTts.cancel();
-          } catch {
-            /* ignore */
-          }
-        }
-      })();
-
-      const timeoutGate = new Promise<void>(resolve => {
-        window.setTimeout(() => {
-          if (!cloudStarted) {
-            fallbackStarted = true;
-            webTts.speak(preview);
-          }
-          resolve();
-        }, CLOUD_TIMEOUT_MS);
-      });
-
-      await Promise.race([startCloud, timeoutGate]);
+      if (IS_IOS && audioCtxRef.current) {
+        // iOS는 <audio> 자동재생 제한 회피를 위해 WebAudio 사용
+        const res = await fetch(url);
+        const ab = await res.arrayBuffer();
+        const buf = await decodeAudio(audioCtxRef.current, ab);
+        const src = audioCtxRef.current.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtxRef.current.destination);
+        src.start(0);
+      } else {
+        if (!audioRef.current) audioRef.current = new Audio();
+        audioRef.current.setAttribute('playsinline', 'true');
+        audioRef.current.setAttribute('preload', 'auto');
+        audioRef.current.src = url;
+        await audioRef.current.play();
+      }
     },
-    [cloudSynthesize, ensureAudioUnlocked, webTts],
+    [cloudSynthesize, ensureAudioUnlocked],
   );
 
   const speak = useCallback(
@@ -257,11 +224,11 @@ export default function useArtworkChat({
       const raw = text.trim();
       if (!raw) return;
       const preview = cap(raw);
-      playCloudFirstWithFallback(preview).catch(() => {
-        /*  */
+      playCloud(preview).catch(() => {
+        /* 구글 TTS 실패 시에도 로컬 웹스피치로는 절대 폴백하지 않음 */
       });
     },
-    [playCloudFirstWithFallback],
+    [playCloud],
   );
 
   /* ===== STT ===== */
@@ -316,12 +283,14 @@ export default function useArtworkChat({
           );
         };
 
-        // 오디오 먼저(구글 우선/지연 시 웹스피치), 그 다음 타자 효과
-        await playCloudFirstWithFallback(preview);
+        // 오디오 먼저(구글 TTS 고정), 그 다음 타자 효과
+        await playCloud(preview);
         window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
-      } catch {
+      } catch (e) {
         setTyping(false);
-        onError('질문 전송에 실패했어요. 다시 시도해 주세요.');
+        onError(
+          '질문 전송 또는 음성 합성 중 오류가 발생했어요. 다시 시도해 주세요.',
+        );
       }
     },
     [
@@ -331,7 +300,7 @@ export default function useArtworkChat({
       startTypewriter,
       setLocalMessages,
       ensureAudioUnlocked,
-      playCloudFirstWithFallback,
+      playCloud,
     ],
   );
 
