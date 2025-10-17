@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
+import { TTS_MAX_CHARS } from '@/hooks/useArtworkChat';
+
 type AudioEncoding = 'MP3' | 'OGG_OPUS' | 'LINEAR16';
 
 export type CloudTtsOptions = {
@@ -21,7 +23,7 @@ async function sha256(text: string): Promise<string> {
 }
 
 function cap(text: string): string {
-  return text;
+  return text.length > TTS_MAX_CHARS ? text.slice(0, TTS_MAX_CHARS) : text;
 }
 
 export default function useGoogleTtsFront(defaults?: CloudTtsOptions) {
