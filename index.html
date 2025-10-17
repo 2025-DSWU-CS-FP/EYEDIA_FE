@@ -2,22 +2,29 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+
+    <title>Eyedia</title>
+
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#f5f7f9" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Eyedia" />
+
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    />
-    <title>Eyedia</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no"
-    />
+
     <meta name="description" content="시선 추적 기반 대화형 도슨트 서비스" />
     <meta property="og:title" content="Eyedia" />
     <meta
@@ -28,7 +35,33 @@
     <meta name="keywords" content="전시, 도슨트, AI, 작품, 미술관" />
     <meta property="og:url" content="https://eyedia.netlify.app/" />
     <meta property="og:image" content="https://eyedia.netlify.app/image.png" />
+
+    <style>
+      :root {
+        --app-bg: #f5f7f9;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--app-bg);
+      }
+
+      @supports (padding-top: env(safe-area-inset-top)) {
+        body::before {
+          content: '';
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: env(safe-area-inset-top);
+          background: var(--app-bg);
+          pointer-events: none;
+          z-index: 9999;
+        }
+      }
+    </style>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
