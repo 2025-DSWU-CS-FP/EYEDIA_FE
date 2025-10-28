@@ -16,6 +16,7 @@ const EditProfilePage = lazy(() => import('@/pages/auth/EditProfile'));
 const Onboarding = lazy(() => import('@/pages/chat/Onboarding'));
 const GazePage = lazy(() => import('@/pages/chat/GazePage'));
 const Artwork = lazy(() => import('@/pages/chat/Artwork'));
+const ChatHistory = lazy(() => import('@/pages/chat/ChatHistoryPage'));
 const Gallery = lazy(() => import('@/pages/gallery/GalleryPage'));
 const GalleryDetail = lazy(() => import('@/pages/gallery/GalleryDetailPage'));
 const PopularDetailPage = lazy(
@@ -82,6 +83,10 @@ const mainRoutes: RouteObject[] = [
   {
     path: 'chat-artwork',
     element: <Artwork />,
+  },
+  {
+    path: 'chat-history',
+    element: <ChatHistory />,
   },
   {
     path: 'help',
