@@ -25,11 +25,12 @@ import useRoomMessageHandler from '@/hooks/useRoomMessageHandler';
 import Header from '@/layouts/Header';
 import useSaveScrap from '@/services/mutations/useSaveScrap';
 import type { IncomingChat } from '@/types/chat';
+import type { LocalMsg } from '@/types/chatLocal';
 import dateKST from '@/utils/dateKST';
 import getAuthToken from '@/utils/getToken';
 
 type LocationState = {
-  paintingId: number;
+  paintingId?: number;
   title?: string;
   artist?: string;
   imgUrl?: string;
@@ -42,9 +43,10 @@ const DEFAULT_EXHIBITION = '전시';
 export default function ArtworkPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const s = state as LocationState;
+  const s = (state ?? {}) as LocationState;
+
   const {
-    paintingId,
+    paintingId: initialPaintingId,
     title: sTitle = '작품',
     artist: sArtist = '',
     imgUrl: sImgUrl = SampleFallback,
@@ -69,10 +71,66 @@ export default function ArtworkPage() {
 
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
 
+  /* ========= TDZ 회피용 프록시 refs ========= */
+  const setLocalMessagesRef = useRef<null | React.Dispatch<
+    React.SetStateAction<LocalMsg[]>
+  >>(null);
+
+  const startTypewriterRef = useRef<
+    | ((
+        id: string,
+        fullText: string,
+        setText: (partial: string) => void,
+        speed?: number,
+      ) => void)
+    | null
+  >(null);
+
+  const setLocalMessagesSafe: React.Dispatch<
+    React.SetStateAction<LocalMsg[]>
+  > = updater => {
+    if (setLocalMessagesRef.current) setLocalMessagesRef.current(updater);
+  };
+
+  const startTypewriterSafe = (
+    id: string,
+    fullText: string,
+    setText: (partial: string) => void,
+    speed?: number,
+  ) => {
+    if (startTypewriterRef.current) {
+      startTypewriterRef.current(id, fullText, setText, speed);
+    }
+  };
+
+  /* ========= onRoomMessage (프록시 사용) ========= */
+  const onRoomMessage = useRoomMessageHandler({
+    paintingId: initialPaintingId ?? 0,
+    artworkInfo: { imgUrl: artworkInfo.imgUrl },
+    processedIdsRef: processedRoomMessageIdsRef,
+    setLocalMessages: setLocalMessagesSafe,
+    startTypewriter: startTypewriterSafe,
+    speak: () => {},
+  });
+
+  /* ========= STOMP: 이벤트 큐 → 방 구독 순서 보장 ========= */
+  const {
+    connected,
+    chatMessages: wsMessages,
+    send,
+    resolvedPaintingId,
+  } = useStompChat({
+    paintingId: initialPaintingId,
+    token,
+    onRoomMessage,
+  });
+
+  /* ========= 채팅/음성 훅 ========= */
   const {
     localMessages,
     setLocalMessages,
     typing,
+    stopTyping,
     submitAsk,
     startVoice,
     promptText,
@@ -81,12 +139,13 @@ export default function ArtworkPage() {
     startTypewriter,
     speak,
   } = useArtworkChat({
-    paintingId,
+    paintingId: resolvedPaintingId ?? initialPaintingId ?? 0,
     onError: msg => showToast(msg, 'error'),
+    send,
   });
 
+  /* ========= TTS + 타자 효과 ========= */
   const spokenIdsRef = useRef<Set<string>>(new Set());
-  const lastSaveKeyRef = useRef<string | null>(null);
   const startTypewriterWithTTS = useCallback(
     (
       id: string,
@@ -94,31 +153,23 @@ export default function ArtworkPage() {
       setText: (partial: string) => void,
       speed?: number,
     ) => {
+      stopTyping();
       if (!spokenIdsRef.current.has(id)) {
         spokenIdsRef.current.add(id);
         speak(fullText);
       }
       startTypewriter(id, fullText, setText, speed);
     },
-    [speak, startTypewriter],
+    [speak, startTypewriter, stopTyping],
   );
 
-  const onRoomMessage = useRoomMessageHandler({
-    paintingId,
-    artworkInfo: { imgUrl: artworkInfo.imgUrl },
-    processedIdsRef: processedRoomMessageIdsRef,
-    setLocalMessages,
-    startTypewriter: startTypewriterWithTTS,
-    speak: () => {},
-  });
+  /* 실제 구현체를 프록시 ref에 연결 */
+  useEffect(() => {
+    setLocalMessagesRef.current = setLocalMessages;
+    startTypewriterRef.current = startTypewriterWithTTS;
+  }, [setLocalMessages, startTypewriterWithTTS]);
 
-  const { connected, messages: wsMessages } = useStompChat({
-    paintingId,
-    token,
-    topic: `/topic/llm.${paintingId}`,
-    onRoomMessage,
-  });
-
+  /* ========= WS 메시지 → 렌더용 리스트 ========= */
   const wsList: Array<{
     id: string;
     sender: 'USER' | 'BOT' | 'SYSTEM';
@@ -135,17 +186,19 @@ export default function ArtworkPage() {
     [wsMessages, localMessages, typing, showChatInput],
     listRef,
   );
+
   const headerPromptText = useMemo(() => {
     if (!connected) return PROMPT_MESSAGES.checkingConnection;
     return promptText;
   }, [connected, promptText]);
 
+  /* ========= 발췌 저장 ========= */
+  const lastSaveKeyRef = useRef<string | null>(null);
   const handleSaveExcerpt = (
     raw: string,
     { closeOnSuccess }: { closeOnSuccess: boolean },
   ) => {
     if (saving) return;
-
     const quote = raw.trim();
     if (!quote) {
       showToast('저장할 발췌 문구가 없어요.', 'error');
@@ -156,7 +209,8 @@ export default function ArtworkPage() {
       return;
     }
 
-    const saveKey = `${paintingId}::${quote}`;
+    const pid = resolvedPaintingId ?? initialPaintingId ?? 0;
+    const saveKey = `${pid}::${quote}`;
     if (lastSaveKeyRef.current === saveKey) {
       showToast('이미 같은 발췌를 저장했어요.', 'info');
       return;
@@ -165,7 +219,7 @@ export default function ArtworkPage() {
 
     saveScrap(
       {
-        paintingId,
+        paintingId: pid,
         date: dateKST(),
         excerpt: quote,
         location: exhibitionName || '전시',
@@ -187,15 +241,25 @@ export default function ArtworkPage() {
     );
   };
 
+  /* ========= 자동 첫 질문: paintingId 확정 후 1회 ========= */
   useEffect(() => {
-    if (!connected || didAutoAskRef.current) return;
+    if (!connected || !resolvedPaintingId || didAutoAskRef.current) return;
     didAutoAskRef.current = true;
+
     setLocalMessages(prev => [
       ...prev,
       { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: sImgUrl },
     ]);
+
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
-  }, [connected, submitAsk, sImgUrl, didAutoAskRef, setLocalMessages]);
+  }, [
+    connected,
+    resolvedPaintingId,
+    submitAsk,
+    sImgUrl,
+    didAutoAskRef,
+    setLocalMessages,
+  ]);
 
   return (
     <section className="relative h-dvh max-h-dvh w-full overflow-hidden bg-gray-5 text-gray-100">
@@ -209,7 +273,7 @@ export default function ArtworkPage() {
       </div>
 
       {isExpanded && (
-        <header className="fixed top-0 z-[1] w-full max-w-[43rem] border-b-2 border-gray-10 bg-gray-5 pb-4">
+        <header className="fixed top-0 z-[1] w-full max-w-[43rem] border-b-2 border-gray-10 bg-gray-5 pb-[1rem]">
           <Header
             onBackClick={() => navigate('/chat-onboarding')}
             showBackButton
@@ -218,7 +282,7 @@ export default function ArtworkPage() {
           <div className="flex max-w-[100%] items-end justify-between px-[2.3rem]">
             <div className="flex flex-col gap-[0.3rem]">
               <h1 className="t3">{artworkInfo.title}</h1>
-              {artworkInfo.artist && (
+              {!!artworkInfo.artist && (
                 <p className="text-gray-70 ct5">{artworkInfo.artist}</p>
               )}
             </div>
@@ -232,12 +296,12 @@ export default function ArtworkPage() {
 
       <ArtworkBottomSheet isVisible onExpandChange={setIsExpanded}>
         <div
-          className={`mb-[2rem] flex h-full flex-col ${isExpanded ? 'pt-[15rem]' : ''}`}
+          className={`mb-[1rem] flex h-full flex-col ${isExpanded ? 'pt-[15rem]' : ''}`}
         >
           <div ref={listRef} className="flex-1 overflow-y-auto">
             {!isExpanded && (
               <div className="sticky top-0 z-30 bg-gray-5">
-                <div className="fixed -top-4 right-7 z-20 flex items-center gap-2">
+                <div className="fixed -top-4 right-7 z-20 flex items-center gap-[0.8rem]">
                   <RoundedIconButton size="lg" icon={<FiHeart />} />
                   <RoundedIconButton size="lg" icon={<FiShare />} />
                 </div>
@@ -246,7 +310,7 @@ export default function ArtworkPage() {
                   <div className="px-[2.4rem]">
                     <div className="flex flex-col gap-[0.3rem]">
                       <h1 className="font-normal t3">{artworkInfo.title}</h1>
-                      {artworkInfo.artist && (
+                      {!!artworkInfo.artist && (
                         <p className="text-gray-70 ct4">{artworkInfo.artist}</p>
                       )}
                     </div>
@@ -275,7 +339,7 @@ export default function ArtworkPage() {
       </ArtworkBottomSheet>
 
       {showChatInput && (
-        <div className="fixed bottom-0 z-20 w-full">
+        <footer className="fixed bottom-0 z-20 w-full">
           <ChatInputBar
             onSend={v => submitAsk(v, { showUserBubble: true })}
             onMicClick={() => {
@@ -283,8 +347,9 @@ export default function ArtworkPage() {
               if (!voiceDisabled) startVoice();
             }}
           />
-        </div>
+        </footer>
       )}
+
       {!showChatInput && (
         <footer className="pointer-events-none fixed bottom-0 left-0 flex w-full flex-col items-center bg-transparent px-6 pb-[1rem]">
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-gray-5" />

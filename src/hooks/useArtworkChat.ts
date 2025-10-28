@@ -3,15 +3,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { nanoid } from 'nanoid';
 
 import { PROMPT_MESSAGES } from '@/constants/promptMessages';
-import useAbortControllerRef from '@/hooks/useAbortControllerRef';
 import useStt from '@/hooks/useSTT';
 import useTimers from '@/hooks/useTimers';
 import useTts from '@/hooks/useTTS';
 import useTypewriter from '@/hooks/useTypewriter';
-import { askArtworkLLM } from '@/services/ws/chat';
 import type { LocalMsg } from '@/types/chatLocal';
 
-const TYPEWRITER_LAG_MS = 300;
+/* const TYPEWRITER_LAG_MS = 300; */
 const CLOUD_TIMEOUT_MS = 1200;
 export const TTS_MAX_CHARS = 10;
 
@@ -82,18 +80,15 @@ function b64ToBlob(base64: string, mime: string): Blob {
 type UseArtworkChatArgs = {
   paintingId: number;
   onError: (msg: string) => void;
+  send: (content: string) => void;
 };
 
-export default function useArtworkChat({
-  paintingId,
-  onError,
-}: UseArtworkChatArgs) {
+export default function useArtworkChat({ onError, send }: UseArtworkChatArgs) {
   const [localMessages, setLocalMessages] = useState<LocalMsg[]>([]);
   const [typing, setTyping] = useState(false);
   const didAutoAskRef = useRef(false);
 
   const { add } = useTimers();
-  const ac = useAbortControllerRef();
   const { start: startTypewriter } = useTypewriter(add);
 
   const stt = useStt({
@@ -136,7 +131,7 @@ export default function useArtworkChat({
       src.connect(ctx.destination);
       src.start(0);
     } catch {
-      /*  */
+      /* */
     }
     audioUnlockedRef.current = true;
   }, []);
@@ -153,7 +148,6 @@ export default function useArtworkChat({
       if (!apiKey) throw new Error('NO_KEY');
       const languageCode = 'ko-KR';
       const voiceName = 'ko-KR-Chirp3-HD-Alnilam';
-      // iOS: 파일 작은 MP3, 그 외: 디코드 빠른 LINEAR16
       const audioEncoding: AudioEncoding = IS_IOS ? 'MP3' : 'LINEAR16';
 
       const key = cacheKeyOf(text, languageCode, voiceName, audioEncoding);
@@ -233,7 +227,7 @@ export default function useArtworkChat({
           try {
             webTts.cancel();
           } catch {
-            /* ignore */
+            /* */
           }
         }
       })();
@@ -258,14 +252,11 @@ export default function useArtworkChat({
       const raw = text.trim();
       if (!raw) return;
       const preview = cap(raw);
-      playCloudFirstWithFallback(preview).catch(() => {
-        /*  */
-      });
+      playCloudFirstWithFallback(preview).catch(() => {});
     },
     [playCloudFirstWithFallback],
   );
 
-  /* ===== STT ===== */
   const { listening, finalText, resetFinal, status, start } = stt;
 
   const submitAsk = useCallback(
@@ -286,65 +277,20 @@ export default function useArtworkChat({
       setTyping(true);
 
       try {
-        const { signal } = ac.renew();
-        const res = await askArtworkLLM({ paintingId, text }, signal);
-
-        const full = res.answer.trim();
-        const preview = cap(full);
-
-        const botId = nanoid();
-        setLocalMessages(prev => [
-          ...prev,
-          { id: botId, sender: 'BOT', type: 'TEXT', content: '' },
-        ]);
-
-        let started = false;
-        const startTypingNow = () => {
-          if (started) return;
-          started = true;
-          setTyping(false);
-          startTypewriter(
-            botId,
-            full,
-            partial => {
-              setLocalMessages(prev =>
-                prev.map(m =>
-                  m.id === botId ? { ...m, content: partial } : m,
-                ),
-              );
-            },
-            16,
-          );
-        };
-
-        // 오디오 먼저(구글 우선/지연 시 웹스피치), 그 다음 타자 효과
-        await playCloudFirstWithFallback(preview);
-        window.setTimeout(startTypingNow, TYPEWRITER_LAG_MS);
+        send(text);
       } catch {
         setTyping(false);
         onError('질문 전송에 실패했어요. 다시 시도해 주세요.');
       }
     },
-    [
-      ac,
-      onError,
-      paintingId,
-      startTypewriter,
-      setLocalMessages,
-      ensureAudioUnlocked,
-      playCloudFirstWithFallback,
-    ],
+    [ensureAudioUnlocked, onError, send],
   );
 
-  /* ===== STT → Ask 자동 전송 ===== */
   useEffect(() => {
     if (!listening && finalText.trim()) {
       const t = finalText.trim();
       resetFinal();
-      // fire-and-forget: no-void 룰 회피
-      submitAsk(t, { showUserBubble: true }).catch(() => {
-        /* ignore */
-      });
+      submitAsk(t, { showUserBubble: true }).catch(() => {});
     }
   }, [listening, finalText, resetFinal, submitAsk]);
 
@@ -364,10 +310,14 @@ export default function useArtworkChat({
   const voiceDisabled =
     listening || typing || status === 'denied' || status === 'unavailable';
 
+  // 외부에서 타자 시작 직전에 typing 끄기 위한 헬퍼
+  const stopTyping = useCallback(() => setTyping(false), []);
+
   return {
     localMessages,
     setLocalMessages,
     typing,
+    stopTyping, // ✅ 추가
     submitAsk,
     startVoice,
     promptText,

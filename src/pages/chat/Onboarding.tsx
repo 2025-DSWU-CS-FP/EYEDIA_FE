@@ -31,10 +31,10 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const token = getAuthToken();
 
-  const { connected, messages } = useStompChat({
+  const { connected, events } = useStompChat({
     paintingId: 0,
     token,
-    topic: '/queue/events',
+    topic: '/queue/events', // ✅ 이벤트 전용 구독
     onConnected: headers => {
       setIsConnected(true);
       const uid = headers['user-name'] as string | undefined;
@@ -43,10 +43,7 @@ export default function OnboardingPage() {
   });
 
   useEffect(() => {
-    const items = Array.isArray(messages)
-      ? (messages as unknown as QueueEvent[])
-      : [];
-    const next = items.find(e => typeof e?.paintingId === 'number');
+    const next = events.find(e => typeof e?.paintingId === 'number');
     if (next) {
       setDetected({
         paintingId: next.paintingId,
@@ -58,7 +55,7 @@ export default function OnboardingPage() {
         artId: next.artId,
       });
     }
-  }, [messages]);
+  }, [events]);
 
   useEffect(() => {
     let t: number | undefined;
