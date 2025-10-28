@@ -40,7 +40,6 @@ axiosInstance.interceptors.response.use(
       url.includes('/login') ||
       url.includes('/auth/refresh') ||
       url.includes('/token/refresh');
-
     if (status === 403 && !skipRedirect) {
       const data = error.response?.data;
       const serverMsg = hasMessage(data)
@@ -51,10 +50,7 @@ axiosInstance.interceptors.response.use(
     }
 
     if (status === undefined) {
-      showGlobalToast(
-        '네트워크 오류가 발생했어요. 연결을 확인해 주세요.',
-        'error',
-      );
+      redirectToLogin();
     }
 
     return Promise.reject(error);
