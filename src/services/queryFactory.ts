@@ -144,5 +144,25 @@ const queryFactory = {
       });
       return res.data as RecentViewedPage;
     },
+  visitedCount: () => async (): Promise<number> => {
+    const res = await axiosInstance.get('/api/v1/exhibitions/my/visited/count');
+    const raw = res.data as unknown;
+    if (typeof raw === 'number') return raw;
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      typeof (raw as { result?: unknown }).result === 'number'
+    ) {
+      return (raw as { result: number }).result;
+    }
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      typeof (raw as { count?: unknown }).count === 'number'
+    ) {
+      return (raw as { count: number }).count;
+    }
+    return 0;
+  },
 };
 export default queryFactory;

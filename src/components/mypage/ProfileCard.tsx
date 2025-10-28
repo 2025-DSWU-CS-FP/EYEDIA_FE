@@ -2,10 +2,11 @@ import { IoChevronForward } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
 
 import Logo from '@/assets/icons/main-title.svg?react';
+import useVisitedCount from '@/services/queries/useVisitedCount';
 
 interface ProfileCardProps {
   name: string;
-  exhibitionCount: number;
+  exhibitionCount?: number;
 }
 
 export default function ProfileCard({
@@ -13,6 +14,17 @@ export default function ProfileCard({
   exhibitionCount,
 }: ProfileCardProps) {
   const navigate = useNavigate();
+  const { data } = useVisitedCount();
+
+  let count = 0;
+  if (typeof data === 'number') {
+    count = data;
+  } else if (typeof exhibitionCount === 'number') {
+    count = exhibitionCount;
+  }
+
+  const subtitle = `현재 수집한 전시 ${count}개`;
+
   return (
     <button
       type="button"
@@ -23,9 +35,7 @@ export default function ProfileCard({
         <Logo className="w-[4rem] text-gray-50" />
         <div className="flex flex-col">
           <span className="font-semibold text-gray-80 t3">{name}</span>
-          <span className="font-medium text-gray-60 ct4">
-            현재 수집한 전시 {exhibitionCount}개
-          </span>
+          <span className="font-medium text-gray-60 ct4">{subtitle}</span>
         </div>
       </div>
       <IoChevronForward className="text-gray-80 t3" />
