@@ -14,13 +14,21 @@ import type {
 } from '@/types';
 
 const queryFactory = {
-  chatMessages: (chatRoomId: number) => async (): Promise<ChatMessage[]> => {
+  chatMessages: (paintingId: number) => async (): Promise<ChatMessage[]> => {
     const res = await axiosInstance.get(
-      `/api/v1/paintings/${chatRoomId}/chats`,
+      `/api/v1/paintings/${paintingId}/chats`,
     );
-    return res.data;
+    const raw = res.data as unknown;
+    if (Array.isArray(raw)) return raw as ChatMessage[];
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      Array.isArray((raw as { result?: unknown }).result)
+    ) {
+      return (raw as { result: ChatMessage[] }).result;
+    }
+    return [];
   },
-
   // 전시 검색
   exhibitionSuggest:
     (q: string, limit = 10) =>
