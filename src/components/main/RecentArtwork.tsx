@@ -39,7 +39,7 @@ export default function RecentArtwork({
           <div className="animate-pulse h-[4.8rem] w-4/5 rounded-[6px] bg-gray-20" />
           <div className="animate-pulse h-[1.6rem] w-[8rem] rounded-[6px] bg-gray-20" />
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-10 flex items-start justify-between px-[1.6rem] py-[1.6rem]">
+        <div className="absolute bottom-0 left-0 right-0 z-10 flex items-start justify-between px-[1.6rem] py-[1.4rem]">
           <div className="flex flex-1 flex-col gap-[0.4rem]">
             <div className="animate-pulse h-[2rem] w-1/2 rounded-[6px] bg-gray-20" />
             <div className="animate-pulse h-[1.2rem] w-[6rem] rounded-[6px] bg-gray-20" />
