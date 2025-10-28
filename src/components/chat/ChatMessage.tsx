@@ -29,6 +29,23 @@ export default function ChatMessage({
 
   const hidden = !isFromUser && text.trim().length === 0;
 
+  const findScrollParents = useCallback(
+    (el: HTMLElement | null): HTMLElement[] => {
+      const res: HTMLElement[] = [];
+      let node: HTMLElement | null = el;
+      while (node && node !== document.body) {
+        const style = window.getComputedStyle(node);
+        const oy = style.overflowY;
+        if (oy === 'auto' || oy === 'scroll') res.push(node);
+        node = node.parentElement;
+      }
+      if (document.scrollingElement)
+        res.push(document.scrollingElement as HTMLElement);
+      return res;
+    },
+    [],
+  );
+
   const isSelectionInside = useCallback(
     (sel: Selection | null): sel is Selection => {
       if (!sel || sel.isCollapsed) return false;
@@ -49,21 +66,31 @@ export default function ChatMessage({
     }
     const range = sel.getRangeAt(0);
     const rects = range.getClientRects();
-    const container = containerRef.current;
-    if (!rects.length || !container) return;
+    if (!rects.length) return;
 
-    const lastRect = rects[rects.length - 1];
-    const cRect = container.getBoundingClientRect();
-
+    const last = rects[rects.length - 1]; // ✅ viewport 좌표
     const quote = sel.toString().trim();
     if (!quote) {
       setMenu(null);
       return;
     }
 
-    const top = lastRect.bottom - cRect.top + 6;
-    const leftRaw = lastRect.left - cRect.left;
-    const left = Math.max(8, Math.min(leftRaw, cRect.width - 120));
+    // 화면 밖으로 안 튀게 클램프
+    const MENU_W = 180;
+    const MENU_H = 40;
+    const margin = 8;
+
+    // 아래 공간이 부족하면 위로 띄우기
+    const spaceBelow = window.innerHeight - last.bottom;
+    const placeAbove = spaceBelow < MENU_H + 12;
+
+    const top = placeAbove
+      ? Math.max(margin, last.top - MENU_H - 6)
+      : Math.min(last.bottom + 6, window.innerHeight - MENU_H - margin);
+    const left = Math.max(
+      margin,
+      Math.min(last.left, window.innerWidth - MENU_W - margin),
+    );
 
     setMenu({ top, left, quote });
   }, [isSelectionInside]);
@@ -137,11 +164,30 @@ export default function ChatMessage({
     };
   }, [hidden, scheduleUpdate]);
 
+  useEffect(() => {
+    if (!menu) {
+      return undefined;
+    }
+    const parents = findScrollParents(containerRef.current);
+    const handler = (): void => {
+      scheduleUpdate(0);
+    };
+    window.addEventListener('resize', handler);
+    parents.forEach(p =>
+      p.addEventListener('scroll', handler, { passive: true }),
+    );
+    return () => {
+      window.removeEventListener('resize', handler);
+      parents.forEach(p => p.removeEventListener('scroll', handler));
+    };
+  }, [menu, findScrollParents, scheduleUpdate]);
+
   const toRichHTML = useCallback((value: string) => {
     const escape = (s: string) =>
       s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     let s = escape(value);
+    // **bold**, __bold__, *bold* 지원
     s = s.replace(/\*\*([\s\S]+?)\*\*/g, '<strong>$1</strong>');
     s = s.replace(/__([\s\S]+?)__/g, '<strong>$1</strong>');
     s = s.replace(

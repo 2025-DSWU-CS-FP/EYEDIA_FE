@@ -16,7 +16,8 @@ const loginRoutes: RouteObject[] = [
     path: '/signup',
     element: <Signup />,
   },
-  { path: '/auth/success', element: <OAuthSuccessPage /> },
+  { path: '/auth/naver/callback', element: <OAuthSuccessPage /> },
+  { path: '/auth/google/callback', element: <OAuthSuccessPage /> },
 ];
 
 export default loginRoutes;
