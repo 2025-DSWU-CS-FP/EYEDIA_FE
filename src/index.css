@@ -25,7 +25,6 @@ body {
   width: 100%;
   margin: 0 auto;
   --background: #f5f7f9;
-  box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.2);
   --selection: #d6f5f0;
   --selection-foreground: #000;
   --roller-top: 4rem;

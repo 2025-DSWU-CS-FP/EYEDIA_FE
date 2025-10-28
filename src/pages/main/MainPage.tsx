@@ -6,7 +6,7 @@ import PopularExhibitionSection from '@/components/main/section/PopularExhibitio
 import RecentArtworkSection from '@/components/main/section/RecentArtworkSection';
 import TasteArtworkSection from '@/components/main/section/TasteArtworkSection';
 import UserGreeting from '@/components/main/UserGreeting';
-import { recentArtworks, keywords, tasteArtworks } from '@/mock/mainData';
+import { keywords, tasteArtworks } from '@/mock/mainData';
 import usePopularExhibitionsTop from '@/services/queries/usePopularExhibitionsTop';
 import s3ToHttp from '@/utils/url';
 
@@ -53,7 +53,7 @@ export default function MainPage() {
 
   return (
     <main className="flex min-h-screen w-full justify-center">
-      <div className="flex w-full max-w-[43rem] flex-col gap-10 py-[3rem] pl-[2.7rem]">
+      <div className="flex w-full flex-col gap-10 py-[3rem] pl-[2.7rem]">
         <UserGreeting userName={userName} viewCount={viewCount} />
         <section className="flex flex-col gap-[4rem]">
           <PopularExhibitionSection
@@ -62,7 +62,8 @@ export default function MainPage() {
             onMoreClick={handlePopularMore}
             onSelect={handlePopularSelect}
           />
-          <RecentArtworkSection artworks={recentArtworks} />
+
+          <RecentArtworkSection />
 
           <TasteArtworkSection keywords={keywords} artworks={tasteArtworks} />
         </section>

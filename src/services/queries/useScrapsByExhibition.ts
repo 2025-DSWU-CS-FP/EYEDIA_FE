@@ -4,13 +4,11 @@ import queryFactory from '@/services/queryFactory';
 import type { ScrapItem } from '@/types/scrap';
 
 export default function useScrapsByExhibition(
-  userId: number,
-  location: string,
   options: { enabled?: boolean } = {},
 ) {
   return useQuery<ScrapItem[]>({
-    queryKey: ['scrapsByExhibition', userId, location],
-    queryFn: queryFactory.scrapsByExhibition(userId, location),
+    queryKey: ['scrapsByExhibition'],
+    queryFn: queryFactory.scrapsByExhibition(),
     enabled: options.enabled ?? true,
   });
 }

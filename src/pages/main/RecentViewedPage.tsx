@@ -3,15 +3,15 @@ import { useMemo } from 'react';
 import Empty from '@/components/common/Empty';
 import RecentArtwork from '@/components/main/RecentArtwork';
 import Header from '@/layouts/Header';
-import useRecentViewedArtworks from '@/services/queries/useRecentViewedArtworks';
+import useScrapsByExhibition from '@/services/queries/useScrapsByExhibition';
 import { ensureImage } from '@/utils/image';
 
 export default function RecentViewedPage() {
-  const { data, isFetching, isError } = useRecentViewedArtworks({ limit: 3 });
+  const { data, isFetching, isError } = useScrapsByExhibition();
 
   const items = useMemo(
     () =>
-      (data?.content ?? []).map(it => ({
+      (data ?? []).map(it => ({
         id: String(it.id),
         title: it.title ?? '제목 미상',
         viewDate: it.date,

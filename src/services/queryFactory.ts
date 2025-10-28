@@ -117,13 +117,23 @@ const queryFactory = {
     });
     return res.data.result as MyBadgesResult;
   },
-  scrapsByExhibition:
-    (userId: number, location: string) => async (): Promise<ScrapItem[]> => {
-      const res = await axiosInstance.get(`/api/v1/scraps/list/${userId}`, {
-        params: { location },
-      });
-      return res.data as ScrapItem[];
-    },
+  scrapsByExhibition: () => async (): Promise<ScrapItem[]> => {
+    const res = await axiosInstance.get('/api/v1/scraps/list');
+
+    const raw = res.data as unknown;
+
+    if (Array.isArray(raw)) {
+      return raw as ScrapItem[];
+    }
+    if (
+      raw &&
+      typeof raw === 'object' &&
+      Array.isArray((raw as { result?: unknown }).result)
+    ) {
+      return (raw as { result: ScrapItem[] }).result;
+    }
+    return [];
+  },
 
   recentViewedArtworks:
     (params: { page?: number; limit?: number; sort?: 'recent' } = {}) =>

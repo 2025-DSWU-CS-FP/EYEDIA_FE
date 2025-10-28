@@ -3,7 +3,6 @@ import type { RecentArtworkProps } from '@/types';
 export default function RecentArtwork({
   title,
   viewDate,
-  conversationCount,
   aiMessage,
   imageUrl,
   useGradientBackground,
@@ -47,12 +46,11 @@ export default function RecentArtwork({
       <div className="absolute inset-0 bg-zinc-800/40" />
 
       <div className="absolute left-0 right-0 top-[3rem] z-10 flex flex-col items-center gap-[1rem] px-6">
-        <p className="max-w-[30rem] text-center font-semibold leading-[2.5rem] text-gray-0 t5">
+        <p className="max-w-[30rem] text-center font-semibold leading-[2.5rem] text-gray-0 ct2">
           <span>❝ </span>
           {aiMessage}
           <span> ❞</span>
         </p>
-        <span className="text-gray-0 ct4">-AI의 메세지</span>
       </div>
 
       <div
@@ -61,9 +59,6 @@ export default function RecentArtwork({
         <div className="z-10 flex flex-1 flex-col gap-[0.4rem]">
           <span className={`t5 ${textClass}`}>{title}</span>
           <span className="font-medium text-gray-40 ct5">{viewDate}</span>
-        </div>
-        <div className="z-10 flex items-center rounded-[4px] bg-gray-10 px-[0.8rem] py-[0.4rem] text-gray-50 ct4">
-          {conversationCount}건의 대화
         </div>
       </div>
     </div>

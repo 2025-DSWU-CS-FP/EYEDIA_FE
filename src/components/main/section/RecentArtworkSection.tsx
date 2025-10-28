@@ -6,7 +6,7 @@ import Empty from '@/components/common/Empty';
 import ArtworkCard from '@/components/main/ArtworkCard';
 import RecentArtwork from '@/components/main/RecentArtwork';
 import SectionHeader from '@/components/main/SectionHeader';
-import useRecentViewedArtworks from '@/services/queries/useRecentViewedArtworks';
+import useScrapsByExhibition from '@/services/queries/useScrapsByExhibition';
 import type { RecentArtworkSectionProps } from '@/types';
 import { ensureImage } from '@/utils/image';
 
@@ -24,14 +24,11 @@ export default function RecentArtworkSection({
   const navigate = useNavigate();
 
   const useApi = artworks === undefined;
-  const { data, isFetching, isError } = useRecentViewedArtworks(
-    { limit: 10 },
-    { enabled: useApi },
-  );
+  const { data, isFetching, isError } = useScrapsByExhibition();
 
-  const apiItems = useMemo(
+  const apiItems = useMemo<Item[]>(
     () =>
-      (data?.content ?? []).map(it => ({
+      (data ?? []).slice(0, 5).map(it => ({
         id: String(it.id),
         title: it.title ?? '제목 미상',
         artist: it.artist ?? '작가 미상',
@@ -54,7 +51,7 @@ export default function RecentArtworkSection({
       <RecentArtwork
         key={art.id}
         title={art.title}
-        imageUrl={ensureImage(art.imageUrl)}
+        imageUrl={art.imageUrl}
         viewDate={art.viewDate}
         conversationCount={art.conversationCount ?? 0}
         aiMessage={art.aiMessage}
@@ -64,7 +61,7 @@ export default function RecentArtworkSection({
         key={art.id}
         title={art.title}
         artist={art.artist ?? '작가 미상'}
-        imageUrl={ensureImage(art.imageUrl)}
+        imageUrl={art.imageUrl}
       />
     );
 
