@@ -17,6 +17,12 @@ type Props = {
 
 type Item = NonNullable<RecentArtworkSectionProps['artworks']>[number];
 
+const truncate = (text: string | undefined, max = 150): string | undefined => {
+  if (!text) return text;
+  const t = text.trim();
+  return t.length > max ? `${t.slice(0, max - 1)}…` : t;
+};
+
 export default function RecentArtworkSection({
   artworks,
   isLoading: loadingProp = false,
@@ -30,12 +36,12 @@ export default function RecentArtworkSection({
     () =>
       (data ?? []).slice(0, 5).map(it => ({
         id: String(it.id),
-        title: it.title ?? '제목 미상',
+        title: it.location ?? '제목 미상',
         artist: it.artist ?? '작가 미상',
         imageUrl: ensureImage(it.imageUrl),
         viewDate: it.date,
         conversationCount: 0,
-        aiMessage: it.excerpt,
+        aiMessage: truncate(it.excerpt, 143),
       })),
     [data],
   );

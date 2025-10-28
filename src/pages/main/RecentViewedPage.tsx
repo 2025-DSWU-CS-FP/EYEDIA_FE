@@ -13,7 +13,7 @@ export default function RecentViewedPage() {
     () =>
       (data ?? []).map(it => ({
         id: String(it.id),
-        title: it.title ?? '제목 미상',
+        title: it.location ?? '제목 미상',
         viewDate: it.date,
         conversationCount: 0,
         aiMessage: it.excerpt,
