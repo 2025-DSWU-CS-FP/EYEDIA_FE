@@ -26,6 +26,8 @@ const truncate = (text: string | undefined, max = 150): string | undefined => {
 const displayLocation = (loc?: string): string =>
   loc === 'The_Met' ? 'The Metropolitan Museum of Art' : (loc ?? '제목 미상');
 
+const MAX_SHOW = 3;
+
 export default function RecentArtworkSection({
   artworks,
   isLoading: loadingProp = false,
@@ -37,7 +39,7 @@ export default function RecentArtworkSection({
 
   const apiItems = useMemo<Item[]>(
     () =>
-      (data ?? []).slice(0, 5).map(it => ({
+      (data ?? []).slice(0, MAX_SHOW).map(it => ({
         id: String(it.id),
         title: displayLocation(it.location),
         artist: it.artist ?? '작가 미상',
@@ -49,11 +51,16 @@ export default function RecentArtworkSection({
     [data],
   );
 
-  const list: Item[] = useApi ? apiItems : artworks!;
+  const providedItems = useMemo<Item[]>(
+    () => (artworks ?? []).slice(0, MAX_SHOW),
+    [artworks],
+  );
+
+  const list: Item[] = useApi ? apiItems : providedItems;
   const isLoading = useApi ? isFetching : loadingProp;
   const isEmpty = !isLoading && list.length === 0;
 
-  const skeletonKeys = ['sk-ra-1', 'sk-ra-2', 'sk-ra-3', 'sk-ra-4', 'sk-ra-5'];
+  const skeletonKeys = ['sk-ra-1', 'sk-ra-2', 'sk-ra-3'];
 
   const renderItem = (art: Item) =>
     art.aiMessage ? (
