@@ -6,6 +6,9 @@ import Header from '@/layouts/Header';
 import useScrapsByExhibition from '@/services/queries/useScrapsByExhibition';
 import { ensureImage } from '@/utils/image';
 
+const displayLocation = (loc?: string): string =>
+  loc === 'The_Met' ? 'The Metropolitan Museum of Art' : (loc ?? '제목 미상');
+
 export default function RecentViewedPage() {
   const { data, isFetching, isError } = useScrapsByExhibition();
 
@@ -13,7 +16,7 @@ export default function RecentViewedPage() {
     () =>
       (data ?? []).map(it => ({
         id: String(it.id),
-        title: it.location ?? '제목 미상',
+        title: displayLocation(it.location),
         viewDate: it.date,
         conversationCount: 0,
         aiMessage: it.excerpt,

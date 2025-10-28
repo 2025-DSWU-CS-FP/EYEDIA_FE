@@ -2,9 +2,9 @@ import type { RecentArtworkProps } from '@/types';
 
 const TOP_CLASSES = [
   'top-[9rem] t3',
-  'top-[7rem] t3',
-  'top-[6rem] t5',
-  'top-[4rem] ct1',
+  'top-[6.5rem] t4',
+  'top-[5.5rem] t5',
+  'top-[3.5rem] ct1',
   'top-[3rem] ct2',
 ] as const;
 
@@ -53,7 +53,9 @@ export default function RecentArtwork({
   const backgroundClass = useGradientBackground
     ? 'bg-gradient-to-b from-black/0 to-black'
     : 'bg-gray-0';
-  const textClass = useGradientBackground ? 'text-gray-0' : 'text-gray-100';
+  const textClass = useGradientBackground
+    ? 'bg-gradient-to-r from-rose-100 via-fuchsia-100 to-amber-100 bg-clip-text text-transparent drop-shadow-sm'
+    : 'bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 bg-clip-text text-transparent';
 
   return (
     <section className="relative h-[22rem] min-w-[31.2rem] overflow-hidden rounded-[12px]">
@@ -75,7 +77,7 @@ export default function RecentArtwork({
       >
         <div className="z-10 flex flex-1 flex-col gap-[0.4rem]">
           <span className={`t5 ${textClass}`}>{title}</span>
-          <span className="font-medium text-gray-40 ct5">{viewDate}</span>
+          <span className="font-medium text-gray-20 ct5">{viewDate}</span>
         </div>
       </div>
     </section>
