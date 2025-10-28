@@ -44,6 +44,7 @@ export default function ArtworkPage() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const s = (state ?? {}) as LocationState;
+  const imageInjectedForRef = useRef<Set<number>>(new Set());
 
   const {
     paintingId: initialPaintingId,
@@ -71,7 +72,6 @@ export default function ArtworkPage() {
 
   const { mutate: saveScrap, isPending: saving } = useSaveScrap();
 
-  /* ========= TDZ 회피용 프록시 refs ========= */
   const setLocalMessagesRef = useRef<null | React.Dispatch<
     React.SetStateAction<LocalMsg[]>
   >>(null);
@@ -103,17 +103,14 @@ export default function ArtworkPage() {
     }
   };
 
-  /* ========= onRoomMessage (프록시 사용) ========= */
   const onRoomMessage = useRoomMessageHandler({
     paintingId: initialPaintingId ?? 0,
-    artworkInfo: { imgUrl: artworkInfo.imgUrl },
     processedIdsRef: processedRoomMessageIdsRef,
     setLocalMessages: setLocalMessagesSafe,
     startTypewriter: startTypewriterSafe,
     speak: () => {},
   });
 
-  /* ========= STOMP: 이벤트 큐 → 방 구독 순서 보장 ========= */
   const {
     connected,
     chatMessages: wsMessages,
@@ -125,7 +122,7 @@ export default function ArtworkPage() {
     onRoomMessage,
   });
 
-  /* ========= 채팅/음성 훅 ========= */
+  /* 채팅/음성 훅 */
   const {
     localMessages,
     setLocalMessages,
@@ -144,7 +141,6 @@ export default function ArtworkPage() {
     send,
   });
 
-  /* ========= TTS + 타자 효과 ========= */
   const spokenIdsRef = useRef<Set<string>>(new Set());
   const startTypewriterWithTTS = useCallback(
     (
@@ -163,13 +159,11 @@ export default function ArtworkPage() {
     [speak, startTypewriter, stopTyping],
   );
 
-  /* 실제 구현체를 프록시 ref에 연결 */
   useEffect(() => {
     setLocalMessagesRef.current = setLocalMessages;
     startTypewriterRef.current = startTypewriterWithTTS;
   }, [setLocalMessages, startTypewriterWithTTS]);
 
-  /* ========= WS 메시지 → 렌더용 리스트 ========= */
   const wsList: Array<{
     id: string;
     sender: 'USER' | 'BOT' | 'SYSTEM';
@@ -192,7 +186,18 @@ export default function ArtworkPage() {
     return promptText;
   }, [connected, promptText]);
 
-  /* ========= 발췌 저장 ========= */
+  const injectImageOnce = useCallback(
+    (pid: number, url: string) => {
+      if (imageInjectedForRef.current.has(pid)) return;
+      setLocalMessages(prev => [
+        ...prev,
+        { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: url },
+      ]);
+      imageInjectedForRef.current.add(pid);
+    },
+    [setLocalMessages],
+  );
+
   const lastSaveKeyRef = useRef<string | null>(null);
   const handleSaveExcerpt = (
     raw: string,
@@ -241,24 +246,20 @@ export default function ArtworkPage() {
     );
   };
 
-  /* ========= 자동 첫 질문: paintingId 확정 후 1회 ========= */
   useEffect(() => {
     if (!connected || !resolvedPaintingId || didAutoAskRef.current) return;
+
+    injectImageOnce(resolvedPaintingId, sImgUrl);
+
     didAutoAskRef.current = true;
-
-    setLocalMessages(prev => [
-      ...prev,
-      { id: nanoid(), sender: 'USER', type: 'IMAGE', imageUrl: sImgUrl },
-    ]);
-
     submitAsk('이 그림에 대해 설명해줘', { showUserBubble: false });
   }, [
     connected,
     resolvedPaintingId,
-    submitAsk,
     sImgUrl,
+    injectImageOnce,
     didAutoAskRef,
-    setLocalMessages,
+    submitAsk,
   ]);
 
   return (
