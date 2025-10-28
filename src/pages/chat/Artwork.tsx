@@ -86,7 +86,7 @@ export default function ArtworkPage() {
   });
 
   const spokenIdsRef = useRef<Set<string>>(new Set());
-
+  const lastSaveKeyRef = useRef<string | null>(null);
   const startTypewriterWithTTS = useCallback(
     (
       id: string,
@@ -140,29 +140,49 @@ export default function ArtworkPage() {
     return promptText;
   }, [connected, promptText]);
 
-  const handleSaveExcerpt = () => {
-    const quote = selectionText.trim();
+  const handleSaveExcerpt = (
+    raw: string,
+    { closeOnSuccess }: { closeOnSuccess: boolean },
+  ) => {
+    if (saving) return;
+
+    const quote = raw.trim();
     if (!quote) {
       showToast('저장할 발췌 문구가 없어요.', 'error');
       return;
     }
+    if (quote.length > 500) {
+      showToast('발췌는 최대 500자까지 저장할 수 있어요.', 'error');
+      return;
+    }
+
+    const saveKey = `${paintingId}::${quote}`;
+    if (lastSaveKeyRef.current === saveKey) {
+      showToast('이미 같은 발췌를 저장했어요.', 'info');
+      return;
+    }
+    lastSaveKeyRef.current = saveKey;
+
     saveScrap(
       {
         paintingId,
         date: dateKST(),
         excerpt: quote,
-        location: exhibitionName,
+        location: exhibitionName || '전시',
         artist: artworkInfo.artist,
       },
       {
         onSuccess: res => {
           showToast(res.message || '발췌를 저장했어요.', 'success');
-          setShowExtractCard(false);
+          if (closeOnSuccess) setShowExtractCard(false);
           queryClient.invalidateQueries({ queryKey: ['recentViewedArtworks'] });
           queryClient.invalidateQueries({ queryKey: ['scrapsByExhibition'] });
+          queryClient.invalidateQueries({ queryKey: ['scraps'] });
         },
-        onError: () =>
-          showToast('저장에 실패했어요. 다시 시도해 주세요.', 'error'),
+        onError: () => {
+          showToast('저장에 실패했어요. 다시 시도해 주세요.', 'error');
+          lastSaveKeyRef.current = null;
+        },
       },
     );
   };
@@ -244,6 +264,7 @@ export default function ArtworkPage() {
               onExtract={quote => {
                 setSelectionText(quote);
                 setShowExtractCard(true);
+                handleSaveExcerpt(quote, { closeOnSuccess: false });
               }}
               listRef={listRef}
               endRef={endRef}
@@ -314,7 +335,9 @@ export default function ArtworkPage() {
             quote={selectionText}
             title={artworkInfo.title}
             artist={artworkInfo.artist}
-            onSave={handleSaveExcerpt}
+            onSave={() =>
+              handleSaveExcerpt(selectionText, { closeOnSuccess: true })
+            }
             onShare={() => showToast('공유 기능은 준비 중이에요.', 'info')}
             aria-busy={saving}
             onClose={() => setShowExtractCard(false)}

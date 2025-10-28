@@ -66,6 +66,7 @@ const mutationFactory = {
     const res = await axiosInstance.post('/api/v1/badges/events', data);
     return res.data as CommonResponse;
   },
+
   saveScrap: async (data: SaveScrapRequest): Promise<SaveScrapResponse> => {
     const res = await axiosInstance.post('/api/v1/scraps/save', data);
     const raw = res.data;
