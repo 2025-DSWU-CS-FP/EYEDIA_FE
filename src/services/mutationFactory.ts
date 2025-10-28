@@ -70,8 +70,9 @@ const mutationFactory = {
   saveScrap: async (data: SaveScrapRequest): Promise<SaveScrapResponse> => {
     const res = await axiosInstance.post('/api/v1/scraps/save', data);
     const raw = res.data;
-    if (typeof raw === 'string') return { message: raw };
-    if (raw && typeof raw.message === 'string') return { message: raw.message };
+    if (typeof raw === 'string') return { message: '저장되었습니다.' };
+    if (raw && typeof raw.message === 'string')
+      return { message: '저장되었습니다.' };
     return { message: '저장되었습니다.' };
   },
 };
