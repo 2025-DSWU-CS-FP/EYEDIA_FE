@@ -13,6 +13,13 @@ export type ExhibitionSuggestItem = {
   gallery: string;
 };
 
+export type PaintingListItem = {
+  paintingId: number;
+  image: string;
+  paintingTitle: string;
+  paintingAuthor: string;
+};
+
 export type ExhibitionVisitDetail = {
   exhibitionId: number;
   exhibitionTitle: string;
@@ -21,6 +28,8 @@ export type ExhibitionVisitDetail = {
   exhibitionImage: string;
   exhibitionAuthor: string | null;
   visitedAt: string;
+  bookmark: boolean;
+  paintings: PaintingListItem[];
 };
 
 export type ExhibitionPopularDetail = {

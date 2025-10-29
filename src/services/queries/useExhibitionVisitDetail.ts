@@ -10,8 +10,8 @@ export default function useExhibitionVisitDetail(
   return useQuery<ExhibitionVisitDetail>({
     queryKey: ['exhibitionVisitDetail', exhibitionId],
     queryFn: queryFactory.exhibitionVisitDetail(exhibitionId),
-    enabled: enabled && Number.isFinite(exhibitionId),
-    staleTime: 0,
+    enabled,
+    staleTime: 60_000,
     retry: false,
   });
 }

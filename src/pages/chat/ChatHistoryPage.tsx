@@ -337,11 +337,6 @@ export default function ChatHistoryPage() {
             showToast('음성 입력은 작품 화면에서 지원해요.', 'info');
           }}
         />
-        {!connected && (
-          <p className="mt-2 text-center text-gray-60 ct5">
-            서버와 연결 중입니다…
-          </p>
-        )}
       </footer>
     </section>
   );
