@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import ErrorIcon from '@/assets/icons/error-signup.svg';
 import CustomSelect from '@/components/auth/CustomSelect';
 import SignupSuccess from '@/components/auth/SignupSuccess';
 import StepPreference from '@/components/auth/StepPreference';
@@ -106,10 +107,18 @@ export default function SignupPage() {
             />
             {idError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {idError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.25rem] w-[1.25rem]"
+                    aria-hidden="true"
+                  />
+                  {idError}
+                </span>
               </p>
             )}
           </div>
@@ -123,10 +132,18 @@ export default function SignupPage() {
             />
             {pwError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {pwError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.5rem] w-[1.5rem]"
+                    aria-hidden="true"
+                  />
+                  {pwError}
+                </span>
               </p>
             )}
           </div>
@@ -140,10 +157,18 @@ export default function SignupPage() {
             />
             {pwConfirmError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {pwConfirmError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.5rem] w-[1.5rem]"
+                    aria-hidden="true"
+                  />
+                  {pwConfirmError}
+                </span>
               </p>
             )}
           </div>
@@ -157,10 +182,18 @@ export default function SignupPage() {
             />
             {nameError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-red-500 ct4"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.3rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {nameError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.5rem] w-[1.5rem]"
+                    aria-hidden="true"
+                  />
+                  {nameError}
+                </span>
               </p>
             )}
           </div>
@@ -196,10 +229,18 @@ export default function SignupPage() {
             />
             {ageError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-red-500 ct4"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {ageError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.5rem] w-[1.5rem]"
+                    aria-hidden="true"
+                  />
+                  {ageError}
+                </span>
               </p>
             )}
           </div>
@@ -215,10 +256,18 @@ export default function SignupPage() {
             />
             {genderError && (
               <p
-                className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-red-500 ct5"
+                className="pointer-events-none absolute left-0 top-full translate-y-[0.4rem] pl-[0.5rem] text-[#F66865] ct5"
                 aria-live="polite"
               >
-                {genderError}
+                <span className="flex items-center gap-[0.4rem]">
+                  <img
+                    src={ErrorIcon}
+                    alt=""
+                    className="h-[1.5rem] w-[1.5rem]"
+                    aria-hidden="true"
+                  />
+                  {genderError}
+                </span>
               </p>
             )}
           </div>
@@ -233,7 +282,11 @@ export default function SignupPage() {
           <div className="mt-8 w-full">
             <Button
               onClick={goPreference}
-              className={`w-full py-[1.2rem] text-white ${!canSubmit ? 'bg-gray-30' : 'bg-brand-blue hover:bg-brand-blue/80'}`}
+              className={`w-full py-[1.2rem] text-white ${
+                !canSubmit
+                  ? 'bg-gray-30'
+                  : 'bg-brand-blue hover:bg-brand-blue/80'
+              }`}
               disabled={!canSubmit}
             >
               회원가입

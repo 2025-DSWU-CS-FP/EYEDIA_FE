@@ -38,9 +38,9 @@ export default function PasswordInput({
         aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}
       >
         {showPw ? (
-          <AiOutlineEyeInvisible size={20} />
-        ) : (
           <AiOutlineEye size={20} />
+        ) : (
+          <AiOutlineEyeInvisible size={20} />
         )}
       </button>
       {errorMessage && (
