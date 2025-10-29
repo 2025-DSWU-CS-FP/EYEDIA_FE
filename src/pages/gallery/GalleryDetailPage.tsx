@@ -58,21 +58,14 @@ const pickDisplayDate = (
   return start ? new Date(start) : null;
 };
 
-const fmtDateMonth = (d: Date | null) => {
-  if (!d || Number.isNaN(d.getTime()))
-    return {
-      date: undefined as string | undefined,
-      month: undefined as string | undefined,
-    };
+type YMD = { year: string; month: string; day: string };
+
+const fmtYMD = (d: Date | null): YMD => {
+  if (!d || Number.isNaN(d.getTime())) return { year: '', month: '', day: '' };
   return {
-    date: d.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }),
-    month: new Intl.DateTimeFormat('en', { month: 'short' })
-      .format(d)
-      .toUpperCase(),
+    year: String(d.getFullYear()),
+    month: String(d.getMonth() + 1).padStart(2, '0'),
+    day: String(d.getDate()).padStart(2, '0'),
   };
 };
 
@@ -84,8 +77,9 @@ type CardItem = {
   title: string;
   subTitle: string;
   location: string;
-  date?: string;
+  year?: string;
   month?: string;
+  day?: string;
 };
 
 export default function GalleryDetailPage() {
@@ -195,7 +189,7 @@ export default function GalleryDetailPage() {
 
   const cards: CardItem[] = useMemo(() => {
     const list = detail?.paintings ?? [];
-    const baseDate = fmtDateMonth(
+    const base = fmtYMD(
       pickDisplayDate(detail?.visitedAt, detail?.exhibitionDate),
     );
     const location = detail?.gallery ?? '';
@@ -205,8 +199,9 @@ export default function GalleryDetailPage() {
       title: p.paintingTitle,
       subTitle: p.paintingAuthor,
       location,
-      date: baseDate.date,
-      month: baseDate.month,
+      year: base.year,
+      month: base.month,
+      day: base.day,
     }));
   }, [
     detail?.paintings,
@@ -281,8 +276,9 @@ export default function GalleryDetailPage() {
                         title: art.title,
                         subTitle: art.subTitle,
                         location: art.location,
-                        date: art.date,
+                        year: art.year,
                         month: art.month,
+                        day: art.day,
                       }}
                     />
                   </SwiperSlide>

@@ -11,13 +11,15 @@ interface Props {
     title: string;
     subTitle: string;
     location: string;
-    date?: string;
+    year?: string;
     month?: string;
+    day?: string;
   };
 }
 
 export default function GalleryCardDetail({ data }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const { year, month, day } = data;
 
   return (
     <div className="flex w-full flex-col items-center gap-[5.6rem] px-[2.4rem]">
@@ -46,7 +48,7 @@ export default function GalleryCardDetail({ data }: Props) {
             />
 
             <div className="absolute left-[2.5rem] top-[2.3rem]">
-              <CalendarBox month={data.month} date={data.date} />
+              <CalendarBox year={year} month={month} day={day} />
             </div>
 
             <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem] text-gray-0">
