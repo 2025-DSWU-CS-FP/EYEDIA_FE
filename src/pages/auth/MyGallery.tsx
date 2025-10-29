@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { EffectCoverflow } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import Empty from '@/components/common/Empty';
 import Header from '@/layouts/Header';
 import useScrapsByExhibition from '@/services/queries/useScrapsByExhibition';
 
@@ -55,9 +56,9 @@ export default function MyGalleryPage() {
 
       <section className="relative mx-auto w-full max-w-[43rem] overflow-visible">
         {slides.length === 0 ? (
-          <p className="mx-auto mt-[6rem] text-center text-gray-60 ct4">
-            아직 스크랩이 없어요.
-          </p>
+          <div className="h-[100px]">
+            <Empty title="아직 수집한 전시 작품이 없어요." />
+          </div>
         ) : (
           <div dir="rtl">
             <Swiper
