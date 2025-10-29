@@ -301,6 +301,7 @@ export default function GalleryDetailPage() {
                   >
                     <GalleryCardDetail
                       data={{
+                        paintingId: art.id,
                         imageUrl: art.imageUrl,
                         title: art.title,
                         subTitle: art.subTitle,

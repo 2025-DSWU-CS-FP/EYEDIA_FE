@@ -8,7 +8,7 @@ import ChatInputBar from '@/components/chat/ChatInputBar';
 import MessageList from '@/components/chat/MessageList';
 import Divider from '@/components/mypage/Divider';
 import { useToast } from '@/contexts/ToastContext';
-import useStompChat from '@/hooks/use-stomp-chat';
+import useStompChat from '@/hooks/use-stomp-history-chat';
 import Header from '@/layouts/Header';
 import useChatMessages from '@/services/queries/useChatMessages';
 import type { ChatMessage } from '@/types';
@@ -148,8 +148,8 @@ export default function ChatHistoryPage() {
 
     try {
       const payload = JSON.parse(frame.body) as RoomPayload;
-      if (payload.paintingId !== PAINTING_ID) return;
 
+      // ✅ room/{pid}로 이미 paintingId 스코프가 좁혀져 오므로 추가 필터링 제거
       if (mid) processedRoomMessageIdsRef.current.add(mid);
 
       const v: ViewMessage[] = [];
@@ -324,7 +324,7 @@ export default function ChatHistoryPage() {
           <button
             type="button"
             className="bg-gray-15 active:bg-gray-25 rounded-full px-3 py-1.5 text-gray-80 ct4 hover:bg-gray-20"
-            onClick={() => quickAsk('이 대화의 핵심 키워드 5개만 뽑아줘')}
+            onClick={() => quickAsk('이 작품의 핵심 키워드 5개만 뽑아줘')}
             disabled={!connected}
           >
             키워드 추출

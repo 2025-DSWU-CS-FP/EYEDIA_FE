@@ -85,7 +85,7 @@ const mainRoutes: RouteObject[] = [
     element: <Artwork />,
   },
   {
-    path: 'chat-history',
+    path: 'chat/:id',
     element: <ChatHistory />,
   },
   {

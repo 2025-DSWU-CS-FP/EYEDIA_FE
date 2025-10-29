@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+import { FiMessageCircle } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+
 import MoreIcon from '@/assets/icons/card-more.svg?react';
 import quoteIc from '@/assets/icons/quote.svg';
 import BackCard from '@/assets/images/gallery-back-card.png';
@@ -7,6 +10,7 @@ import CalendarBox from '@/components/gallery/CalendarBox';
 
 interface Props {
   data: {
+    paintingId: number;
     imageUrl: string;
     title: string;
     subTitle: string;
@@ -21,7 +25,11 @@ interface Props {
 export default function GalleryCardDetail({ data }: Props) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { year, month, day } = data;
-
+  const navigate = useNavigate();
+  const goChat = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    navigate(`/chat/${data.paintingId}`);
+  };
   return (
     <div className="flex w-full flex-col items-center gap-[5.6rem] px-[2.4rem]">
       <button
@@ -51,6 +59,14 @@ export default function GalleryCardDetail({ data }: Props) {
             <div className="absolute left-[2.5rem] top-[2.3rem]">
               <CalendarBox year={year} month={month} day={day} />
             </div>
+            <button
+              type="button"
+              onClick={goChat}
+              aria-label="작품 대화로 이동"
+              className="absolute right-[2.0rem] top-[2.0rem] rounded-full bg-black/35 p-[0.8rem] backdrop-blur hover:bg-black/45 focus:outline-none"
+            >
+              <FiMessageCircle className="h-[2.2rem] w-[2.2rem] text-white" />
+            </button>
 
             <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem] text-gray-0">
               <div className="flex items-center justify-between">
