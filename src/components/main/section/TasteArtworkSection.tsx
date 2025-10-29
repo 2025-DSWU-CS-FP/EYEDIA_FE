@@ -92,7 +92,10 @@ export default function TasteArtworkSection({
   }));
 
   return (
-    <section className="flex flex-col gap-[1.6rem]" aria-busy={isLoading}>
+    <section
+      className="flex h-full min-h-[33rem] flex-col gap-[1.6rem]"
+      aria-busy={isLoading}
+    >
       <div className="flex flex-col gap-[0.4rem]">
         <h2 className="text-gray-90 t3">취향 기반 탐색</h2>
         <span className="text-gray-50 ct4">

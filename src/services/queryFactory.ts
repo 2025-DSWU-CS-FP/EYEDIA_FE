@@ -125,6 +125,7 @@ const queryFactory = {
     });
     return res.data.result as MyBadgesResult;
   },
+
   scrapsByExhibition: () => async (): Promise<ScrapItem[]> => {
     const res = await axiosInstance.get('/api/v1/scraps/list');
 
