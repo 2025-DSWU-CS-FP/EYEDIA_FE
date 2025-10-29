@@ -5,6 +5,7 @@ import { Swiper as SwiperClass } from 'swiper';
 import { EffectCoverflow } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+import Empty from '@/components/common/Empty';
 import ExhibitionCard from '@/components/gallery/ExhibitionCard';
 import ExhibitionInfoCard from '@/components/gallery/ExhibitionInfoCard';
 import GalleryCardDetail from '@/components/gallery/GalleryCardDetail';
@@ -14,6 +15,7 @@ import Header from '@/layouts/Header';
 import useAddBookmark from '@/services/mutations/useAddBookmark';
 import useRemoveBookmark from '@/services/mutations/useRemoveBookmark';
 import useExhibitionVisitDetail from '@/services/queries/useExhibitionVisitDetail';
+import cn from '@/utils/cn';
 import s3ToHttp from '@/utils/url';
 
 import 'swiper/css';
@@ -243,10 +245,15 @@ export default function GalleryDetailPage() {
         {selectedIndex === null ? (
           <>
             <div className="px-[2.4rem]">{infoNode}</div>
-            <div className="grid grid-cols-2 gap-[1.2rem] px-[2.4rem]">
+            <div
+              className={cn(
+                cards.length === 0 ? 'grid grid-cols-1' : 'grid grid-cols-2',
+                'gap-[1.2rem] px-[2.4rem]',
+              )}
+            >
               {cards.length === 0 ? (
-                <div className="col-span-2 rounded-[12px] bg-gray-5 p-[1.2rem] text-gray-60 t4">
-                  등록된 작품이 없어요.
+                <div className="py-[5rem]">
+                  <Empty title="등록된 작품이 없어요." />
                 </div>
               ) : (
                 cards.map(art => (
