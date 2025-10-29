@@ -2,9 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
-import popular1 from '@/assets/images/sample/main-popular1.png';
-import popular2 from '@/assets/images/sample/main-popular2.png';
-import popular3 from '@/assets/images/sample/main-popular3.png';
+import Empty from '@/components/common/Empty';
 import SearchBar from '@/components/common/SearchBar';
 import ExhibitionGrid from '@/components/gallery/ExhibitionGrid';
 import FilterButtons from '@/components/gallery/FilterButtons';
@@ -13,42 +11,14 @@ import Header from '@/layouts/Header';
 import useExhibitionVisit from '@/services/queries/useExhibitionVisit';
 import s3ToHttp from '@/utils/url';
 
-const exhibitionsData = [
-  {
-    id: '1',
-    title: '요시고 사진전',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular1,
-    artworkCount: 9,
-    date: '2024-10-01',
-  },
-  {
-    id: '2',
-    title: '이경준 사진전 부산',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular2,
-    artworkCount: 5,
-    date: '2024-09-20',
-  },
-  {
-    id: '3',
-    title: '요시고 사진전',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular3,
-    artworkCount: 9,
-    date: '2024-09-25',
-  },
-  {
-    id: '4',
-    title: '이경준 사진전 부산',
-    location: '서울시립미술관 서소문본관',
-    imageUrl: popular2,
-    artworkCount: 5,
-    date: '2024-08-30',
-  },
-];
-
-type GridItem = (typeof exhibitionsData)[number];
+type GridItem = {
+  id: string;
+  title: string;
+  location: string;
+  imageUrl: string;
+  artworkCount: number;
+  date: string;
+};
 
 type VisitItem = {
   exhibitionId: number;
@@ -84,6 +54,7 @@ export default function GalleryPage() {
   const navigate = useNavigate();
   const handleSelect = (id: number | string) => navigate(`/gallery/${id}`);
 
+  // 부드러운 첫 진입 로딩
   const [bootLoading, setBootLoading] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setBootLoading(false), 300);
@@ -100,15 +71,14 @@ export default function GalleryPage() {
     true,
   );
 
-  const base: GridItem[] = useMemo(() => {
+  const gridItems: GridItem[] = useMemo(() => {
     const visitItems = visitPage?.items as VisitItem[] | undefined;
-    const fromVisit = toGridFromVisit(visitItems);
-    return fromVisit.length > 0 ? fromVisit : exhibitionsData;
+    return toGridFromVisit(visitItems);
   }, [visitPage]);
 
   const exhibitionsForGrid = useMemo(() => {
     const isPlaceholder = (d: string) => d === '2010-01-01';
-    return [...base].sort((a, b) => {
+    return [...gridItems].sort((a, b) => {
       const aPh = isPlaceholder(a.date);
       const bPh = isPlaceholder(b.date);
       if (aPh !== bPh) return aPh ? 1 : -1;
@@ -116,9 +86,33 @@ export default function GalleryPage() {
       const db = new Date(b.date).getTime();
       return sort === '최신순' ? db - da : da - db;
     });
-  }, [base, sort]);
+  }, [gridItems, sort]);
 
   const isLoading = bootLoading || isVisitFetching;
+  const hasData = exhibitionsForGrid.length > 0;
+
+  let gridContent: React.ReactNode;
+  if (isLoading) {
+    gridContent = (
+      <ExhibitionGrid onSelect={handleSelect} exhibitions={[]} isLoading />
+    );
+  } else if (hasData) {
+    gridContent = (
+      <ExhibitionGrid
+        onSelect={handleSelect}
+        exhibitions={exhibitionsForGrid}
+      />
+    );
+  } else {
+    gridContent = (
+      <div className="py-[10rem]">
+        <Empty
+          title="아직 즐겨 찾는 전시가 없어요."
+          description="좋아하는 전시를 추가해 보세요."
+        />
+      </div>
+    );
+  }
 
   return (
     <main
@@ -144,11 +138,7 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      <ExhibitionGrid
-        onSelect={handleSelect}
-        exhibitions={exhibitionsForGrid}
-        isLoading={isLoading}
-      />
+      {gridContent}
     </main>
   );
 }
