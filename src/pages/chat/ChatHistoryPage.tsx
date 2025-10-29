@@ -1,8 +1,7 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from 'react';
-
 import type { IMessage } from '@stomp/stompjs';
 import { nanoid } from 'nanoid';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import ChatInputBar from '@/components/chat/ChatInputBar';
 import MessageList from '@/components/chat/MessageList';
@@ -13,8 +12,6 @@ import Header from '@/layouts/Header';
 import useChatMessages from '@/services/queries/useChatMessages';
 import type { ChatMessage } from '@/types';
 import getAuthToken from '@/utils/getToken';
-
-const PAINTING_ID = 419;
 
 const h32 = (s: string): string => {
   const MOD = 0x100000000;
@@ -48,11 +45,10 @@ const isImageUrl = (s: string): boolean => {
   }
 };
 
-const URL_RE: RegExp =
+const URL_RE =
   /(https?:\/\/[^\s)'"<>]+?\.(?:jpg|jpeg|png|webp|gif|svg))(?![^\s])/gi;
 
 type Part = { kind: 'url' | 'text'; value: string };
-
 export const extractParts = (text: string): Part[] => {
   const parts: Part[] = [];
   let lastIndex = 0;
@@ -84,13 +80,13 @@ type ViewMessage = {
 };
 
 const adaptMany = (m: ChatMessage, seq: number): ViewMessage[] => {
-  const sender = mapSender((m as unknown as { sender?: string }).sender);
-  const content = (m as unknown as { content?: string }).content ?? '';
-  const createdAt = (m as unknown as { createdAt?: string }).createdAt ?? '';
+  const sender = mapSender((m as any).sender);
+  const content = (m as any).content ?? '';
+  const createdAt = (m as any).createdAt ?? '';
 
   const baseId =
-    (m as unknown as { id?: string | number }).id !== undefined
-      ? `hist-${String((m as unknown as { id?: string | number }).id)}`
+    (m as any).id !== undefined
+      ? `hist-${String((m as any).id)}`
       : `hist-${makeStableId(sender, createdAt, content)}-${seq}`;
 
   const parts = extractParts(content);
@@ -124,13 +120,35 @@ type RoomPayload = {
   audioUrl?: string | null;
 };
 
+type ChatState = {
+  paintingId?: number;
+  title?: string;
+  author?: string;
+  imageUrl?: string;
+};
+
 export default function ChatHistoryPage() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const listRef = useRef<HTMLDivElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, isError } = useChatMessages(PAINTING_ID);
+  // ✅ location.state만 사용
+  const { state } = useLocation() as { state?: ChatState };
+
+  const paintingId = useMemo<number | null>(() => {
+    const n = Number(state?.paintingId);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }, [state?.paintingId]);
+
+  // ✅ 조회 먼저 (state 없으면 아예 요청 X)
+  const { data, isLoading, isError, isSuccess } = useChatMessages(
+    paintingId ?? undefined,
+    { enabled: paintingId !== null },
+  );
+
+  const readyForWs = paintingId !== null && (isSuccess || isError);
+
   const historyList = useMemo(
     () => (data ?? []).flatMap((m, i) => adaptMany(m, i)),
     [data],
@@ -142,14 +160,18 @@ export default function ChatHistoryPage() {
   const [localMsgs, setLocalMsgs] = useState<ViewMessage[]>([]);
   const [connectedOnce, setConnectedOnce] = useState(false);
 
+  // 방 바뀔 때(=state 바뀔 때) 초기화
+  useEffect(() => {
+    setRoomAppends([]);
+    processedRoomMessageIdsRef.current = new Set();
+  }, [paintingId]);
+
   const onRoomMessage = useCallback((frame: IMessage) => {
     const mid = frame.headers['message-id'] ?? '';
     if (mid && processedRoomMessageIdsRef.current.has(mid)) return;
 
     try {
       const payload = JSON.parse(frame.body) as RoomPayload;
-
-      // ✅ room/{pid}로 이미 paintingId 스코프가 좁혀져 오므로 추가 필터링 제거
       if (mid) processedRoomMessageIdsRef.current.add(mid);
 
       const v: ViewMessage[] = [];
@@ -170,22 +192,18 @@ export default function ChatHistoryPage() {
           content: txt,
         });
       }
-
-      if (v.length > 0) {
-        setRoomAppends(prev => [...prev, ...v]);
-      }
-    } catch {
-      /*  */
-    }
+      if (v.length > 0) setRoomAppends(prev => [...prev, ...v]);
+    } catch {}
   }, []);
 
+  // ✅ 조회 이후에만 WS 연결
   const {
     connected,
     chatMessages: wsChats,
     send,
     resolvedPaintingId,
   } = useStompChat({
-    paintingId: PAINTING_ID,
+    paintingId: readyForWs ? (paintingId ?? undefined) : undefined,
     token,
     onRoomMessage,
     topic: '/queue/events',
@@ -223,14 +241,15 @@ export default function ChatHistoryPage() {
   );
 
   useEffect(() => {
-    if (!endRef.current) return;
-    endRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [wsList.length]);
 
   const handleSend = useCallback(
     (raw: string) => {
       const text = raw.trim();
       if (!text) return;
+      if (!readyForWs || !connected) return;
+
       setLocalMsgs(prev => [
         ...prev,
         {
@@ -242,15 +261,15 @@ export default function ChatHistoryPage() {
       ]);
       send(text);
     },
-    [send],
+    [send, readyForWs, connected],
   );
 
   const quickAsk = useCallback(
     (q: string) => {
       handleSend(q);
-      showToast('요청을 보냈어요.', 'info');
+      if (readyForWs && connected) showToast('요청을 보냈어요.', 'info');
     },
-    [handleSend, showToast],
+    [handleSend, showToast, readyForWs, connected],
   );
 
   return (
@@ -264,26 +283,37 @@ export default function ChatHistoryPage() {
         <div className="px-[2.3rem] pb-[1rem]">
           <h1 className="t3">채팅 기록</h1>
           <p className="text-gray-70 ct5">
-            작품 ID {resolvedPaintingId ?? PAINTING_ID}
+            {/* 헤더 표시는 state 보조 메타 활용 */}
+            {state?.title ? `${state.title} · ${state.author ?? ''}` : '작품'}
+            {`  (ID ${resolvedPaintingId ?? paintingId ?? '-'})`}
             {!connected && connectedOnce && ' · (재연결 중)'}
           </p>
         </div>
         <Divider />
       </header>
 
-      {isLoading && (
+      {/* state에 paintingId가 없으면 아무 것도 안 함 */}
+      {paintingId === null && (
+        <main className="flex flex-1 items-center justify-center">
+          <p className="text-brand-red ct3">
+            잘못된 접근이에요. 작품 화면에서 다시 시도해주세요.
+          </p>
+        </main>
+      )}
+
+      {paintingId !== null && isLoading && (
         <main className="flex flex-1 items-center justify-center">
           <p className="text-gray-60 ct3">기록을 불러오는 중…</p>
         </main>
       )}
 
-      {isError && (
+      {paintingId !== null && isError && (
         <main className="flex flex-1 items-center justify-center">
           <p className="text-brand-red ct3">기록을 불러오지 못했어요.</p>
         </main>
       )}
 
-      {!isLoading && !isError && (
+      {paintingId !== null && !isLoading && !isError && (
         <main className="flex flex-1">
           {wsList.length === 0 ? (
             <div className="mx-auto flex w-full max-w-[43rem] flex-1 items-center justify-center px-[2rem]">
@@ -317,7 +347,7 @@ export default function ChatHistoryPage() {
             type="button"
             className="bg-gray-15 active:bg-gray-25 rounded-full px-3 py-1.5 text-gray-80 ct4 hover:bg-gray-20"
             onClick={() => quickAsk('최근 답변을 3줄로 요약해줘')}
-            disabled={!connected}
+            disabled={!connected || !readyForWs}
           >
             요약 요청
           </button>
@@ -325,7 +355,7 @@ export default function ChatHistoryPage() {
             type="button"
             className="bg-gray-15 active:bg-gray-25 rounded-full px-3 py-1.5 text-gray-80 ct4 hover:bg-gray-20"
             onClick={() => quickAsk('이 작품의 핵심 키워드 5개만 뽑아줘')}
-            disabled={!connected}
+            disabled={!connected || !readyForWs}
           >
             키워드 추출
           </button>
@@ -336,6 +366,7 @@ export default function ChatHistoryPage() {
           onMicClick={() => {
             showToast('음성 입력은 작품 화면에서 지원해요.', 'info');
           }}
+          disabled={!connected || !readyForWs}
         />
       </footer>
     </section>

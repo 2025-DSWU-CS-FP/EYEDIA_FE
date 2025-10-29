@@ -28,7 +28,14 @@ export default function GalleryCardDetail({ data }: Props) {
   const navigate = useNavigate();
   const goChat = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    navigate(`/chat/${data.paintingId}`);
+    navigate(`/chat/${data.paintingId}`, {
+      state: {
+        paintingId: data.paintingId,
+        title: data.title,
+        author: data.subTitle,
+        imageUrl: data.imageUrl,
+      },
+    });
   };
   return (
     <div className="flex w-full flex-col items-center gap-[5.6rem] px-[2.4rem]">
