@@ -112,7 +112,6 @@ export default function LoginPage() {
         },
         onError: () => {
           showToast('아이디 혹은 비밀번호를 잘못 입력하였습니다.', 'error');
-          setPwError('아이디 또는 비밀번호가 올바르지 않습니다.');
           setIsSubmitting(false);
         },
       },
