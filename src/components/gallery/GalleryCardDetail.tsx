@@ -14,6 +14,7 @@ interface Props {
     year?: string;
     month?: string;
     day?: string;
+    tagline: string;
   };
 }
 
@@ -55,7 +56,7 @@ export default function GalleryCardDetail({ data }: Props) {
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-[0.2rem] text-left">
                   <p className="bd2">{data.location}</p>
-                  <p className="font-bold t2">{data.subTitle}</p>
+                  <p className="font-bold t3">{data.title}</p>
                 </div>
                 <MoreIcon className="w-[2.4rem]" />
               </div>
@@ -74,9 +75,9 @@ export default function GalleryCardDetail({ data }: Props) {
             <div className="flex h-full w-full flex-col items-center justify-center gap-[1.6rem] px-[3.5rem] text-[#347EB5]">
               <img src={quoteIc} alt="quote" className="w-[3.2rem]" />
               <span className="leading-relaxed t3">
-                수영하는 풍경, 그곳을 보고 나는 떠나기로 결심했다.
+                <span className="leading-relaxed t3">{data.tagline}</span>
               </span>
-              <span className="ct1">- 요시고</span>
+              <span className="ct1">- {data.subTitle}</span>
             </div>
           </div>
         </div>

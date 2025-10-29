@@ -80,6 +80,27 @@ type CardItem = {
   year?: string;
   month?: string;
   day?: string;
+  tagline: string;
+};
+
+const TAGLINES: Record<string, string> = {
+  degas: '리허설의 긴장과 호흡, 무용수의 순간을 붙잡다.',
+  monet: '바람과 빛이 스쳐 지나가는 한순간의 공기.',
+  latour: '명암 속에 숨은 속임수, 교차하는 시선의 심리전.',
+};
+const pickTagline = (title: string): string => {
+  const t = title.toLowerCase();
+  if (t.includes('dance class') || t.includes('무용수업'))
+    return TAGLINES.degas;
+  if (t.includes('woman with a parasol') || t.includes('양산을 쓴 여인'))
+    return TAGLINES.monet;
+  if (
+    t.includes('card sharp') ||
+    t.includes('사기꾼') ||
+    t.includes('ace of diamonds')
+  )
+    return TAGLINES.latour;
+  return '작품이 전하는 감각을 당신의 시선으로 완성하세요.';
 };
 
 export default function GalleryDetailPage() {
@@ -202,6 +223,7 @@ export default function GalleryDetailPage() {
       year: base.year,
       month: base.month,
       day: base.day,
+      tagline: pickTagline(p.paintingTitle),
     }));
   }, [
     detail?.paintings,
@@ -279,6 +301,7 @@ export default function GalleryDetailPage() {
                         year: art.year,
                         month: art.month,
                         day: art.day,
+                        tagline: art.tagline,
                       }}
                     />
                   </SwiperSlide>
