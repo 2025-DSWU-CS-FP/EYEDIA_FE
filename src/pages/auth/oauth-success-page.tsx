@@ -10,16 +10,33 @@ function toBool(v: string | null): boolean | undefined {
   return undefined;
 }
 
+function readHashParam(name: string): string | null {
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  if (!hash || !hash.startsWith('#')) return null;
+  const sp = new URLSearchParams(hash.slice(1));
+  return sp.get(name);
+}
+
 export default function OAuthSuccessPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   useEffect(() => {
-    const token = params.get('token');
-    const name = params.get('name');
-    const mvc = params.get('monthlyVisitCount');
-    const firstLogin = toBool(params.get('firstLogin'));
+    const token = params.get('token') ?? readHashParam('token');
+    const name = params.get('name') ?? readHashParam('name');
+    const mvc =
+      params.get('monthlyVisitCount') ?? readHashParam('monthlyVisitCount');
+    const firstLogin = toBool(
+      params.get('firstLogin') ?? readHashParam('firstLogin'),
+    );
+
+    const err = params.get('error') ?? readHashParam('error');
+    if (err) {
+      showToast(`소셜 로그인 실패: ${err}`, 'error');
+      navigate('/login', { replace: true });
+      return;
+    }
 
     if (!token) {
       showToast(
@@ -36,8 +53,12 @@ export default function OAuthSuccessPage() {
       if (mvc && /^\d+$/.test(mvc))
         localStorage.setItem('monthlyVisitCount', mvc);
 
-      showToast('로그인에 성공했습니다!', 'success');
-      navigate(firstLogin ? '/landing' : '/', { replace: true });
+      if (typeof window !== 'undefined') {
+        const clean = firstLogin ? '/landing' : '/';
+        window.history.replaceState(null, '', clean);
+        showToast('로그인에 성공했습니다!', 'success');
+        navigate(firstLogin ? '/landing' : '/', { replace: true });
+      }
     } catch {
       showToast(
         '로그인 정보를 저장할 수 없습니다. 브라우저 설정을 확인해 주세요.',
@@ -47,9 +68,5 @@ export default function OAuthSuccessPage() {
     }
   }, [navigate, params, showToast]);
 
-  return (
-    <main className="grid min-h-dvh place-items-center bg-gray-5">
-      <p className="text-gray-70 ct3">로그인 처리 중…</p>
-    </main>
-  );
+  return <main className="grid min-h-dvh place-items-center bg-gray-5" />;
 }
