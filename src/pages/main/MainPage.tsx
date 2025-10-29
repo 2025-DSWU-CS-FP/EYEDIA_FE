@@ -6,8 +6,9 @@ import PopularExhibitionSection from '@/components/main/section/PopularExhibitio
 import RecentArtworkSection from '@/components/main/section/RecentArtworkSection';
 import TasteArtworkSection from '@/components/main/section/TasteArtworkSection';
 import UserGreeting from '@/components/main/UserGreeting';
-import { keywords, tasteArtworks } from '@/mock/mainData';
 import usePopularExhibitionsTop from '@/services/queries/usePopularExhibitionsTop';
+import useRecommendExhibitions from '@/services/queries/useRecommendExhibitions';
+import useTasteKeywords from '@/services/queries/useTasteKeywords';
 import s3ToHttp from '@/utils/url';
 
 export default function MainPage() {
@@ -50,6 +51,28 @@ export default function MainPage() {
   const handlePopularMore = () => navigate('/popular-exhibition');
   const handlePopularSelect = (id: number | string) =>
     navigate(`/popular/${id}`);
+  const { data: tasteKeywords = [] } = useTasteKeywords();
+
+  const [selectedKeyword, setSelectedKeyword] = useState<string | null>(null);
+  useEffect(() => {
+    if (!selectedKeyword && tasteKeywords.length > 0) {
+      setSelectedKeyword(tasteKeywords[0].id);
+    }
+  }, [tasteKeywords, selectedKeyword]);
+
+  const { data: recExhibitions = [] } =
+    useRecommendExhibitions(selectedKeyword);
+
+  const tasteArtworks = useMemo(
+    () =>
+      recExhibitions.map(e => ({
+        id: e.id,
+        title: e.title,
+        artist: e.artist,
+        thumbnailUrl: s3ToHttp(e.thumbnailUrl ?? e.imageUrl ?? ''),
+      })),
+    [recExhibitions],
+  );
 
   return (
     <main className="flex min-h-screen w-full justify-center">
@@ -65,7 +88,14 @@ export default function MainPage() {
 
           <RecentArtworkSection />
 
-          <TasteArtworkSection keywords={keywords} artworks={tasteArtworks} />
+          <TasteArtworkSection
+            keywords={tasteKeywords.map(k => ({
+              ...k,
+              isSelected: k.id === selectedKeyword,
+            }))}
+            artworks={tasteArtworks}
+            onKeywordSelect={(id: string) => setSelectedKeyword(id)}
+          />
         </section>
       </div>
     </main>

@@ -11,8 +11,8 @@ interface PopularExhibitionItem {
 interface PopularExhibitionSectionProps {
   exhibitions: PopularExhibitionItem[];
   isLoading?: boolean;
-  onMoreClick?: () => void; // ⬅️ 상위에서 받음
-  onSelect?: (id: number | string) => void; // ⬅️ 상위에서 받음
+  onMoreClick?: () => void;
+  onSelect?: (id: number | string) => void;
 }
 
 export default function PopularExhibitionSection({
