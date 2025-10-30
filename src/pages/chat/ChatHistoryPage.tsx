@@ -142,7 +142,6 @@ function adaptMany(m: ChatMessage, seq: number): ViewMessage[] {
   return out;
 }
 
-// -------------------- page state types --------------------
 type RoomPayload = {
   paintingId: number;
   answer?: string | null;
@@ -158,7 +157,6 @@ type ChatState = {
   imageUrl?: string;
 };
 
-// -------------------- component --------------------
 export default function ChatHistoryPage(): JSX.Element {
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -166,6 +164,8 @@ export default function ChatHistoryPage(): JSX.Element {
   const endRef = useRef<HTMLDivElement>(null);
 
   const { state } = useLocation() as { state?: ChatState };
+
+  const didInitialScrollRef = useRef(false);
 
   const paintingId = useMemo(
     function getPid(): number | null {
@@ -179,7 +179,6 @@ export default function ChatHistoryPage(): JSX.Element {
   const { data, isError } = queryResult;
   const isSuccess = (queryResult as { isSuccess?: boolean }).isSuccess === true;
 
-  // 3) 조회 이후에만 WS 연결
   const readyForWs = paintingId !== null && (isSuccess || isError);
 
   const historyList = useMemo(
@@ -199,7 +198,6 @@ export default function ChatHistoryPage(): JSX.Element {
   const processedRoomMessageIdsRef = useRef<Set<string>>(new Set());
   const [roomAppends, setRoomAppends] = useState<ViewMessage[]>([]);
   const [localMsgs, setLocalMsgs] = useState<ViewMessage[]>([]);
-  const [connectedOnce, setConnectedOnce] = useState(false);
 
   useEffect(
     function resetOnRoomChange() {
@@ -212,8 +210,6 @@ export default function ChatHistoryPage(): JSX.Element {
   const onRoomMessage = useCallback(function onRoomMessage(
     frame: IMessage,
   ): void {
-    // 하이픈 키는 dot-notation 예외가 필요함
-    // eslint-disable-next-line @typescript-eslint/dot-notation
     const mid = frame.headers['message-id'] ?? '';
     if (mid && processedRoomMessageIdsRef.current.has(mid)) return;
 
@@ -245,7 +241,7 @@ export default function ChatHistoryPage(): JSX.Element {
         });
       }
     } catch {
-      // ignore
+      //
     }
   }, []);
 
@@ -256,14 +252,7 @@ export default function ChatHistoryPage(): JSX.Element {
     topic: '/queue/events',
   });
 
-  const { connected, chatMessages: wsChats, send, resolvedPaintingId } = ws;
-
-  useEffect(
-    function markConnected() {
-      if (connected) setConnectedOnce(true);
-    },
-    [connected],
-  );
+  const { connected, chatMessages: wsChats, send } = ws;
 
   const wsTextList = useMemo(
     function buildWsList(): ViewMessage[] {
@@ -324,9 +313,27 @@ export default function ChatHistoryPage(): JSX.Element {
   );
 
   useEffect(
-    function scrollToEnd() {
-      if (endRef.current)
-        endRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    function autoScrollOnListChange() {
+      let tid: ReturnType<typeof setTimeout> | null = null;
+
+      if (endRef.current) {
+        tid = setTimeout(function run() {
+          endRef.current?.scrollIntoView({
+            behavior: didInitialScrollRef.current ? 'smooth' : 'auto',
+            block: 'end',
+          });
+
+          if (!didInitialScrollRef.current) {
+            didInitialScrollRef.current = true;
+          }
+        }, 0);
+      }
+
+      return function cleanup() {
+        if (tid !== null) {
+          clearTimeout(tid);
+        }
+      };
     },
     [wsList.length],
   );
@@ -367,17 +374,15 @@ export default function ChatHistoryPage(): JSX.Element {
   const handleSummary = useCallback(
     function handleSummary(): void {
       handleSend('최근 답변을 3줄로 요약해줘');
-      if (readyForWs && connected) showToast('요청을 보냈어요.', 'info');
     },
-    [handleSend, readyForWs, connected, showToast],
+    [handleSend],
   );
 
   const handleKeywords = useCallback(
     function handleKeywords(): void {
       handleSend('이 작품의 핵심 키워드 5개만 뽑아줘');
-      if (readyForWs && connected) showToast('요청을 보냈어요.', 'info');
     },
-    [handleSend, readyForWs, connected, showToast],
+    [handleSend],
   );
 
   const handleExtract = useCallback(
@@ -388,7 +393,6 @@ export default function ChatHistoryPage(): JSX.Element {
     [showToast],
   );
 
-  // -------------------- render --------------------
   return (
     <section className="relative mx-auto flex min-h-dvh w-full max-w-[43rem] flex-col bg-gray-5 text-gray-100">
       <header className="border-b-1 sticky top-0 z-[1] w-full border-gray-10 bg-gray-5">
@@ -398,12 +402,8 @@ export default function ChatHistoryPage(): JSX.Element {
           backgroundColorClass="bg-gray-5"
         />
         <div className="px-[2.3rem] pb-[1rem]">
-          <h1 className="t3">채팅 기록</h1>
-          <p className="text-gray-70 ct5">
-            {state?.title ? `${state.title} · ${state.author ?? ''}` : '작품'}
-            {`  (ID ${resolvedPaintingId ?? paintingId ?? '-'})`}
-            {!connected && connectedOnce ? ' · (재연결 중)' : ''}
-          </p>
+          <h1 className="t3">{state?.title ? `${state.title}` : '작품'}</h1>
+          <p className="text-gray-70 ct5">{state?.author ?? ''}</p>
         </div>
         <Divider />
       </header>
@@ -414,7 +414,10 @@ export default function ChatHistoryPage(): JSX.Element {
             <p className="text-gray-60 ct3">아직 채팅 기록이 없어요.</p>
           </div>
         ) : (
-          <div className="mx-auto flex w-full max-w-[43rem] flex-1 flex-col">
+          <div
+            ref={listRef}
+            className="mx-auto flex w-full max-w-[43rem] flex-1 flex-col"
+          >
             <MessageList
               wsList={wsList}
               localMessages={[]}
@@ -423,7 +426,7 @@ export default function ChatHistoryPage(): JSX.Element {
               listRef={listRef}
               endRef={endRef}
             />
-            <div ref={endRef} className="h-0" />
+            <div ref={endRef} className="h-[12rem]" />
           </div>
         )}
       </main>
