@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 
 import { useParams } from 'react-router-dom';
-import { Swiper as SwiperClass } from 'swiper';
-import { EffectCoverflow } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
 
 import ExhibitionCard from '@/components/gallery/ExhibitionCard';
 import ExhibitionInfoCard from '@/components/gallery/ExhibitionInfoCard';
 import GalleryCardDetail from '@/components/gallery/GalleryCardDetail';
-import IndicatorDots from '@/components/gallery/IndicatorDots';
 import { useToast } from '@/contexts/ToastContext';
 import Header from '@/layouts/Header';
 import useAddBookmark from '@/services/mutations/useAddBookmark';
@@ -17,15 +13,12 @@ import useExhibitionVisitDetail from '@/services/queries/useExhibitionVisitDetai
 import cn from '@/utils/cn';
 import s3ToHttp from '@/utils/url';
 
-import 'swiper/css';
-import 'swiper/css/effect-coverflow';
+/* ---------------- util helpers (동일) ---------------- */
 
 type Rec = Record<string, unknown>;
 
 function asRecord(v: unknown): Rec | undefined {
-  if (v && typeof v === 'object') {
-    return v as Rec;
-  }
+  if (v && typeof v === 'object') return v as Rec;
   return undefined;
 }
 
@@ -49,7 +42,7 @@ function countGraphemes(s: string): number {
       return Array.from(seg.segment(s)).length;
     }
   } catch {
-    /*  */
+    /* ignore */
   }
   return Array.from(s).length;
 }
@@ -149,6 +142,85 @@ function mapPaintingsToCards(
   }));
 }
 
+function ListSection({
+  infoNode,
+  visibleCards,
+  sortedCardsLength,
+  loadMoreRef,
+  onCardClick,
+}: {
+  infoNode: React.ReactNode;
+  visibleCards: CardItem[];
+  sortedCardsLength: number;
+  loadMoreRef: React.RefObject<HTMLDivElement>;
+  onCardClick: (id: number) => void;
+}) {
+  return (
+    <>
+      <div className="px-[2.4rem]">{infoNode}</div>
+
+      <div
+        className={cn(
+          visibleCards.length === 0 ? 'grid grid-cols-1' : 'grid grid-cols-2',
+          'gap-[1.2rem] px-[2.4rem]',
+        )}
+      >
+        {visibleCards.map(art => (
+          <ExhibitionCard
+            key={art.id}
+            imageUrl={art.imageUrl}
+            title={art.title}
+            subTitle={art.subTitle}
+            showArrow
+            onClick={() => onCardClick(art.id)}
+            isSelected={false}
+          />
+        ))}
+
+        <div
+          ref={loadMoreRef}
+          className="col-span-2 flex w-full items-center justify-center py-[2rem]"
+          aria-hidden="true"
+        >
+          {visibleCards.length < sortedCardsLength && (
+            <div className="text-gray-50 ct4" />
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function DetailSection({ card }: { card: CardItem | null }) {
+  if (!card) {
+    return (
+      <div className="px-[2.4rem] pt-[4rem] text-gray-50 ct4">
+        이 작품 정보를 불러오지 못했어요.
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full px-[2.4rem] pt-[4rem]">
+      <GalleryCardDetail
+        data={{
+          paintingId: card.id,
+          imageUrl: card.imageUrl,
+          title: card.title,
+          subTitle: card.subTitle,
+          location: card.location,
+          year: card.year,
+          month: card.month,
+          day: card.day,
+          tagline: card.tagline,
+        }}
+      />
+    </div>
+  );
+}
+
+/* ---------------- 메인 페이지 ---------------- */
+
 export default function GalleryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const exhibitionId = Number(id);
@@ -161,8 +233,6 @@ export default function GalleryDetailPage() {
   );
 
   const rec = useMemo(() => asRecord(detail), [detail]);
-
-  const swiperRef = useRef<SwiperClass | null>(null);
 
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
@@ -280,42 +350,52 @@ export default function GalleryDetailPage() {
     return sortedCards.slice(0, visibleCount);
   }, [sortedCards, visibleCount]);
 
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
   useEffect(
     function setupObserver() {
-      let io: IntersectionObserver | null = null;
-
-      function handleIntersect(entries: IntersectionObserverEntry[]): void {
+      const handleIntersect = function handleIntersect(
+        entries: IntersectionObserverEntry[],
+      ): void {
         const entry = entries[0];
         if (entry && entry.isIntersecting) {
           setVisibleCount(function increase(prev) {
             const tentativeNext = prev + 8;
             const maxLen = sortedCards.length;
-            const newCount: number =
-              tentativeNext > maxLen ? maxLen : tentativeNext;
-            return newCount;
+            return tentativeNext > maxLen ? maxLen : tentativeNext;
           });
         }
+      };
+
+      if (observerRef.current !== null) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
       }
 
-      if (selectedIndex === null && loadMoreRef.current) {
-        io = new IntersectionObserver(handleIntersect, {
+      if (
+        selectedIndex === null &&
+        loadMoreRef.current !== null &&
+        visibleCount < sortedCards.length
+      ) {
+        observerRef.current = new IntersectionObserver(handleIntersect, {
           root: null,
           rootMargin: '200px 0px 0px 0px',
           threshold: 0,
         });
 
-        io.observe(loadMoreRef.current);
+        observerRef.current.observe(loadMoreRef.current);
       }
 
-      function cleanup(): void {
-        if (io) {
-          io.disconnect();
+      const cleanup = function cleanup(): void {
+        if (observerRef.current !== null) {
+          observerRef.current.disconnect();
+          observerRef.current = null;
         }
-      }
+      };
 
       return cleanup;
     },
-    [sortedCards.length, selectedIndex, loadMoreRef],
+    [selectedIndex, visibleCount, sortedCards.length],
   );
 
   const handleCardClick = useCallback(
@@ -328,6 +408,11 @@ export default function GalleryDetailPage() {
     [sortedCards],
   );
 
+  const currentCard = useMemo(() => {
+    if (selectedIndex === null) return null;
+    return sortedCards[selectedIndex] ?? null;
+  }, [selectedIndex, sortedCards]);
+
   return (
     <div className="pb-[4rem]">
       <Header
@@ -338,100 +423,15 @@ export default function GalleryDetailPage() {
 
       <div className="flex flex-col gap-[4rem]">
         {selectedIndex === null ? (
-          <>
-            <div className="px-[2.4rem]">{infoNode}</div>
-
-            <div
-              className={cn(
-                visibleCards.length === 0
-                  ? 'grid grid-cols-1'
-                  : 'grid grid-cols-2',
-                'gap-[1.2rem] px-[2.4rem]',
-              )}
-            >
-              {visibleCards.map(art => (
-                <ExhibitionCard
-                  key={art.id}
-                  imageUrl={art.imageUrl}
-                  title={art.title}
-                  subTitle={art.subTitle}
-                  showArrow
-                  onClick={() => handleCardClick(art.id)}
-                  isSelected={false}
-                />
-              ))}
-
-              <div
-                ref={loadMoreRef}
-                className="col-span-2 flex w-full items-center justify-center py-[2rem]"
-                aria-hidden="true"
-              >
-                {visibleCards.length < sortedCards.length && (
-                  <div className="text-gray-50 ct4" />
-                )}
-              </div>
-            </div>
-          </>
+          <ListSection
+            infoNode={infoNode}
+            visibleCards={visibleCards}
+            sortedCardsLength={sortedCards.length}
+            loadMoreRef={loadMoreRef}
+            onCardClick={handleCardClick}
+          />
         ) : (
-          <>
-            <div className="w-full px-[2.4rem] pt-[4rem]">
-              <Swiper
-                effect="coverflow"
-                grabCursor
-                centeredSlides
-                slidesPerView="auto"
-                onSlideChange={swiper => {
-                  setSelectedIndex(swiper.realIndex);
-                }}
-                initialSlide={selectedIndex}
-                onSwiper={swiper => {
-                  swiperRef.current = swiper;
-                }}
-                coverflowEffect={{
-                  rotate: 45,
-                  stretch: 0,
-                  depth: 150,
-                  modifier: 1,
-                  slideShadows: false,
-                }}
-                modules={[EffectCoverflow]}
-              >
-                {sortedCards.map(art => (
-                  <SwiperSlide
-                    key={art.id}
-                    className="flex w-[36rem] justify-center"
-                  >
-                    <GalleryCardDetail
-                      data={{
-                        paintingId: art.id,
-                        imageUrl: art.imageUrl,
-                        title: art.title,
-                        subTitle: art.subTitle,
-                        location: art.location,
-                        year: art.year,
-                        month: art.month,
-                        day: art.day,
-                        tagline: art.tagline,
-                      }}
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-
-            <div className="z-10 mt-[-2rem] flex justify-center">
-              <IndicatorDots
-                count={sortedCards.length}
-                activeIndex={selectedIndex}
-                onDotClick={index => {
-                  setSelectedIndex(index);
-                  if (swiperRef.current) {
-                    swiperRef.current.slideTo(index);
-                  }
-                }}
-              />
-            </div>
-          </>
+          <DetailSection card={currentCard} />
         )}
       </div>
     </div>
