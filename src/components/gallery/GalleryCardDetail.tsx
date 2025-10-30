@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { FiMessageCircle } from 'react-icons/fi';
+import { BsChatFill } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 
 import MoreIcon from '@/assets/icons/card-more.svg?react';
@@ -70,9 +70,10 @@ export default function GalleryCardDetail({ data }: Props) {
               type="button"
               onClick={goChat}
               aria-label="작품 대화로 이동"
-              className="absolute right-[2.0rem] top-[2.0rem] rounded-full bg-black/35 p-[0.8rem] backdrop-blur hover:bg-black/45 focus:outline-none"
+              className="absolute right-[2.0rem] top-[2.0rem] flex items-center gap-[0.5rem] rounded-[8px] bg-black/35 px-[1.2rem] py-[0.5rem] backdrop-blur hover:bg-black/45 focus:outline-none"
             >
-              <FiMessageCircle className="h-[2.2rem] w-[2.2rem] text-white" />
+              <BsChatFill className="h-[1.5rem] w-[1.5rem] text-white" />
+              <span className="text-white ct4">채팅 보기</span>
             </button>
 
             <div className="absolute bottom-0 left-0 w-full rounded-b-2xl bg-gradient-to-b from-sky-800/0 to-blue-500 px-[2.4rem] py-[2.4rem] text-gray-0">

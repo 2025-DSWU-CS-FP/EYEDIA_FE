@@ -13,8 +13,6 @@ import useExhibitionVisitDetail from '@/services/queries/useExhibitionVisitDetai
 import cn from '@/utils/cn';
 import s3ToHttp from '@/utils/url';
 
-/* ---------------- util helpers (동일) ---------------- */
-
 type Rec = Record<string, unknown>;
 
 function asRecord(v: unknown): Rec | undefined {
@@ -42,7 +40,7 @@ function countGraphemes(s: string): number {
       return Array.from(seg.segment(s)).length;
     }
   } catch {
-    /* ignore */
+    /*  */
   }
   return Array.from(s).length;
 }
@@ -218,8 +216,6 @@ function DetailSection({ card }: { card: CardItem | null }) {
     </div>
   );
 }
-
-/* ---------------- 메인 페이지 ---------------- */
 
 export default function GalleryDetailPage() {
   const { id } = useParams<{ id: string }>();
