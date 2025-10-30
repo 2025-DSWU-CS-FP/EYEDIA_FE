@@ -19,6 +19,8 @@ function hasMessage(x: unknown): x is { message: string } {
   );
 }
 
+let isRedirecting = false;
+
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('accessToken');
@@ -40,16 +42,38 @@ axiosInstance.interceptors.response.use(
       url.includes('/login') ||
       url.includes('/auth/refresh') ||
       url.includes('/token/refresh');
-    if (status === 403 && !skipRedirect) {
-      const data = error.response?.data;
-      const serverMsg = hasMessage(data)
-        ? data.message
-        : '세션이 만료되었어요. 다시 로그인해 주세요.';
-      showGlobalToast(serverMsg, 'error');
+
+    const data = error.response?.data;
+    const serverMsg = hasMessage(data) ? data.message : undefined;
+
+    if (status === 403 && !skipRedirect && !isRedirecting) {
+      showGlobalToast(
+        serverMsg ?? '세션이 만료되었어요. 다시 로그인해 주세요.',
+        'error',
+      );
+      isRedirecting = true;
       redirectToLogin();
+      return Promise.reject(error);
     }
 
-    if (status === undefined) {
+    if (
+      typeof status === 'number' &&
+      status >= 500 &&
+      status < 600 &&
+      !skipRedirect &&
+      !isRedirecting
+    ) {
+      showGlobalToast(
+        serverMsg ?? '서버 오류가 발생했습니다. 다시 로그인해 주세요.',
+        'error',
+      );
+      isRedirecting = true;
+      redirectToLogin();
+      return Promise.reject(error);
+    }
+
+    if (status === undefined && !skipRedirect && !isRedirecting) {
+      isRedirecting = true;
       redirectToLogin();
     }
 

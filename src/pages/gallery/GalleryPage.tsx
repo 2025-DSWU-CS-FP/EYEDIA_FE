@@ -51,10 +51,19 @@ export default function GalleryPage() {
   const [filter, setFilter] = useState<'전체' | '즐겨찾기'>('전체');
   const [sort, setSort] = useState<'최신순' | '날짜순'>('최신순');
 
+  const emptyTitle =
+    filter === '즐겨찾기'
+      ? '즐겨찾기한 전시가 없어요.'
+      : '아직 방문한 전시가 없어요.';
+
+  const emptyDescription =
+    filter === '즐겨찾기'
+      ? '마음에 드는 전시를 즐겨찾기에 추가해 보세요.'
+      : '관람한 전시가 여기에 모여요.';
+
   const navigate = useNavigate();
   const handleSelect = (id: number | string) => navigate(`/gallery/${id}`);
 
-  // 부드러운 첫 진입 로딩
   const [bootLoading, setBootLoading] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setBootLoading(false), 300);
@@ -106,10 +115,7 @@ export default function GalleryPage() {
   } else {
     gridContent = (
       <div className="py-[10rem]">
-        <Empty
-          title="아직 즐겨 찾는 전시가 없어요."
-          description="좋아하는 전시를 추가해 보세요."
-        />
+        <Empty title={emptyTitle} description={emptyDescription} />
       </div>
     );
   }

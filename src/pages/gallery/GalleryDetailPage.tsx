@@ -15,6 +15,7 @@ import Header from '@/layouts/Header';
 import useAddBookmark from '@/services/mutations/useAddBookmark';
 import useRemoveBookmark from '@/services/mutations/useRemoveBookmark';
 import useExhibitionVisitDetail from '@/services/queries/useExhibitionVisitDetail';
+import redirectToLogin from '@/utils/authRedirect';
 import cn from '@/utils/cn';
 import s3ToHttp from '@/utils/url';
 
@@ -123,6 +124,12 @@ export default function GalleryDetailPage() {
   const [bookmarked, setBookmarked] = useState(false);
 
   useEffect(() => {
+    if (isError && !detail) {
+      redirectToLogin();
+    }
+  }, [isError, detail]);
+
+  useEffect(() => {
     const b = pickBool(rec, ['bookmark', 'bookmarked', 'isBookmarked']);
     if (typeof b === 'boolean') setBookmarked(b);
   }, [rec]);
@@ -181,13 +188,6 @@ export default function GalleryDetailPage() {
         <div className="animate-pulse h-[9.6rem] w-full rounded-[12px] bg-gray-10" />
       );
     }
-    if (isError && !detail) {
-      return (
-        <div className="rounded-[12px] bg-red-50 p-[1.2rem] text-red-500 ct4">
-          전시 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.
-        </div>
-      );
-    }
     return (
       <ExhibitionInfoCard
         thumbnail={info.thumbnail}
@@ -200,15 +200,7 @@ export default function GalleryDetailPage() {
         compactTitle={compactTitle}
       />
     );
-  }, [
-    loading,
-    isError,
-    detail,
-    info,
-    compactTitle,
-    bookmarked,
-    handleBookmarkToggle,
-  ]);
+  }, [loading, info, compactTitle, bookmarked, handleBookmarkToggle]);
 
   const cards: CardItem[] = useMemo(() => {
     const list = detail?.paintings ?? [];

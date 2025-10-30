@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,7 @@ import RecentArtwork from '@/components/main/RecentArtwork';
 import SectionHeader from '@/components/main/SectionHeader';
 import useScrapsByExhibition from '@/services/queries/useScrapsByExhibition';
 import type { RecentArtworkSectionProps } from '@/types';
+import redirectToLogin from '@/utils/authRedirect';
 import { ensureImage } from '@/utils/image';
 
 type Props = {
@@ -50,6 +51,12 @@ export default function RecentArtworkSection({
       })),
     [data],
   );
+
+  useEffect(() => {
+    if (isError && !data) {
+      redirectToLogin();
+    }
+  }, [isError, data]);
 
   const providedItems = useMemo<Item[]>(
     () => (artworks ?? []).slice(0, MAX_SHOW),
@@ -114,12 +121,6 @@ export default function RecentArtworkSection({
                 </div>
               ))
             : list.map(renderItem)}
-        </div>
-      )}
-
-      {useApi && isError && (
-        <div className="px-[0.4rem] text-center text-red-500 ct3">
-          목록을 불러오지 못했어요.
         </div>
       )}
     </section>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import { IoMedalOutline } from 'react-icons/io5';
 
@@ -7,6 +7,7 @@ import Header from '@/layouts/Header';
 import useMyBadges from '@/services/queries/useMyBadges';
 import type { UIBadge, UIBadgeStatus } from '@/types';
 import mapMyBadgesToUI, { formatBadgeTitleFromItem } from '@/types/badgeMapper';
+import redirectToLogin from '@/utils/authRedirect';
 
 type TabKey = 'all' | UIBadgeStatus;
 type ApiStatus = 'ACHIEVED' | 'IN_PROGRESS' | 'LOCKED';
@@ -58,21 +59,18 @@ export default function MyBadgePage() {
     [tab],
   );
 
-  // ① 전체 데이터(상단 카드 고정용)
   const {
     data: allData,
     isFetching: loadingAll,
     isError: errorAll,
   } = useMyBadges();
 
-  // ② 탭 전용 데이터(목록용) — all이면 호출 막기
   const {
     data: tabData,
     isFetching: loadingTab,
     isError: errorTab,
   } = useMyBadges(apiStatus, { enabled: tab !== 'all' });
 
-  // 목록에 쓸 데이터 선택
   const listData = tab === 'all' ? allData : tabData;
   const isLoading = tab === 'all' ? loadingAll : loadingTab;
   const isError = tab === 'all' ? errorAll : errorTab;
@@ -82,7 +80,12 @@ export default function MyBadgePage() {
     [listData],
   );
 
-  // 상단 카드는 "항상 전체 데이터" 기준
+  useEffect(() => {
+    if (isError) {
+      redirectToLogin();
+    }
+  }, [isError]);
+
   const earnedCount = allData?.acquired ?? 0;
   const totalCount = allData?.total ?? 0;
   const nextTargetTitle = formatBadgeTitleFromItem(allData?.nextTarget);
