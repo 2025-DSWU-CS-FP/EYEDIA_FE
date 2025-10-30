@@ -5,7 +5,6 @@ import { Swiper as SwiperClass } from 'swiper';
 import { EffectCoverflow } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-import Empty from '@/components/common/Empty';
 import ExhibitionCard from '@/components/gallery/ExhibitionCard';
 import ExhibitionInfoCard from '@/components/gallery/ExhibitionInfoCard';
 import GalleryCardDetail from '@/components/gallery/GalleryCardDetail';
@@ -15,7 +14,6 @@ import Header from '@/layouts/Header';
 import useAddBookmark from '@/services/mutations/useAddBookmark';
 import useRemoveBookmark from '@/services/mutations/useRemoveBookmark';
 import useExhibitionVisitDetail from '@/services/queries/useExhibitionVisitDetail';
-import redirectToLogin from '@/utils/authRedirect';
 import cn from '@/utils/cn';
 import s3ToHttp from '@/utils/url';
 
@@ -24,18 +22,25 @@ import 'swiper/css/effect-coverflow';
 
 type Rec = Record<string, unknown>;
 
-const asRecord = (v: unknown): Rec | undefined =>
-  v && typeof v === 'object' ? (v as Rec) : undefined;
+function asRecord(v: unknown): Rec | undefined {
+  if (v && typeof v === 'object') {
+    return v as Rec;
+  }
+  return undefined;
+}
 
-const pickBool = (rec: Rec | undefined, keys: readonly string[]) =>
-  keys.map(k => rec?.[k]).find((v): v is boolean => typeof v === 'boolean');
+function pickBool(rec: Rec | undefined, keys: readonly string[]) {
+  return keys
+    .map(k => rec?.[k])
+    .find((v): v is boolean => typeof v === 'boolean');
+}
 
 type SegmenterCtor = new (
   locale?: string,
   options?: { granularity?: 'grapheme' | 'word' | 'sentence' },
 ) => { segment(input: string): Iterable<unknown> };
 
-const countGraphemes = (s: string): number => {
+function countGraphemes(s: string): number {
   if (!s) return 0;
   try {
     const { Segmenter } = Intl as unknown as { Segmenter?: SegmenterCtor };
@@ -44,33 +49,41 @@ const countGraphemes = (s: string): number => {
       return Array.from(seg.segment(s)).length;
     }
   } catch {
-    /* */
+    /*  */
   }
   return Array.from(s).length;
-};
+}
 
-const withExt = (url: string): string =>
-  /\.(jpg|jpeg|png|webp|gif|svg)(\?|#|$)/i.test(url) ? url : `${url}.jpg`;
+function withExt(url: string): string {
+  return /\.(jpg|jpeg|png|webp|gif|svg)(\?|#|$)/i.test(url)
+    ? url
+    : `${url}.jpg`;
+}
 
-const pickDisplayDate = (
+function pickDisplayDate(
   visitedAt?: string,
   exhibitionDate?: string,
-): Date | null => {
+): Date | null {
   if (visitedAt) return new Date(visitedAt);
   const start = exhibitionDate?.split('~')[0]?.trim();
   return start ? new Date(start) : null;
-};
+}
 
 type YMD = { year: string; month: string; day: string };
 
-const fmtYMD = (d: Date | null): YMD => {
-  if (!d || Number.isNaN(d.getTime())) return { year: '', month: '', day: '' };
-  return {
-    year: String(d.getFullYear()),
-    month: String(d.getMonth() + 1).padStart(2, '0'),
-    day: String(d.getDate()).padStart(2, '0'),
-  };
-};
+function fmtYMD(d: Date | null): YMD {
+  if (!d || Number.isNaN(d.getTime())) {
+    return { year: '', month: '', day: '' };
+  }
+  const yyyy = String(d.getFullYear());
+  const mmNum = d.getMonth() + 1;
+  const ddNum = d.getDate();
+
+  const mm = mmNum.toString().padStart(2, '0');
+  const dd = ddNum.toString().padStart(2, '0');
+
+  return { year: yyyy, month: mm, day: dd };
+}
 
 const TITLE_COMPACT_THRESHOLD = 42;
 
@@ -91,47 +104,83 @@ const TAGLINES: Record<string, string> = {
   monet: '바람과 빛이 스쳐 지나가는 한순간의 공기.',
   latour: '명암 속에 숨은 속임수, 교차하는 시선의 심리전.',
 };
-const pickTagline = (title: string): string => {
+
+function pickTagline(title: string): string {
   const t = title.toLowerCase();
-  if (t.includes('dance class') || t.includes('무용수업'))
+  if (t.includes('dance class') || t.includes('무용수업')) {
     return TAGLINES.degas;
-  if (t.includes('woman with a parasol') || t.includes('양산을 쓴 여인'))
+  }
+  if (t.includes('woman with a parasol') || t.includes('양산을 쓴 여인')) {
     return TAGLINES.monet;
+  }
   if (
     t.includes('card sharp') ||
     t.includes('사기꾼') ||
     t.includes('ace of diamonds')
-  )
+  ) {
     return TAGLINES.latour;
+  }
   return '작품이 전하는 감각을 당신의 시선으로 완성하세요.';
-};
+}
+
+function mapPaintingsToCards(
+  paintings:
+    | Array<{
+        paintingId: number;
+        image: string;
+        paintingTitle: string;
+        paintingAuthor: string;
+      }>
+    | undefined,
+  location: string,
+  ymd: YMD,
+): CardItem[] {
+  if (!paintings) return [];
+  return paintings.map(p => ({
+    id: p.paintingId,
+    imageUrl: s3ToHttp(withExt(p.image ?? '')),
+    title: p.paintingTitle ?? '',
+    subTitle: p.paintingAuthor ?? '',
+    location,
+    year: ymd.year,
+    month: ymd.month,
+    day: ymd.day,
+    tagline: pickTagline(p.paintingTitle ?? ''),
+  }));
+}
 
 export default function GalleryDetailPage() {
   const { id } = useParams<{ id: string }>();
   const exhibitionId = Number(id);
+
   const { showToast } = useToast();
 
-  const {
-    data: detail,
-    isFetching: loading,
-    isError,
-  } = useExhibitionVisitDetail(exhibitionId, Number.isFinite(exhibitionId));
+  const { data: detail, isFetching: loading } = useExhibitionVisitDetail(
+    exhibitionId,
+    Number.isFinite(exhibitionId),
+  );
 
   const rec = useMemo(() => asRecord(detail), [detail]);
 
   const swiperRef = useRef<SwiperClass | null>(null);
+
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
   const [bookmarked, setBookmarked] = useState(false);
 
+  const [visibleCount, setVisibleCount] = useState<number>(8);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (isError && !detail) {
-      redirectToLogin();
-    }
-  }, [isError, detail]);
+    setSelectedIndex(null);
+    setVisibleCount(20);
+  }, [exhibitionId]);
 
   useEffect(() => {
     const b = pickBool(rec, ['bookmark', 'bookmarked', 'isBookmarked']);
-    if (typeof b === 'boolean') setBookmarked(b);
+    if (typeof b === 'boolean') {
+      setBookmarked(b);
+    }
   }, [rec]);
 
   const addBookmark = useAddBookmark(exhibitionId);
@@ -140,11 +189,14 @@ export default function GalleryDetailPage() {
 
   const handleBookmarkToggle = useCallback(() => {
     if (!Number.isFinite(exhibitionId) || bookmarking) return;
+
     if (bookmarked) {
       setBookmarked(false);
       removeBookmark.mutate(undefined, {
-        onSuccess: () => showToast('즐겨찾기를 해제했어요.', 'success'),
-        onError: () => {
+        onSuccess() {
+          showToast('즐겨찾기를 해제했어요.', 'success');
+        },
+        onError() {
           setBookmarked(true);
           showToast('즐겨찾기 해제에 실패했어요.', 'error');
         },
@@ -152,8 +204,10 @@ export default function GalleryDetailPage() {
     } else {
       setBookmarked(true);
       addBookmark.mutate(undefined, {
-        onSuccess: () => showToast('즐겨찾기에 추가했어요.', 'success'),
-        onError: () => {
+        onSuccess() {
+          showToast('즐겨찾기에 추가했어요.', 'success');
+        },
+        onError() {
           setBookmarked(false);
           showToast('즐겨찾기 추가에 실패했어요.', 'error');
         },
@@ -188,6 +242,7 @@ export default function GalleryDetailPage() {
         <div className="animate-pulse h-[9.6rem] w-full rounded-[12px] bg-gray-10" />
       );
     }
+
     return (
       <ExhibitionInfoCard
         thumbnail={info.thumbnail}
@@ -202,29 +257,76 @@ export default function GalleryDetailPage() {
     );
   }, [loading, info, compactTitle, bookmarked, handleBookmarkToggle]);
 
-  const cards: CardItem[] = useMemo(() => {
-    const list = detail?.paintings ?? [];
-    const base = fmtYMD(
-      pickDisplayDate(detail?.visitedAt, detail?.exhibitionDate),
+  const ymdBase = useMemo<YMD>(() => {
+    const baseDate = pickDisplayDate(detail?.visitedAt, detail?.exhibitionDate);
+    return fmtYMD(baseDate);
+  }, [detail?.visitedAt, detail?.exhibitionDate]);
+
+  const rawCards = useMemo<CardItem[]>(() => {
+    return mapPaintingsToCards(
+      detail?.paintings,
+      detail?.gallery ?? '',
+      ymdBase,
     );
-    const location = detail?.gallery ?? '';
-    return list.map(p => ({
-      id: p.paintingId,
-      imageUrl: s3ToHttp(withExt(p.image)),
-      title: p.paintingTitle,
-      subTitle: p.paintingAuthor,
-      location,
-      year: base.year,
-      month: base.month,
-      day: base.day,
-      tagline: pickTagline(p.paintingTitle),
-    }));
-  }, [
-    detail?.paintings,
-    detail?.gallery,
-    detail?.visitedAt,
-    detail?.exhibitionDate,
-  ]);
+  }, [detail?.paintings, detail?.gallery, ymdBase]);
+
+  const sortedCards = useMemo<CardItem[]>(() => {
+    const arr = [...rawCards];
+    arr.sort((a, b) => b.id - a.id);
+    return arr;
+  }, [rawCards]);
+
+  const visibleCards = useMemo<CardItem[]>(() => {
+    return sortedCards.slice(0, visibleCount);
+  }, [sortedCards, visibleCount]);
+
+  useEffect(
+    function setupObserver() {
+      let io: IntersectionObserver | null = null;
+
+      function handleIntersect(entries: IntersectionObserverEntry[]): void {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          setVisibleCount(function increase(prev) {
+            const tentativeNext = prev + 8;
+            const maxLen = sortedCards.length;
+            const newCount: number =
+              tentativeNext > maxLen ? maxLen : tentativeNext;
+            return newCount;
+          });
+        }
+      }
+
+      if (selectedIndex === null && loadMoreRef.current) {
+        io = new IntersectionObserver(handleIntersect, {
+          root: null,
+          rootMargin: '200px 0px 0px 0px',
+          threshold: 0,
+        });
+
+        io.observe(loadMoreRef.current);
+      }
+
+      function cleanup(): void {
+        if (io) {
+          io.disconnect();
+        }
+      }
+
+      return cleanup;
+    },
+    [sortedCards.length, selectedIndex, loadMoreRef],
+  );
+
+  const handleCardClick = useCallback(
+    (cardId: number) => {
+      const idx = sortedCards.findIndex(a => a.id === cardId);
+      if (idx >= 0) {
+        setSelectedIndex(idx);
+      }
+    },
+    [sortedCards],
+  );
 
   return (
     <div className="pb-[4rem]">
@@ -233,35 +335,41 @@ export default function GalleryDetailPage() {
         showBackButton
         backgroundColorClass="bg-gray-5"
       />
+
       <div className="flex flex-col gap-[4rem]">
         {selectedIndex === null ? (
           <>
             <div className="px-[2.4rem]">{infoNode}</div>
+
             <div
               className={cn(
-                cards.length === 0 ? 'grid grid-cols-1' : 'grid grid-cols-2',
+                visibleCards.length === 0
+                  ? 'grid grid-cols-1'
+                  : 'grid grid-cols-2',
                 'gap-[1.2rem] px-[2.4rem]',
               )}
             >
-              {cards.length === 0 ? (
-                <div className="py-[5rem]">
-                  <Empty title="등록된 작품이 없어요." />
-                </div>
-              ) : (
-                cards.map(art => (
-                  <ExhibitionCard
-                    key={art.id}
-                    imageUrl={art.imageUrl}
-                    title={art.title}
-                    subTitle={art.subTitle}
-                    showArrow
-                    onClick={() =>
-                      setSelectedIndex(cards.findIndex(a => a.id === art.id))
-                    }
-                    isSelected={false}
-                  />
-                ))
-              )}
+              {visibleCards.map(art => (
+                <ExhibitionCard
+                  key={art.id}
+                  imageUrl={art.imageUrl}
+                  title={art.title}
+                  subTitle={art.subTitle}
+                  showArrow
+                  onClick={() => handleCardClick(art.id)}
+                  isSelected={false}
+                />
+              ))}
+
+              <div
+                ref={loadMoreRef}
+                className="col-span-2 flex w-full items-center justify-center py-[2rem]"
+                aria-hidden="true"
+              >
+                {visibleCards.length < sortedCards.length && (
+                  <div className="text-gray-50 ct4" />
+                )}
+              </div>
             </div>
           </>
         ) : (
@@ -272,8 +380,10 @@ export default function GalleryDetailPage() {
                 grabCursor
                 centeredSlides
                 slidesPerView="auto"
-                onSlideChange={swiper => setSelectedIndex(swiper.realIndex)}
-                initialSlide={selectedIndex ?? 0}
+                onSlideChange={swiper => {
+                  setSelectedIndex(swiper.realIndex);
+                }}
+                initialSlide={selectedIndex}
                 onSwiper={swiper => {
                   swiperRef.current = swiper;
                 }}
@@ -286,7 +396,7 @@ export default function GalleryDetailPage() {
                 }}
                 modules={[EffectCoverflow]}
               >
-                {cards.map(art => (
+                {sortedCards.map(art => (
                   <SwiperSlide
                     key={art.id}
                     className="flex w-[36rem] justify-center"
@@ -308,13 +418,16 @@ export default function GalleryDetailPage() {
                 ))}
               </Swiper>
             </div>
+
             <div className="z-10 mt-[-2rem] flex justify-center">
               <IndicatorDots
-                count={cards.length}
-                activeIndex={selectedIndex ?? 0}
+                count={sortedCards.length}
+                activeIndex={selectedIndex}
                 onDotClick={index => {
                   setSelectedIndex(index);
-                  swiperRef.current?.slideTo(index);
+                  if (swiperRef.current) {
+                    swiperRef.current.slideTo(index);
+                  }
                 }}
               />
             </div>
