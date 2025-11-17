@@ -208,7 +208,9 @@ export default function GazePage() {
 
       {conflict && (
         <ConfirmModal
-          message="이전에 동일한 작품으로 채팅한 기록이 있습니다. 이어서 채팅하시겠습니까?"
+          message={
+            '이전에 동일한 작품으로 채팅한 기록이 있습니다.\n이어서 채팅하시겠습니까?'
+          }
           onConfirm={handleContinueOldChat}
           onCancel={handleStartNewChatFromConflict}
           confirmText="예"
