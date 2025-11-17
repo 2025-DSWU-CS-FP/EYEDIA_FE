@@ -164,16 +164,12 @@ export default function ChatHistoryPage(): JSX.Element {
   const endRef = useRef<HTMLDivElement>(null);
 
   const { state } = useLocation() as { state?: ChatState };
+  const paintingId = useMemo(() => {
+    const n = Number(state?.paintingId);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  }, [state?.paintingId]);
 
   const didInitialScrollRef = useRef(false);
-
-  const paintingId = useMemo(
-    function getPid(): number | null {
-      const n = Number(state?.paintingId);
-      return Number.isFinite(n) && n > 0 ? n : null;
-    },
-    [state?.paintingId],
-  );
 
   const queryResult = useChatMessages(paintingId ?? 0);
   const { data, isError } = queryResult;

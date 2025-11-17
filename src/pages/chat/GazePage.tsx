@@ -114,26 +114,16 @@ export default function GazePage() {
 
     setConflict(null);
 
-    navigate('/chat-artwork', {
+    navigate(`/chat/${lastChatroomId}`, {
       state: {
         paintingId: lastChatroomId,
         title: s?.title,
-        artist: s?.artist,
-        imgUrl: s?.imgUrl,
-        description: s?.description,
-        exhibition: s?.exhibition,
+        author: s?.artist,
+        imageUrl: s?.imgUrl,
       },
       replace: true,
     });
-  }, [
-    conflict,
-    navigate,
-    s?.artist,
-    s?.description,
-    s?.exhibition,
-    s?.imgUrl,
-    s?.title,
-  ]);
+  }, [conflict, navigate, s?.artist, s?.imgUrl, s?.title]);
 
   const handleStartNewChatFromConflict = useCallback(() => {
     if (!conflict) return;
