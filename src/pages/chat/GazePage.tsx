@@ -142,23 +142,18 @@ export default function GazePage() {
 
     setConflict(null);
 
-    confirmPainting(newChatroomId, {
-      onSuccess: () => {
-        navigate('/chat-artwork', {
-          state: {
-            paintingId: newChatroomId,
-            title: s?.title,
-            artist: s?.artist,
-            imgUrl: s?.imgUrl,
-            description: s?.description,
-            exhibition: s?.exhibition,
-          },
-          replace: true,
-        });
+    navigate('/chat-artwork', {
+      state: {
+        paintingId: newChatroomId,
+        title: s?.title,
+        artist: s?.artist,
+        imgUrl: s?.imgUrl,
+        description: s?.description,
+        exhibition: s?.exhibition,
       },
+      replace: true,
     });
   }, [
-    confirmPainting,
     conflict,
     navigate,
     s?.artist,
