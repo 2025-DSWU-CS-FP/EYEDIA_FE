@@ -4,9 +4,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import Sample from '@/assets/images/chat/image1.jpg';
 import Button from '@/components/common/Button';
+import ConfirmModal from '@/components/common/ConfirmModal';
 import useStompChat from '@/hooks/use-stomp-chat';
 import Header from '@/layouts/Header';
-import useConfirmPainting from '@/services/mutations/useConfirmPainting';
+import useConfirmPainting, {
+  ConfirmPaintingError,
+  ConfirmPaintingConflictResult,
+} from '@/services/mutations/useConfirmPainting';
 
 type LocationState = {
   userId?: string;
@@ -32,6 +36,9 @@ export default function GazePage() {
   );
 
   const [minSpinDone, setMinSpinDone] = useState(false);
+  const [conflict, setConflict] =
+    useState<ConfirmPaintingConflictResult | null>(null);
+
   useEffect(() => {
     const t = window.setTimeout(() => setMinSpinDone(true), 2000);
     return () => window.clearTimeout(t);
@@ -58,9 +65,10 @@ export default function GazePage() {
   );
 
   const handleStartConversation = useCallback(() => {
-    if (pid < 0) return;
+    if (pid < 0 || isPending) return;
+
     confirmPainting(pid, {
-      onSettled: () => {
+      onSuccess: () => {
         navigate('/chat-artwork', {
           state: {
             paintingId: pid,
@@ -73,11 +81,71 @@ export default function GazePage() {
           replace: true,
         });
       },
+      onError: error => {
+        if (
+          error instanceof ConfirmPaintingError &&
+          error.status === 409 &&
+          error.payload.code === 'PAINTING409'
+        ) {
+          setConflict(error.payload);
+        }
+      },
     });
   }, [
     confirmPainting,
+    isPending,
     navigate,
     pid,
+    s?.artist,
+    s?.description,
+    s?.exhibition,
+    s?.imgUrl,
+    s?.title,
+  ]);
+
+  const handleContinueOldChat = useCallback(() => {
+    if (!conflict) return;
+
+    const {
+      result: { history },
+    } = conflict;
+
+    const lastChatroomId = history[history.length - 1];
+
+    setConflict(null);
+
+    navigate(`/chat/${lastChatroomId}`, {
+      state: {
+        paintingId: lastChatroomId,
+        title: s?.title,
+        author: s?.artist,
+        imageUrl: s?.imgUrl,
+      },
+      replace: true,
+    });
+  }, [conflict, navigate, s?.artist, s?.imgUrl, s?.title]);
+
+  const handleStartNewChatFromConflict = useCallback(() => {
+    if (!conflict) return;
+
+    const newChatroomId = conflict.result.newChatroom;
+
+    setConflict(null);
+
+    navigate('/chat-artwork', {
+      state: {
+        paintingId: newChatroomId,
+        title: s?.title,
+        artist: s?.artist,
+        imgUrl: s?.imgUrl,
+        description: s?.description,
+        exhibition: s?.exhibition,
+      },
+      replace: true,
+    });
+  }, [
+    conflict,
+    navigate,
     s?.artist,
     s?.description,
     s?.exhibition,
@@ -136,6 +204,18 @@ export default function GazePage() {
             대화 시작하기
           </Button>
         </div>
+      )}
+
+      {conflict && (
+        <ConfirmModal
+          message={
+            '이전에 동일한 작품으로 채팅한 기록이 있습니다.\n이어서 채팅하시겠습니까?'
+          }
+          onConfirm={handleContinueOldChat}
+          onCancel={handleStartNewChatFromConflict}
+          confirmText="예"
+          cancelText="아니오"
+        />
       )}
     </div>
   );
